@@ -2,11 +2,12 @@
 * 系统：macOS Sierra 10.12.1
 * Docker版本：Docker version 1.12.3, build 6b644ec
 * 《Docker —— 从入门到实践》PDF版本：6448a627f6c4a9f0ca762951f390d3f9a571d310
+* 本文记录：在学习Docker的过程以及尝试中碰到的问题。
 
 -------
 -------
 
-# 问题列表 
+# 《Docker —— 从入门到实践》碰到的问题：
 1. 执行`docker run -d -p 80:80 --name webserver nginx`报错：`docker: Cannot connect to the Docker daemon. Is the docker daemon running on this host?.`
 
     * 原因：TODO
@@ -39,9 +40,17 @@
 -------
 
        
-# 服务发现的选择 Etcd VS Consul
+# 服务发现的选择
 
 ### 目前考虑选择Etcd：
+
+主要有3种选择：    
+
+* Etcd
+* Consul
+* ZooKeeper
+
+选择Etcd的原因如下：
 
 * `CoreOS` 发起的开源项目
 * `K8s` 对etcd的官方支持
