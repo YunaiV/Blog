@@ -3,6 +3,9 @@
 * Docker版本：Docker version 1.12.3, build 6b644ec
 * 《Docker —— 从入门到实践》PDF版本：6448a627f6c4a9f0ca762951f390d3f9a571d310
 
+-------
+-------
+
 # 问题列表 
 1. 执行`docker run -d -p 80:80 --name webserver nginx`报错：`docker: Cannot connect to the Docker daemon. Is the docker daemon running on this host?.`
 
@@ -30,5 +33,35 @@
         > [/db:/web/db]
         
         示例成功。
+ 
+ 
+-------
+-------
+
        
-5. 测试
+# 服务发现的选择 Etcd VS Consul
+
+### 目前考虑选择Etcd：
+
+* `CoreOS` 发起的开源项目
+* `K8s` 对etcd的官方支持
+
+-------
+
+### Etcd本地测试集群搭建
+    
+* 参考文章：https://github.com/coreos/etcd/blob/master/Documentation/dev-guide/local_cluster.md  
+* 可能会碰到的问题： 
+    1. go安装：`yum install go`
+    2. git安装：`yum install git`
+    3. `go get github.com/mattn/goreman` 报错：`package github.com/mattn/goreman: cannot download, $GOPATH not set. For more details see: go help gopath`。
+    
+        解决方式：`export GOPATH=~/work`。然后执行上面的命令。最终`goreman`在`~/work/bin`下。
+    4. `goreman -f Procfile start`报错：`open Procfile: no such file or directory`。从[https://github.com/coreos/etcd/blob/master/Procfile](https://github.com/coreos/etcd/blob/master/Procfile)进行下载。下载完后，需要修改下文件里的`bin/etcd`为`etcd`所在目录。
+
+-------
+
+### Etcd多服务器集群搭建     
+
+
+
