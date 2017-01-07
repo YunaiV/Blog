@@ -74,3 +74,23 @@
 
 
 
+    curl -X PUT http://127.0.0.1:2379/v2/keys/upstreams/test/127.0.0.1:8080
+
+
+curl -X PUT -d value="{\"weight\":1, \"max_fails\":100, \"fail_timeout\":1000}" http://127.0.0.1:2379/v2/keys/upstreams/test/127.0.0.1:8080
+
+
+    curl -X DELETE http://127.0.0.1:2379/v2/keys/upstreams/test/127.0.0.1:8080
+
+    curl -X DELETE http://127.0.0.1:2379/v2/keys/upstreams/test/127.0.0.1:8080;
+    cat conf/servers/servers_test.conf;
+
+./configure --add-module=/root/nginx/nginx-1.10.1/modules/nginx-upsync-module --add-module=/root/nginx/nginx-1.10.1/modules/nginx_upstream_check_module-0.3.0
+
+./configure --add-module=/root/nginx/nginx-1.10.1/modules/nginx-upsync-module --add-module=/root/nginx/nginx-1.10.1/modules/nginx_upstream_check_module
+
+05.24：https://github.com/weibocom/nginx-upsync-module/releases/tag/v1.0.0
+07.31修复：https://github.com/weibocom/nginx-upsync-module/issues/91
+自己提交的issue：https://github.com/weibocom/nginx-upsync-module/issues/133
+
+
