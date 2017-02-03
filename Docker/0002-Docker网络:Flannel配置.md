@@ -83,7 +83,7 @@ $ ping 10.1.97.2
 
 ##D. 性能
 
-![](image/0002/F7429465-2334-48C6-B84E-4C7FC735F5F9)
+![](images/0002/F7429465-2334-48C6-B84E-4C7FC735F5F9.png)
 （来自文章[干货|你想要的百分点大规模Kubernetes集群的应用实践来了](http://mp.weixin.qq.com/s?__biz=MjM5MzI5NjY2MA==&mid=2653782073&idx=1&sn=6db70559acabae67e35e13af7883e1d5&chksm=bd4018428a37915415ffda36c4f9f5e31088063ef3ad83e325d3e4ecd4eccf8d202709ac9629&mpshare=1&scene=1&srcid=0203g7cy4y9XpVhqA9fr5PGp#rd)）
 
 ##E. 碰到的问题
