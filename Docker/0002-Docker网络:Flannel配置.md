@@ -6,6 +6,7 @@ todo flannel简介
 
 ##B. 安装Flannel
 
+基于CentOS 7.2
 
 ### 1. 下载Flannel
 
@@ -83,8 +84,18 @@ $ ping 10.1.97.2
 
 ##D. 性能
 
-![](images/0002/F7429465-2334-48C6-B84E-4C7FC735F5F9.png)
+* ![](images/0002/F7429465-2334-48C6-B84E-4C7FC735F5F9.png)
 （来自文章[干货|你想要的百分点大规模Kubernetes集群的应用实践来了](http://mp.weixin.qq.com/s?__biz=MjM5MzI5NjY2MA==&mid=2653782073&idx=1&sn=6db70559acabae67e35e13af7883e1d5&chksm=bd4018428a37915415ffda36c4f9f5e31088063ef3ad83e325d3e4ecd4eccf8d202709ac9629&mpshare=1&scene=1&srcid=0203g7cy4y9XpVhqA9fr5PGp#rd)）
+
+* ![](images/0002/0BF283C9-C26C-46C1-9BDA-604EAD67B2E2.png)
+（来自文章[Weave is kinda slow](http://www.generictestdomain.net/docker/weave/networking/stupidity/2015/04/05/weave-is-kinda-slow/）
+
+* [Docker或Kubernets的网络模型](http://www.do1618.com/archives/869)
+
+* [Kubernets,Flannel,Docker网络性能深度测试](http://pangxiekr.com/kubernetsflannel-wang-luo-xing-neng-ce-shi-ji-diao-you/)
+
+总结的话：host-gw > vxlan > udp。
+kubernetes在阿里云已经有host-gw + vpc的支持。
 
 ##E. 碰到的问题
 1. Flannel刚安装好，配置完Docker后，启动的Container无法被ping通，而Docker0的IP可以被ping通。
