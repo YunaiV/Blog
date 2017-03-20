@@ -1,6 +1,6 @@
 todo flannel简介
 
-##A. 安装Etcd
+## A. 安装Etcd
 
 😉网络上一大抄，我相信你能找到。
 
@@ -76,13 +76,13 @@ $ ping 10.1.97.2
 # ping通即配置成功！
 ```
 
-##C. 原理
+## C. 原理
 
 1. [浅析flannel与docker结合的机制和原理](https://xuxinkun.github.io/2016/07/18/flannel-docker/)
 2. [DockOne技术分享（十八）：一篇文章带你了解Flannel
 ](http://dockone.io/article/618)
 
-##D. 性能
+## D. 性能
 
 * ![](images/0002/F7429465-2334-48C6-B84E-4C7FC735F5F9.png)
 （来自文章[干货|你想要的百分点大规模Kubernetes集群的应用实践来了](http://mp.weixin.qq.com/s?__biz=MjM5MzI5NjY2MA==&mid=2653782073&idx=1&sn=6db70559acabae67e35e13af7883e1d5&chksm=bd4018428a37915415ffda36c4f9f5e31088063ef3ad83e325d3e4ecd4eccf8d202709ac9629&mpshare=1&scene=1&srcid=0203g7cy4y9XpVhqA9fr5PGp#rd)）
@@ -97,7 +97,7 @@ $ ping 10.1.97.2
 总结的话：host-gw > vxlan > udp。
 kubernetes在阿里云已经有host-gw + vpc的支持。
 
-##E. 碰到的问题
+## E. 碰到的问题
 1. Flannel刚安装好，配置完Docker后，启动的Container无法被ping通，而Docker0的IP可以被ping通。
     TODO: 已解决，但是原因未知。目前猜测Kubernetes可能对Flannel第一次初始化有些影响。
     * 新开一台服务器，重新安装并进行配置(yum安装docker1.12版本），未重现该情况。出问题的机子都安装过Kubernetes。
@@ -106,7 +106,7 @@ kubernetes在阿里云已经有host-gw + vpc的支持。
     
 
 
-##F. 参考文章列表
+## F. 参考文章列表
 
 1. [Dokcer 使用 Flannel 跨主机通讯](https://mritd.me/2016/09/03/Dokcer-%E4%BD%BF%E7%94%A8-Flannel-%E8%B7%A8%E4%B8%BB%E6%9C%BA%E9%80%9A%E8%AE%AF/)
 2. [kubernetes入门1：kubernetes+flannel+etcd环境搭建(通用安装)](http://zdevops.blog.51cto.com/2579684/1735492)
