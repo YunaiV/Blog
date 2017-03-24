@@ -8,3 +8,22 @@
 * 了解 MQ 消息存储，特别是磁盘 IO 部分
 * **最重要的**，希望通过阅读源码，在技术上的认知和能力上，有新的突破
 
+## 步骤
+
+* namesrv、brokersrv 启动
+* producer 连接初始化
+* consumer 连接初始化
+* 消息模型
+* producer 发消息
+* brokersrv 收消息
+* brokersrv 发消息
+* consumer 收消息（多消费者）
+* consuer 消息确认
+* broker 队列模型
+* broker store 消息存储
+* broker store 消息同步
+* 顺序消息
+* 事务消息
+* 定时消息
+* pub/sub模型
+* 主从
