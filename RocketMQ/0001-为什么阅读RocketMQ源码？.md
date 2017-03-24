@@ -10,7 +10,7 @@
 
 ## 步骤
 
-* namesrv、brokersrv 启动
+[ ] namesrv、brokersrv 启动
 * producer 连接初始化
 * consumer 连接初始化
 * 消息模型
