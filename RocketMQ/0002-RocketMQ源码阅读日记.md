@@ -17,7 +17,7 @@
        ![Namesrv 注册 Broker 代码](images/0002/D38F6CD6-79DF-4997-B611-13D4CE902A52.png)
        调整 上述 Broker 启动代码，增加`System.setProperty(RemotingCommand.REMOTING_VERSION_KEY, Integer.toString(MQVersion.CURRENT_VERSION));`
        使用上述 Producer 发送消息，发送成功。
-       最终 Broker代码 ：[BrokerControllerTest#testBrokerRestart](https://github.com/YunaiV/incubator-rocketmq/blob/11f4362eae26a558ee3cbe5a2db976bc6495f2c3/broker/src/test2/java/org/apache/rocketmq/broker/yunai/BrokerControllerTest.java)
+       最终 Broker 代码 ：[BrokerControllerTest#testBrokerRestart](https://github.com/YunaiV/incubator-rocketmq/blob/11f4362eae26a558ee3cbe5a2db976bc6495f2c3/broker/src/test2/java/org/apache/rocketmq/broker/yunai/BrokerControllerTest.java)
 
 - [ ] 
 

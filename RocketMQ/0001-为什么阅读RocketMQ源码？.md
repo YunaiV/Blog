@@ -10,13 +10,13 @@
 
 ## 步骤
 
-- [ ] namesrv、brokersrv 启动
+- [ ] namesrv、broker 启动
 - [ ] producer 连接初始化
 - [ ] consumer 连接初始化
 - [ ] 消息模型
 - [ ] producer 发消息
-- [ ] brokersrv 收消息
-- [ ] brokersrv 发消息
+- [ ] broker 收消息
+- [ ] broker 发消息
 - [ ] consumer 收消息（多消费者）
 - [ ] consuer 消息确认
 - [ ] broker 队列模型
@@ -27,3 +27,4 @@
 - [ ] 定时消息
 - [ ] pub/sub模型
 - [ ] 主从
+- [ ] filtersrv 过滤消息
