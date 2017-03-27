@@ -25,7 +25,24 @@
 * TODO
     * broker集群注册
 
+## 移除注册 Broker
 
+* 协议号：104
+* 枚举值：UNREGISTER_BROKER
+* 场景：
+    * Broker => Namesrv
+* 时间
+    * Broker 关闭时
+* 请求
+    * header
+       * clusterName ： 集群名
+       * brokerName ： broker名
+       * brokerAddr ：broker地址
+       * brokerId ： broker角色编号
+   * body
+* 响应
+    * header
+    * body
 
 
  
