@@ -10,7 +10,8 @@
 
 ## 步骤
 
-- [ ] namesrv、broker 启动
+- [ ] namesrv 启动
+- [ ] broker 启动
 - [ ] producer 连接初始化
 - [ ] consumer 连接初始化
 - [ ] 消息模型
@@ -18,7 +19,7 @@
 - [ ] broker 收消息
 - [ ] broker 发消息
 - [ ] consumer 收消息（多消费者）
-- [ ] consuer 消息确认
+- [ ] consumer 消息确认
 - [ ] broker 队列模型
 - [ ] broker store 消息存储
 - [ ] broker store 消息同步
