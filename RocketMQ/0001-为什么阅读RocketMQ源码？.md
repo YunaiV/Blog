@@ -29,3 +29,4 @@
 - [ ] pub/sub模型
 - [ ] 主从
 - [ ] filtersrv 过滤消息
+- [ ] remoting 调用（server、client）
