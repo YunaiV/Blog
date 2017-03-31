@@ -21,6 +21,7 @@
 - [ ] broker 发消息
 - [ ] consumer 收消息（多消费者）
 - [ ] consumer 消息确认
+- [ ] consumer 负载均衡
 - [ ] broker 队列模型
 - [ ] broker store 消息存储
 - [ ] broker store 消息同步
@@ -28,6 +29,8 @@
 - [ ] 事务消息
 - [ ] 定时消息
 - [ ] pub/sub模型
-- [ ] 主从
+- [ ] namesrv 主从
+- [ ] broker 主从 
 - [ ] filtersrv 过滤消息
 - [ ] remoting 调用（server、client）
+- [ ] 跨机房
