@@ -15,6 +15,7 @@
 - [ ] producer 连接初始化
 - [ ] consumer 连接初始化
 - [ ] 消息模型
+    - [ ] 消息唯一编号
 - [ ] producer 发消息
 - [ ] broker 收消息
 - [ ] broker 发消息
