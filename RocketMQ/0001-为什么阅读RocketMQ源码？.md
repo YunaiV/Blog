@@ -19,7 +19,9 @@
 - [ ] producer 发消息
 - [ ] broker 收消息
 - [ ] broker 发消息
-- [ ] consumer 收消息（多消费者）
+- [ ] consumer 收消息
+    - [ ] 多消费者
+    - [ ] 重试消息
 - [ ] consumer 消息确认
 - [ ] consumer 负载均衡
 - [ ] broker 队列模型
