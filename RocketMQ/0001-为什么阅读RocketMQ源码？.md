@@ -12,8 +12,8 @@
 
 - [ ] namesrv 启动
 - [ ] broker 启动
-- [ ] producer 连接初始化
-- [ ] consumer 连接初始化
+- [ ] producer 启动
+- [ ] consumer 启动
 - [ ] 消息模型
     - [ ] 消息唯一编号
 - [ ] producer 发消息
@@ -36,3 +36,4 @@
 - [ ] filtersrv 过滤消息
 - [ ] remoting 调用（server、client）
 - [ ] 跨机房
+- [ ] Hook 机制
