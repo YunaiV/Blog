@@ -1,3 +1,14 @@
+## 拉取消息
+
+* 协议号：20
+* 枚举值：PULL_MESSAGE
+* 场景：
+    * Consumer => Broker
+* 请求
+    * header
+        * consumerGroup ：消费者分组
+        * 
+
 ## 注册 Broker
 
 * 协议号：103
