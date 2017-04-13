@@ -1,3 +1,6 @@
+[Consumer发送消息序列图](images/1001/Consumer发送消息序列图_1.png)
+
+-------
 
 下面是 `MQClientInstance.java` 的 `updateTopicRouteInfoFromNameServer()` 方法。
 
@@ -47,6 +50,7 @@
 * 第 31 至 34 行：逐个 Topic 更新
 
 -------
+
 
 
 
