@@ -1,4 +1,4 @@
-[Consumer发送消息序列图](images/1001/Consumer发送消息序列图_1.png)
+![Consumer发送消息序列图](images/1001/Consumer发送消息序列图_1.png)
 
 -------
 
