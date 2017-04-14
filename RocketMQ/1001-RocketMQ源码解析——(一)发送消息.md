@@ -7,7 +7,7 @@
 * `Namesrv`：提供消息路由(*TopicRoute*)。
 * `Broker`：接收消息、持久化消息。
 
-TODO 此处有一图
+    > ![Producer发送消息全局顺序图](images/1001/Producer发送消息全局顺序图.png)
 
 在开始解析具体的代码实现，我们来看下 `Producer` 、`Namesrv` 、`Broker` 的调用顺序图，先有全局的了解。
 
@@ -20,16 +20,26 @@ TODO 此处有一图
 * `Broker` 接收发送消息API顺序图：
     > ![接收发送消息API顺序图](images/1001/Broker接收发送消息API顺序图.png)
 
-* `Broker` 存储发送消息：
+* `Broker` 存储发送消息顺序图：
     > ![Broker存储发送消息顺序图](images/1001/Broker存储发送消息顺序图.png)
 
-## `Producer` 发送消息序列图
+## `Producer` 发送消息
 
-###### *DefaultMQProducer#send()*
+###### *DefaultMQProducer#send(Message)*
 
+```Java
+  1: @Override
+  2: public SendResult send(Message msg) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {
+  3:     return this.defaultMQProducerImpl.send(msg);
+  4: }
+```
 
+* 说明：发送同步消息，`DefaultMQProducer#send(Message)` 对 `DefaultMQProducerImpl#send(Message)` 进行封装。  
 
 ###### *DefaultMQProducerImpl#sendDefaultImpl()*
+
+```Java
+```
 
 ###### *MQClientInstance#tryToFindTopicPublishInfo()*
 
@@ -92,6 +102,8 @@ TODO 此处有一图
 
 
 -------
+
+
 
 
 
