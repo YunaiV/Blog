@@ -11,10 +11,17 @@ TODO 此处有一图
 
 在开始解析具体的代码实现，我们来看下 `Producer` 、`Namesrv` 、`Broker` 的调用顺序图，先有全局的了解。
 
-* ![Consumer发送消息序列图](images/1001/Consumer发送消息序列图_1.png)
-* ![Producer查询Topic路由信息API](images/1001/Producer查询Topic路由信息API.png)
-* TODO Broker 接收消息
-* TODO Broker 持久化消息
+* `Consumer` 发送消息序列图：
+    > ![Consumer发送消息序列图](images/1001/Consumer发送消息序列图_1.png)
+
+* `Producer` 查询Topic路由信息API：
+    > ![Producer查询Topic路由信息API](images/1001/Producer查询Topic路由信息API.png)
+    
+* `Broker` 接收发送消息API：
+    > ![Broker接收发送消息API](images/1001/Broker接收发送消息API.png)
+
+* `Broker` 存储发送消息：
+    > ![Broker存储发送消息](images/1001/存储发送消息.png)
 
 ## `Producer` 获取路由信息
 
