@@ -83,7 +83,7 @@
  42:                     // 调用发送消息核心方法
  43:                     sendResult = this.sendKernelImpl(msg, mq, communicationMode, sendCallback, topicPublishInfo, timeout);
  44:                     endTimestamp = System.currentTimeMillis();
- 45:                     // 更新故障信息
+ 45:                     // 更新Broker可用性信息
  46:                     this.updateFaultItem(mq.getBrokerName(), endTimestamp - beginTimestampPrev, false);
  47:                     switch (communicationMode) {
  48:                         case ASYNC:
@@ -100,21 +100,21 @@
  59:                         default:
  60:                             break;
  61:                     }
- 62:                 } catch (RemotingException e) { // 打印异常，更新故障信息，更新继续循环
+ 62:                 } catch (RemotingException e) { // 打印异常，更新Broker可用性信息，更新继续循环
  63:                     endTimestamp = System.currentTimeMillis();
  64:                     this.updateFaultItem(mq.getBrokerName(), endTimestamp - beginTimestampPrev, true);
  65:                     log.warn(String.format("sendKernelImpl exception, resend at once, InvokeID: %s, RT: %sms, Broker: %s", invokeID, endTimestamp - beginTimestampPrev, mq), e);
  66:                     log.warn(msg.toString());
  67:                     exception = e;
  68:                     continue;
- 69:                 } catch (MQClientException e) { // 打印异常，更新故障信息，继续循环
+ 69:                 } catch (MQClientException e) { // 打印异常，更新Broker可用性信息，继续循环
  70:                     endTimestamp = System.currentTimeMillis();
  71:                     this.updateFaultItem(mq.getBrokerName(), endTimestamp - beginTimestampPrev, true);
  72:                     log.warn(String.format("sendKernelImpl exception, resend at once, InvokeID: %s, RT: %sms, Broker: %s", invokeID, endTimestamp - beginTimestampPrev, mq), e);
  73:                     log.warn(msg.toString());
  74:                     exception = e;
  75:                     continue;
- 76:                 } catch (MQBrokerException e) { // 打印异常，更新故障信息，部分情况下的异常，直接返回，结束循环
+ 76:                 } catch (MQBrokerException e) { // 打印异常，更新Broker可用性信息，部分情况下的异常，直接返回，结束循环
  77:                     endTimestamp = System.currentTimeMillis();
  78:                     this.updateFaultItem(mq.getBrokerName(), endTimestamp - beginTimestampPrev, true);
  79:                     log.warn(String.format("sendKernelImpl exception, resend at once, InvokeID: %s, RT: %sms, Broker: %s", invokeID, endTimestamp - beginTimestampPrev, mq), e);
@@ -177,15 +177,23 @@
 136:         null).setResponseCode(ClientErrorCode.NOT_FOUND_TOPIC_EXCEPTION);
 137: }
 ```
-* 说明：发送消息。步骤：获取消息路由信息，选择要发送到的消息队列，执行消息发送。
+* 说明 ：发送消息。步骤：获取消息路由信息，选择要发送到的消息队列，执行消息发送核心方法，并对发送结果进行封装返回。
 * 第 1 行 到 第 7 行：对`sendsendDefaultImpl(...)`进行封装。
 * 第 20 行 ：`invokeID`仅仅用于打印日志，无实际的业务用途。
 * 第 25 行 ：获取 Topic路由信息， 详细解析见：[DefaultMQProducerImpl#tryToFindTopicPublishInfo()](#defaultmqproducerimpltrytofindtopicpublishinfo)
-* 
+* 第 30 行 & 第 34 行 ：计算调用发送消息到成功为止的最大次数，并进行循环。当且仅当同步发送消息会调用多次，默认配置为3次。
+* 第 36 行 ：选择消息要发送到的队列，详细解析见：[MQFaultStrategy](#mqfaultstrategy)
+* 第 43 行 ：调用发送消息核心方法，详细解析见：[DefaultMQProducerImpl#tryToFindTopicPublishInfo()](#defaultmqproducerimpltrytofindtopicpublishinfo)
+* 第 46 行 ：更新`Broker`可用性信息。在选择发送到的消息队列时，会参考`Broker`发送消息的延迟，详细解析见：[MQFaultStrategy](#mqfaultstrategy)
+* 第 62 行 至 第 68 行：当抛出`RemotingException`时，如果进行消息发送失败重试，则**可能导致消息发送重复**。例如，发送消息超时(`RemotingTimeoutException`)，实际`Broker`接收到该消息并处理成功。因此，`Consumer`在消费时，需要保证幂等性。
 
 ###### DefaultMQProducerImpl#tryToFindTopicPublishInfo()
 
-###### MQClientInstance#tryToFindTopicPublishInfo()
+TODO
+
+###### MQFaultStrategy
+
+TODO
 
 ###### MQClientInstance#updateTopicRouteInfoFromNameServer()
  
