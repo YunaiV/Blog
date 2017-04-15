@@ -167,9 +167,7 @@
 * 第 25 行 ：获取 Topic路由信息， 详细解析见：[DefaultMQProducerImpl#tryToFindTopicPublishInfo()](#defaultmqproducerimpltrytofindtopicpublishinfo)
 * 第 30 行 & 第 34 行 ：计算调用发送消息到成功为止的最大次数，并进行循环。当且仅当同步发送消息会调用多次，默认配置为3次。
 * 第 36 行 ：选择消息要发送到的队列，详细解析见：[MQFaultStrategy](#mqfaultstrategy)
-* 第 43 行 ：调用发送消息核心方法，详细解析见：[DefaultMQProducerImpl#sendKernelImpl()](#defaultmqproducerimplsendkernelimpl
-```
-```)
+* 第 43 行 ：调用发送消息核心方法，详细解析见：[DefaultMQProducerImpl#sendKernelImpl()](#defaultmqproducerimplsendkernelimpl)
 * 第 46 行 ：更新`Broker`可用性信息。在选择发送到的消息队列时，会参考`Broker`发送消息的延迟，详细解析见：[MQFaultStrategy](#mqfaultstrategy)
 * 第 62 行 至 第 68 行：当抛出`RemotingException`时，如果进行消息发送失败重试，则**可能导致消息发送重复**。例如，发送消息超时(`RemotingTimeoutException`)，实际`Broker`接收到该消息并处理成功。因此，`Consumer`在消费时，需要保证幂等性。
 
