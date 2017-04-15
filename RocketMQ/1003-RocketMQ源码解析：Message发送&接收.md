@@ -1,13 +1,9 @@
-## 前言
+# 概述
 
-本文主要解析 `Producer` **同步**发送消息源码，涉及到 异步/Oneway发送消息，事务消息会跳过。
+1. `Producer` 发送消息
+2. `Broker` 接收消息 
 
-当 `Producer` 发送消息时，会涉及到：
-
-* `Namesrv`：提供消息路由(*TopicRoute*)。
-* `Broker`：接收消息、持久化消息。
-
-    > ![Producer发送消息全局顺序图](images/1001/Producer发送消息全局顺序图.png)
+> ![Producer发送消息全局顺序图](images/1003/Producer发送消息全局顺序图.png)
 
 在开始解析具体的代码实现，我们来看下 `Producer` 、`Namesrv` 、`Broker` 的调用顺序图，先有全局的了解。
 
@@ -23,9 +19,9 @@
 * `Broker` 存储发送消息顺序图：
     > ![Broker存储发送消息顺序图](images/1001/Broker存储发送消息顺序图.png)
 
-## `Producer` 发送消息
+# `Producer` 发送消息
 
-###### DefaultMQProducer#send(Message)
+## DefaultMQProducer#send(Message)
 
 ```Java
   1: @Override
@@ -36,7 +32,7 @@
 
 * 说明：发送同步消息，`DefaultMQProducer#send(Message)` 对 `DefaultMQProducerImpl#send(Message)` 进行封装。  
 
-###### DefaultMQProducerImpl#sendDefaultImpl()
+## DefaultMQProducerImpl#sendDefaultImpl()
 
 ```Java
   1: public SendResult send(Message msg) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {
@@ -187,15 +183,15 @@
 * 第 46 行 ：更新`Broker`可用性信息。在选择发送到的消息队列时，会参考`Broker`发送消息的延迟，详细解析见：[MQFaultStrategy](#mqfaultstrategy)
 * 第 62 行 至 第 68 行：当抛出`RemotingException`时，如果进行消息发送失败重试，则**可能导致消息发送重复**。例如，发送消息超时(`RemotingTimeoutException`)，实际`Broker`接收到该消息并处理成功。因此，`Consumer`在消费时，需要保证幂等性。
 
-###### DefaultMQProducerImpl#tryToFindTopicPublishInfo()
+### DefaultMQProducerImpl#tryToFindTopicPublishInfo()
 
 TODO
 
-###### MQFaultStrategy
+### MQFaultStrategy
 
 TODO
 
-###### MQClientInstance#updateTopicRouteInfoFromNameServer()
+### MQClientInstance#updateTopicRouteInfoFromNameServer()
  
 ```Java
 1: private void updateTopicRouteInfoFromNameServer() {
