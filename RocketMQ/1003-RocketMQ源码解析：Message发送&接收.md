@@ -1,25 +1,13 @@
-# 概述
+# 1、概述
 
-1. `Producer` 发送消息
-2. `Broker` 接收消息 
+1. `Producer` 发送消息。主要是**同步**发送消息源码，涉及到 异步/Oneway发送消息，事务消息会跳过。
+2. `Broker` 接收消息。(*存储消息在另外的文章解析*)
 
 > ![Producer发送消息全局顺序图](images/1003/Producer发送消息全局顺序图.png)
 
-在开始解析具体的代码实现，我们来看下 `Producer` 、`Namesrv` 、`Broker` 的调用顺序图，先有全局的了解。
+# 2、Producer 发送消息
 
-* `Producer` 发送消息顺序图：
-    > ![Producer发送消息顺序图](images/1001/Producer发送消息顺序图.png)
-
-* `Namesrv` 查询Topic路由信息API顺序图：
-    > ![Namesrv查询Topic路由信息API顺序图](images/1001/Namesrv查询Topic路由信息API顺序图.png)
-    
-* `Broker` 接收发送消息API顺序图：
-    > ![接收发送消息API顺序图](images/1001/Broker接收发送消息API顺序图.png)
-
-* `Broker` 存储发送消息顺序图：
-    > ![Broker存储发送消息顺序图](images/1001/Broker存储发送消息顺序图.png)
-
-# `Producer` 发送消息
+ > ![Producer发送消息顺序图](images/1003/Producer发送消息顺序图.png)
 
 ## DefaultMQProducer#send(Message)
 
@@ -179,7 +167,9 @@
 * 第 25 行 ：获取 Topic路由信息， 详细解析见：[DefaultMQProducerImpl#tryToFindTopicPublishInfo()](#defaultmqproducerimpltrytofindtopicpublishinfo)
 * 第 30 行 & 第 34 行 ：计算调用发送消息到成功为止的最大次数，并进行循环。当且仅当同步发送消息会调用多次，默认配置为3次。
 * 第 36 行 ：选择消息要发送到的队列，详细解析见：[MQFaultStrategy](#mqfaultstrategy)
-* 第 43 行 ：调用发送消息核心方法，详细解析见：[DefaultMQProducerImpl#tryToFindTopicPublishInfo()](#defaultmqproducerimpltrytofindtopicpublishinfo)
+* 第 43 行 ：调用发送消息核心方法，详细解析见：[DefaultMQProducerImpl#sendKernelImpl()](#defaultmqproducerimplsendkernelimpl
+```
+```)
 * 第 46 行 ：更新`Broker`可用性信息。在选择发送到的消息队列时，会参考`Broker`发送消息的延迟，详细解析见：[MQFaultStrategy](#mqfaultstrategy)
 * 第 62 行 至 第 68 行：当抛出`RemotingException`时，如果进行消息发送失败重试，则**可能导致消息发送重复**。例如，发送消息超时(`RemotingTimeoutException`)，实际`Broker`接收到该消息并处理成功。因此，`Consumer`在消费时，需要保证幂等性。
 
@@ -191,65 +181,13 @@ TODO
 
 TODO
 
-### MQClientInstance#updateTopicRouteInfoFromNameServer()
- 
-```Java
-1: private void updateTopicRouteInfoFromNameServer() {
-2:     Set<String> topicList = new HashSet<String>();
-3:     // Consumer 获取topic数组
-4:     {
-5:         Iterator<Entry<String, MQConsumerInner>> it = this.consumerTable.entrySet().iterator();
-6:         while (it.hasNext()) {
-7:             Entry<String, MQConsumerInner> entry = it.next();
-8:             MQConsumerInner impl = entry.getValue();
-9:             if (impl != null) {
-10:                 Set<SubscriptionData> subList = impl.subscriptions();
-11:                 if (subList != null) {
-12:                     for (SubscriptionData subData : subList) {
-13:                         topicList.add(subData.getTopic());
-14:                     }
-15:                 }
-16:             }
-17:         }
-18:     }
-19:     // Producer 获取topic数组
-20:     {
-21:         Iterator<Entry<String, MQProducerInner>> it = this.producerTable.entrySet().iterator();
-22:         while (it.hasNext()) {
-23:             Entry<String, MQProducerInner> entry = it.next();
-24:             MQProducerInner impl = entry.getValue();
-25:             if (impl != null) {
-26:                 Set<String> lst = impl.getPublishTopicList();
-27:                 topicList.addAll(lst);
-28:             }
-29:         }
-30:     }
-31:     // 逐个topic更新
-32:     for (String topic : topicList) {
-33:         this.updateTopicRouteInfoFromNameServer(topic);
-34:     }
-35: }
-```
+### DefaultMQProducerImpl#sendKernelImpl()
 
-上述代码中
+TODO
 
-* 目的：从 `Namesrv` 获取 Topic路由信息，并更新本地缓存。
-* 第 3 至 18 行：`Consumer` 获取topic数组
-* 第 19 至 30 行：`Producer` 获取topic数组
-* 第 31 至 34 行：逐个 Topic 更新
+# 3、Broker 接收消息
 
-## `Producer` 发送消息
-
-## `Broker` 存储消息
-
-
--------
-
-下面是 `MQClientInstance.java` 的 `updateTopicRouteInfoFromNameServer()` 方法。
-
-
-
--------
+> ![接收发送消息API顺序图](images/1003/Broker接收发送消息API顺序图.png)
 
 
 
