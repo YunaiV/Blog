@@ -1,7 +1,7 @@
 # 1、概述
 
 1. `Producer` 发送消息。主要是**同步**发送消息源码，涉及到 异步/Oneway发送消息，事务消息会跳过。
-2. `Broker` 接收消息。(*存储消息在另外的文章解析*)
+2. `Broker` 接收消息。(*存储消息在[《RocketMQ源码解析：Message存储》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1004-RocketMQ源码解析：Message存储.md)解析*)
 
 > ![Producer发送消息全局顺序图](images/1003/Producer发送消息全局顺序图.png)
 
@@ -162,18 +162,41 @@
 137: }
 ```
 * 说明 ：发送消息。步骤：获取消息路由信息，选择要发送到的消息队列，执行消息发送核心方法，并对发送结果进行封装返回。
-* 第 1 行 到 第 7 行：对`sendsendDefaultImpl(...)`进行封装。
+* 第 1  至 7 行：对`sendsendDefaultImpl(...)`进行封装。
 * 第 20 行 ：`invokeID`仅仅用于打印日志，无实际的业务用途。
 * 第 25 行 ：获取 Topic路由信息， 详细解析见：[DefaultMQProducerImpl#tryToFindTopicPublishInfo()](#defaultmqproducerimpltrytofindtopicpublishinfo)
-* 第 30 行 & 第 34 行 ：计算调用发送消息到成功为止的最大次数，并进行循环。当且仅当同步发送消息会调用多次，默认配置为3次。
+* 第 30 & 34 行 ：计算调用发送消息到成功为止的最大次数，并进行循环。当且仅当同步发送消息会调用多次，默认配置为3次。
 * 第 36 行 ：选择消息要发送到的队列，详细解析见：[MQFaultStrategy](#mqfaultstrategy)
 * 第 43 行 ：调用发送消息核心方法，详细解析见：[DefaultMQProducerImpl#sendKernelImpl()](#defaultmqproducerimplsendkernelimpl)
 * 第 46 行 ：更新`Broker`可用性信息。在选择发送到的消息队列时，会参考`Broker`发送消息的延迟，详细解析见：[MQFaultStrategy](#mqfaultstrategy)
-* 第 62 行 至 第 68 行：当抛出`RemotingException`时，如果进行消息发送失败重试，则**可能导致消息发送重复**。例如，发送消息超时(`RemotingTimeoutException`)，实际`Broker`接收到该消息并处理成功。因此，`Consumer`在消费时，需要保证幂等性。
+* 第 62 至 68 行：当抛出`RemotingException`时，如果进行消息发送失败重试，则**可能导致消息发送重复**。例如，发送消息超时(`RemotingTimeoutException`)，实际`Broker`接收到该消息并处理成功。因此，`Consumer`在消费时，需要保证幂等性。
 
 ### DefaultMQProducerImpl#tryToFindTopicPublishInfo()
 
-TODO
+```Java
+  1: private TopicPublishInfo tryToFindTopicPublishInfo(final String topic) {
+  2:     // 缓存中获取 Topic发布信息
+  3:     TopicPublishInfo topicPublishInfo = this.topicPublishInfoTable.get(topic);
+  4:     // 当无可用的 Topic发布信息时，从Namesrv获取一次
+  5:     if (null == topicPublishInfo || !topicPublishInfo.ok()) {
+  6:         this.topicPublishInfoTable.putIfAbsent(topic, new TopicPublishInfo());
+  7:         this.mQClientFactory.updateTopicRouteInfoFromNameServer(topic);
+  8:         topicPublishInfo = this.topicPublishInfoTable.get(topic);
+  9:     }
+ 10:     // 若获取的 Topic发布信息时候可用，则返回
+ 11:     if (topicPublishInfo.isHaveTopicRouterInfo() || topicPublishInfo.ok()) {
+ 12:         return topicPublishInfo;
+ 13:     } else { // 使用 {@link DefaultMQProducer#createTopicKey} 对应的 Topic发布信息。用于 Topic发布信息不存在 && Broker支持自动创建Topic
+ 14:         this.mQClientFactory.updateTopicRouteInfoFromNameServer(topic, true, this.defaultMQProducer);
+ 15:         topicPublishInfo = this.topicPublishInfoTable.get(topic);
+ 16:         return topicPublishInfo;
+ 17:     }
+ 18: }
+```
+* 说明 ：获得 Topic发布信息。优先从缓存`topicPublishInfoTable`，其次从`Namesrv`中获得。
+* 第 3 行 ：从缓存`topicPublishInfoTable`中获得 Topic发布信息。
+* 第 5 至 9 行 ：从 `Namesrv` 中获得 Topic发布信息。
+* 第 13 至 17 行 ：当从 `Namesrv` 无法获取时，使用 `{@link DefaultMQProducer#createTopicKey}` 对应的 Topic发布信息。目的是当 `Broker` 开启自动创建 Topic开关时，`Broker` 接收到消息后自动创建Topic，详细解析见[《RocketMQ源码解析：Topic》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1001-RocketMQ源码解析：Topic.md)。
 
 ### MQFaultStrategy
 
