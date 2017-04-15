@@ -302,18 +302,17 @@
 * 说明 ：`Producer`消息发送容错策略。默认情况下容错策略关闭，即`sendLatencyFaultEnable=false`。
 * 第 30 至 62 行 ：容错策略选择消息队列逻辑。优先获取可用队列，其次选择一个broker获取队列，最差返回任意broker的一个队列。
 * 第 64 行 ：未开启容错策略选择消息队列逻辑。
-* 第 74 至 79 行 ：更新延迟容错信息。当 `Producer` 发送消息时间过长，则逻辑认为N秒内部可用。按照`latencyMax`，`notAvailableDuration`的配置，对应如下：
+* 第 74 至 79 行 ：更新延迟容错信息。当 `Producer` 发送消息时间过长，则逻辑认为N秒内不可用。按照`latencyMax`，`notAvailableDuration`的配置，对应如下：
 
     | Producer发送消息消耗时长 | Broker不可用时长 |
     | --- | --- |
-    | < 50 ms | 0 ms |
-    | < 100 ms | 0 ms |
-    | < 550 ms | 30 * 1000 ms |
-    | < 1000 ms | 60 * 1000 ms  |
-    | < 2000 ms | 120 * 1000 ms  |
-    | < 3000 ms | 180 * 1000 ms  |
-    | < 15000 ms | 600 * 1000 ms  |
-
+    | >= 15000 ms | 600 * 1000 ms  |
+    | >= 3000 ms | 180 * 1000 ms  |
+    | >= 2000 ms | 120 * 1000 ms  |
+    | >= 1000 ms | 60 * 1000 ms  |
+    | >= 550 ms | 30 * 1000 ms |
+    | >= 100 ms | 0 ms |
+    | >= 50 ms | 0 ms |
 
 #### LatencyFaultTolerance
 
