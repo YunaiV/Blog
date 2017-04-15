@@ -181,8 +181,7 @@
 * 第 1 行 到 第 7 行：对`sendsendDefaultImpl(...)`进行封装。
 * 第 20 行 ：`invokeID`仅仅用于打印日志，无实际的业务用途。
 * 第 25 行 ：获取 Topic路由信息， 详细解析见：[DefaultMQProducerImpl#tryToFindTopicPublishInfo()](#defaultmqproducerimpltrytofindtopicpublishinfo)
-
-[xxx](#DefaultMQProducerImpl#tryToFindTopicPublishInfo())
+* 
 
 ###### DefaultMQProducerImpl#tryToFindTopicPublishInfo()
 
