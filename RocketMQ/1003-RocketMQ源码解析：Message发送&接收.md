@@ -932,11 +932,11 @@
 ```
 * `#processRequest()` 说明 ：处理消息请求。
 * `#sendMessage()` 说明 ：发送消息，并返回发送消息结果。
-* 第 51 至 55 行 ：消息配置(Topic配置）校验，详细解析见：[AbstractSendMessageProcessor#msgCheck](#abstractsendmessageprocessormsgcheck)。
+* 第 51 至 55 行 ：消息配置(Topic配置）校验，详细解析见：[AbstractSendMessageProcessor#msgCheck()](#abstractsendmessageprocessormsgcheck)。
 * 第 60 至 64 行 ：消息队列编号小于0时，`Broker` 可以设置随机选择一个消息队列。
 * 第 72 至 103 行 ：对RETRY类型的消息处理。如果超过最大消费次数，则topic修改成"%DLQ%" + 分组名， 即加  死信队 (Dead Letter Queue)，详细解析见：[《RocketMQ源码解析：Topic》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1001-RocketMQ源码解析：Topic.md)。
 * 第 105 至 118 行 ：创建`MessageExtBrokerInner`。
-* 第 132 ：存储消息，详细解析见：[DefaultMessageStore#putMessage](defaultmessagestoreputmessage)。
+* 第 132 ：存储消息，详细解析见：[DefaultMessageStore#putMessage()](defaultmessagestoreputmessage)。
 * 第 133 至 183 行 ：处理消息发送结果，设置响应结果和提示。
 * 第 186 至 214 行 ：发送成功，响应。这里`doResponse(ctx, request, response)`进行响应，最后`return null`，原因是：响应给 `Producer` 可能发生异常，`#doResponse(ctx, request, response)`捕捉了该异常并输出日志。这样做的话，我们进行排查 `Broker` 接收消息成功后响应是否存在异常会方便很多。
 
