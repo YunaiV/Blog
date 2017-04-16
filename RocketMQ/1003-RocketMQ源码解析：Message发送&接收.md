@@ -165,7 +165,7 @@
 * 第 1  至 7 行：对`sendsendDefaultImpl(...)`进行封装。
 * 第 20 行 ：`invokeID`仅仅用于打印日志，无实际的业务用途。
 * 第 25 行 ：获取 Topic路由信息， 详细解析见：[DefaultMQProducerImpl#tryToFindTopicPublishInfo()](#defaultmqproducerimpltrytofindtopicpublishinfo)
-* 第 30 & 34 行 ：计算调用发送消息到成功为止的最大次数，并进行循环。当且仅当同步发送消息会调用多次，默认配置为3次。
+* 第 30 & 34 行 ：计算调用发送消息到成功为止的最大次数，并进行循环。同步或异步发送消息会调用多次，默认配置为3次。
 * 第 36 行 ：选择消息要发送到的队列，详细解析见：[MQFaultStrategy](#mqfaultstrategy)
 * 第 43 行 ：调用发送消息核心方法，详细解析见：[DefaultMQProducerImpl#sendKernelImpl()](#defaultmqproducerimplsendkernelimpl)
 * 第 46 行 ：更新`Broker`可用性信息。在选择发送到的消息队列时，会参考`Broker`发送消息的延迟，详细解析见：[MQFaultStrategy](#mqfaultstrategy)
@@ -529,7 +529,165 @@
 
 ### DefaultMQProducerImpl#sendKernelImpl()
 
-TODO
+```Java
+  1: private SendResult sendKernelImpl(final Message msg, //
+  2:     final MessageQueue mq, //
+  3:     final CommunicationMode communicationMode, //
+  4:     final SendCallback sendCallback, //
+  5:     final TopicPublishInfo topicPublishInfo, //
+  6:     final long timeout) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {
+  7:     // 获取 broker地址
+  8:     String brokerAddr = this.mQClientFactory.findBrokerAddressInPublish(mq.getBrokerName());
+  9:     if (null == brokerAddr) {
+ 10:         tryToFindTopicPublishInfo(mq.getTopic());
+ 11:         brokerAddr = this.mQClientFactory.findBrokerAddressInPublish(mq.getBrokerName());
+ 12:     }
+ 13:     //
+ 14:     SendMessageContext context = null;
+ 15:     if (brokerAddr != null) {
+ 16:         // 是否使用broker vip通道。broker会开启两个端口对外服务。
+ 17:         brokerAddr = MixAll.brokerVIPChannel(this.defaultMQProducer.isSendMessageWithVIPChannel(), brokerAddr);
+ 18:         byte[] prevBody = msg.getBody(); // 记录消息内容。下面逻辑可能改变消息内容，例如消息压缩。
+ 19:         try {
+ 20:             // 设置唯一编号
+ 21:             MessageClientIDSetter.setUniqID(msg);
+ 22:             // 消息压缩
+ 23:             int sysFlag = 0;
+ 24:             if (this.tryToCompressMessage(msg)) {
+ 25:                 sysFlag |= MessageSysFlag.COMPRESSED_FLAG;
+ 26:             }
+ 27:             // 事务
+ 28:             final String tranMsg = msg.getProperty(MessageConst.PROPERTY_TRANSACTION_PREPARED);
+ 29:             if (tranMsg != null && Boolean.parseBoolean(tranMsg)) {
+ 30:                 sysFlag |= MessageSysFlag.TRANSACTION_PREPARED_TYPE;
+ 31:             }
+ 32:             // hook：发送消息校验
+ 33:             if (hasCheckForbiddenHook()) {
+ 34:                 CheckForbiddenContext checkForbiddenContext = new CheckForbiddenContext();
+ 35:                 checkForbiddenContext.setNameSrvAddr(this.defaultMQProducer.getNamesrvAddr());
+ 36:                 checkForbiddenContext.setGroup(this.defaultMQProducer.getProducerGroup());
+ 37:                 checkForbiddenContext.setCommunicationMode(communicationMode);
+ 38:                 checkForbiddenContext.setBrokerAddr(brokerAddr);
+ 39:                 checkForbiddenContext.setMessage(msg);
+ 40:                 checkForbiddenContext.setMq(mq);
+ 41:                 checkForbiddenContext.setUnitMode(this.isUnitMode());
+ 42:                 this.executeCheckForbiddenHook(checkForbiddenContext);
+ 43:             }
+ 44:             // hook：发送消息前逻辑
+ 45:             if (this.hasSendMessageHook()) {
+ 46:                 context = new SendMessageContext();
+ 47:                 context.setProducer(this);
+ 48:                 context.setProducerGroup(this.defaultMQProducer.getProducerGroup());
+ 49:                 context.setCommunicationMode(communicationMode);
+ 50:                 context.setBornHost(this.defaultMQProducer.getClientIP());
+ 51:                 context.setBrokerAddr(brokerAddr);
+ 52:                 context.setMessage(msg);
+ 53:                 context.setMq(mq);
+ 54:                 String isTrans = msg.getProperty(MessageConst.PROPERTY_TRANSACTION_PREPARED);
+ 55:                 if (isTrans != null && isTrans.equals("true")) {
+ 56:                     context.setMsgType(MessageType.Trans_Msg_Half);
+ 57:                 }
+ 58:                 if (msg.getProperty("__STARTDELIVERTIME") != null || msg.getProperty(MessageConst.PROPERTY_DELAY_TIME_LEVEL) != null) {
+ 59:                     context.setMsgType(MessageType.Delay_Msg);
+ 60:                 }
+ 61:                 this.executeSendMessageHookBefore(context);
+ 62:             }
+ 63:             // 构建发送消息请求
+ 64:             SendMessageRequestHeader requestHeader = new SendMessageRequestHeader();
+ 65:             requestHeader.setProducerGroup(this.defaultMQProducer.getProducerGroup());
+ 66:             requestHeader.setTopic(msg.getTopic());
+ 67:             requestHeader.setDefaultTopic(this.defaultMQProducer.getCreateTopicKey());
+ 68:             requestHeader.setDefaultTopicQueueNums(this.defaultMQProducer.getDefaultTopicQueueNums());
+ 69:             requestHeader.setQueueId(mq.getQueueId());
+ 70:             requestHeader.setSysFlag(sysFlag);
+ 71:             requestHeader.setBornTimestamp(System.currentTimeMillis());
+ 72:             requestHeader.setFlag(msg.getFlag());
+ 73:             requestHeader.setProperties(MessageDecoder.messageProperties2String(msg.getProperties()));
+ 74:             requestHeader.setReconsumeTimes(0);
+ 75:             requestHeader.setUnitMode(this.isUnitMode());
+ 76:             if (requestHeader.getTopic().startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) { // 消息重发Topic
+ 77:                 String reconsumeTimes = MessageAccessor.getReconsumeTime(msg);
+ 78:                 if (reconsumeTimes != null) {
+ 79:                     requestHeader.setReconsumeTimes(Integer.valueOf(reconsumeTimes));
+ 80:                     MessageAccessor.clearProperty(msg, MessageConst.PROPERTY_RECONSUME_TIME);
+ 81:                 }
+ 82:                 String maxReconsumeTimes = MessageAccessor.getMaxReconsumeTimes(msg);
+ 83:                 if (maxReconsumeTimes != null) {
+ 84:                     requestHeader.setMaxReconsumeTimes(Integer.valueOf(maxReconsumeTimes));
+ 85:                     MessageAccessor.clearProperty(msg, MessageConst.PROPERTY_MAX_RECONSUME_TIMES);
+ 86:                 }
+ 87:             }
+ 88:             // 发送消息
+ 89:             SendResult sendResult = null;
+ 90:             switch (communicationMode) {
+ 91:                 case ASYNC:
+ 92:                     sendResult = this.mQClientFactory.getMQClientAPIImpl().sendMessage(//
+ 93:                         brokerAddr, // 1
+ 94:                         mq.getBrokerName(), // 2
+ 95:                         msg, // 3
+ 96:                         requestHeader, // 4
+ 97:                         timeout, // 5
+ 98:                         communicationMode, // 6
+ 99:                         sendCallback, // 7
+100:                         topicPublishInfo, // 8
+101:                         this.mQClientFactory, // 9
+102:                         this.defaultMQProducer.getRetryTimesWhenSendAsyncFailed(), // 10
+103:                         context, //
+104:                         this);
+105:                     break;
+106:                 case ONEWAY:
+107:                 case SYNC:
+108:                     sendResult = this.mQClientFactory.getMQClientAPIImpl().sendMessage(
+109:                         brokerAddr,
+110:                         mq.getBrokerName(),
+111:                         msg,
+112:                         requestHeader,
+113:                         timeout,
+114:                         communicationMode,
+115:                         context,
+116:                         this);
+117:                     break;
+118:                 default:
+119:                     assert false;
+120:                     break;
+121:             }
+122:             // hook：发送消息后逻辑
+123:             if (this.hasSendMessageHook()) {
+124:                 context.setSendResult(sendResult);
+125:                 this.executeSendMessageHookAfter(context);
+126:             }
+127:             // 返回发送结果
+128:             return sendResult;
+129:         } catch (RemotingException e) {
+130:             if (this.hasSendMessageHook()) {
+131:                 context.setException(e);
+132:                 this.executeSendMessageHookAfter(context);
+133:             }
+134:             throw e;
+135:         } catch (MQBrokerException e) {
+136:             if (this.hasSendMessageHook()) {
+137:                 context.setException(e);
+138:                 this.executeSendMessageHookAfter(context);
+139:             }
+140:             throw e;
+141:         } catch (InterruptedException e) {
+142:             if (this.hasSendMessageHook()) {
+143:                 context.setException(e);
+144:                 this.executeSendMessageHookAfter(context);
+145:             }
+146:             throw e;
+147:         } finally {
+148:             msg.setBody(prevBody);
+149:         }
+150:     }
+151:     // broker为空抛出异常
+152:     throw new MQClientException("The broker[" + mq.getBrokerName() + "] not exist", null);
+153: }
+```
+* 说明 ：发送消息核心方法。该方法真正发起网络请求，发送消息给 `Broker`。
+* 第 21 行 ：生产消息编号，详细解析见[《RocketMQ源码解析：Message基础》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1002-RocketMQ源码解析：Message基础.md)。
+* 第 64 至 121 行 ：构建发送消息请求`SendMessageRequestHeader`。
+* 第 107 至 117 行 ：执行 `MQClientInstance#sendMessage(...)` 发起网络请求。
 
 # 3、Broker 接收消息
 
