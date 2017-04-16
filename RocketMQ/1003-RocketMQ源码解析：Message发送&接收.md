@@ -693,6 +693,402 @@
 
 > ![接收发送消息API顺序图](images/1003/Broker接收发送消息API顺序图.png)
 
+## SendMessageProcessor#sendMessage
+
+```Java
+  1: @Override
+  2: public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request) throws RemotingCommandException {
+  3:     SendMessageContext mqtraceContext;
+  4:     switch (request.getCode()) {
+  5:         case RequestCode.CONSUMER_SEND_MSG_BACK:
+  6:             return this.consumerSendMsgBack(ctx, request);
+  7:         default:
+  8:             // 解析请求
+  9:             SendMessageRequestHeader requestHeader = parseRequestHeader(request);
+ 10:             if (requestHeader == null) {
+ 11:                 return null;
+ 12:             }
+ 13:             // 发送请求Context。在 hook 场景下使用
+ 14:             mqtraceContext = buildMsgContext(ctx, requestHeader);
+ 15:             // hook：处理发送消息前逻辑
+ 16:             this.executeSendMessageHookBefore(ctx, request, mqtraceContext);
+ 17:             // 处理发送消息逻辑
+ 18:             final RemotingCommand response = this.sendMessage(ctx, request, mqtraceContext, requestHeader);
+ 19:             // hook：处理发送消息后逻辑
+ 20:             this.executeSendMessageHookAfter(response, mqtraceContext);
+ 21:             return response;
+ 22:     }
+ 23: }
+ 24: 
+ 25: private RemotingCommand sendMessage(final ChannelHandlerContext ctx, //
+ 26:     final RemotingCommand request, //
+ 27:     final SendMessageContext sendMessageContext, //
+ 28:     final SendMessageRequestHeader requestHeader) throws RemotingCommandException {
+ 29: 
+ 30:     // 初始化响应
+ 31:     final RemotingCommand response = RemotingCommand.createResponseCommand(SendMessageResponseHeader.class);
+ 32:     final SendMessageResponseHeader responseHeader = (SendMessageResponseHeader) response.readCustomHeader();
+ 33:     response.setOpaque(request.getOpaque());
+ 34:     response.addExtField(MessageConst.PROPERTY_MSG_REGION, this.brokerController.getBrokerConfig().getRegionId());
+ 35:     response.addExtField(MessageConst.PROPERTY_TRACE_SWITCH, String.valueOf(this.brokerController.getBrokerConfig().isTraceOn()));
+ 36: 
+ 37:     if (log.isDebugEnabled()) {
+ 38:         log.debug("receive SendMessage request command, {}", request);
+ 39:     }
+ 40: 
+ 41:     // 如果未开始接收消息，抛出系统异常
+ 42:     @SuppressWarnings("SpellCheckingInspection")
+ 43:     final long startTimstamp = this.brokerController.getBrokerConfig().getStartAcceptSendRequestTimeStamp();
+ 44:     if (this.brokerController.getMessageStore().now() < startTimstamp) {
+ 45:         response.setCode(ResponseCode.SYSTEM_ERROR);
+ 46:         response.setRemark(String.format("broker unable to service, until %s", UtilAll.timeMillisToHumanString2(startTimstamp)));
+ 47:         return response;
+ 48:     }
+ 49: 
+ 50:     // 消息配置(Topic配置）校验
+ 51:     response.setCode(-1);
+ 52:     super.msgCheck(ctx, requestHeader, response);
+ 53:     if (response.getCode() != -1) {
+ 54:         return response;
+ 55:     }
+ 56: 
+ 57:     final byte[] body = request.getBody();
+ 58: 
+ 59:     // 如果队列小于0，从可用队列随机选择
+ 60:     int queueIdInt = requestHeader.getQueueId();
+ 61:     TopicConfig topicConfig = this.brokerController.getTopicConfigManager().selectTopicConfig(requestHeader.getTopic());
+ 62:     if (queueIdInt < 0) {
+ 63:         queueIdInt = Math.abs(this.random.nextInt() % 99999999) % topicConfig.getWriteQueueNums();
+ 64:     }
+ 65: 
+ 66:     //
+ 67:     int sysFlag = requestHeader.getSysFlag();
+ 68:     if (TopicFilterType.MULTI_TAG == topicConfig.getTopicFilterType()) {
+ 69:         sysFlag |= MessageSysFlag.MULTI_TAGS_FLAG;
+ 70:     }
+ 71: 
+ 72:     // 对RETRY类型的消息处理。如果超过最大消费次数，则topic修改成"%DLQ%" + 分组名，即加入 死信队列(Dead Letter Queue)
+ 73:     String newTopic = requestHeader.getTopic();
+ 74:     if (null != newTopic && newTopic.startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
+ 75:         // 获取订阅分组配置
+ 76:         String groupName = newTopic.substring(MixAll.RETRY_GROUP_TOPIC_PREFIX.length());
+ 77:         SubscriptionGroupConfig subscriptionGroupConfig =
+ 78:             this.brokerController.getSubscriptionGroupManager().findSubscriptionGroupConfig(groupName);
+ 79:         if (null == subscriptionGroupConfig) {
+ 80:             response.setCode(ResponseCode.SUBSCRIPTION_GROUP_NOT_EXIST);
+ 81:             response.setRemark("subscription group not exist, " + groupName + " " + FAQUrl.suggestTodo(FAQUrl.SUBSCRIPTION_GROUP_NOT_EXIST));
+ 82:             return response;
+ 83:         }
+ 84:         // 计算最大可消费次数
+ 85:         int maxReconsumeTimes = subscriptionGroupConfig.getRetryMaxTimes();
+ 86:         if (request.getVersion() >= MQVersion.Version.V3_4_9.ordinal()) {
+ 87:             maxReconsumeTimes = requestHeader.getMaxReconsumeTimes();
+ 88:         }
+ 89:         int reconsumeTimes = requestHeader.getReconsumeTimes() == null ? 0 : requestHeader.getReconsumeTimes();
+ 90:         if (reconsumeTimes >= maxReconsumeTimes) { // 超过最大消费次数
+ 91:             newTopic = MixAll.getDLQTopic(groupName);
+ 92:             queueIdInt = Math.abs(this.random.nextInt() % 99999999) % DLQ_NUMS_PER_GROUP;
+ 93:             topicConfig = this.brokerController.getTopicConfigManager().createTopicInSendMessageBackMethod(newTopic, //
+ 94:                 DLQ_NUMS_PER_GROUP, //
+ 95:                 PermName.PERM_WRITE, 0
+ 96:             );
+ 97:             if (null == topicConfig) {
+ 98:                 response.setCode(ResponseCode.SYSTEM_ERROR);
+ 99:                 response.setRemark("topic[" + newTopic + "] not exist");
+100:                 return response;
+101:             }
+102:         }
+103:     }
+104: 
+105:     // 创建MessageExtBrokerInner
+106:     MessageExtBrokerInner msgInner = new MessageExtBrokerInner();
+107:     msgInner.setTopic(newTopic);
+108:     msgInner.setBody(body);
+109:     msgInner.setFlag(requestHeader.getFlag());
+110:     MessageAccessor.setProperties(msgInner, MessageDecoder.string2messageProperties(requestHeader.getProperties()));
+111:     msgInner.setPropertiesString(requestHeader.getProperties());
+112:     msgInner.setTagsCode(MessageExtBrokerInner.tagsString2tagsCode(topicConfig.getTopicFilterType(), msgInner.getTags()));
+113:     msgInner.setQueueId(queueIdInt);
+114:     msgInner.setSysFlag(sysFlag);
+115:     msgInner.setBornTimestamp(requestHeader.getBornTimestamp());
+116:     msgInner.setBornHost(ctx.channel().remoteAddress());
+117:     msgInner.setStoreHost(this.getStoreHost());
+118:     msgInner.setReconsumeTimes(requestHeader.getReconsumeTimes() == null ? 0 : requestHeader.getReconsumeTimes());
+119: 
+120:     // 校验是否不允许发送事务消息
+121:     if (this.brokerController.getBrokerConfig().isRejectTransactionMessage()) {
+122:         String traFlag = msgInner.getProperty(MessageConst.PROPERTY_TRANSACTION_PREPARED);
+123:         if (traFlag != null) {
+124:             response.setCode(ResponseCode.NO_PERMISSION);
+125:             response.setRemark(
+126:                 "the broker[" + this.brokerController.getBrokerConfig().getBrokerIP1() + "] sending transaction message is forbidden");
+127:             return response;
+128:         }
+129:     }
+130: 
+131:     // 添加消息
+132:     PutMessageResult putMessageResult = this.brokerController.getMessageStore().putMessage(msgInner);
+133:     if (putMessageResult != null) {
+134:         boolean sendOK = false;
+135: 
+136:         switch (putMessageResult.getPutMessageStatus()) {
+137:             // Success
+138:             case PUT_OK:
+139:                 sendOK = true;
+140:                 response.setCode(ResponseCode.SUCCESS);
+141:                 break;
+142:             case FLUSH_DISK_TIMEOUT:
+143:                 response.setCode(ResponseCode.FLUSH_DISK_TIMEOUT);
+144:                 sendOK = true;
+145:                 break;
+146:             case FLUSH_SLAVE_TIMEOUT:
+147:                 response.setCode(ResponseCode.FLUSH_SLAVE_TIMEOUT);
+148:                 sendOK = true;
+149:                 break;
+150:             case SLAVE_NOT_AVAILABLE:
+151:                 response.setCode(ResponseCode.SLAVE_NOT_AVAILABLE);
+152:                 sendOK = true;
+153:                 break;
+154: 
+155:             // Failed
+156:             case CREATE_MAPEDFILE_FAILED:
+157:                 response.setCode(ResponseCode.SYSTEM_ERROR);
+158:                 response.setRemark("create mapped file failed, server is busy or broken.");
+159:                 break;
+160:             case MESSAGE_ILLEGAL:
+161:             case PROPERTIES_SIZE_EXCEEDED:
+162:                 response.setCode(ResponseCode.MESSAGE_ILLEGAL);
+163:                 response.setRemark(
+164:                     "the message is illegal, maybe msg body or properties length not matched. msg body length limit 128k, msg properties length limit 32k.");
+165:                 break;
+166:             case SERVICE_NOT_AVAILABLE:
+167:                 response.setCode(ResponseCode.SERVICE_NOT_AVAILABLE);
+168:                 response.setRemark(
+169:                     "service not available now, maybe disk full, " + diskUtil() + ", maybe your broker machine memory too small.");
+170:                 break;
+171:             case OS_PAGECACHE_BUSY:
+172:                 response.setCode(ResponseCode.SYSTEM_ERROR);
+173:                 response.setRemark("[PC_SYNCHRONIZED]broker busy, start flow control for a while");
+174:                 break;
+175:             case UNKNOWN_ERROR:
+176:                 response.setCode(ResponseCode.SYSTEM_ERROR);
+177:                 response.setRemark("UNKNOWN_ERROR");
+178:                 break;
+179:             default:
+180:                 response.setCode(ResponseCode.SYSTEM_ERROR);
+181:                 response.setRemark("UNKNOWN_ERROR DEFAULT");
+182:                 break;
+183:         }
+184: 
+185:         String owner = request.getExtFields().get(BrokerStatsManager.COMMERCIAL_OWNER);
+186:         if (sendOK) {
+187:             // 统计
+188:             this.brokerController.getBrokerStatsManager().incTopicPutNums(msgInner.getTopic());
+189:             this.brokerController.getBrokerStatsManager().incTopicPutSize(msgInner.getTopic(), putMessageResult.getAppendMessageResult().getWroteBytes());
+190:             this.brokerController.getBrokerStatsManager().incBrokerPutNums();
+191: 
+192:             // 响应
+193:             response.setRemark(null);
+194:             responseHeader.setMsgId(putMessageResult.getAppendMessageResult().getMsgId());
+195:             responseHeader.setQueueId(queueIdInt);
+196:             responseHeader.setQueueOffset(putMessageResult.getAppendMessageResult().getLogicsOffset());
+197:             doResponse(ctx, request, response);
+198: 
+199:             // hook：设置发送成功到context
+200:             if (hasSendMessageHook()) {
+201:                 sendMessageContext.setMsgId(responseHeader.getMsgId());
+202:                 sendMessageContext.setQueueId(responseHeader.getQueueId());
+203:                 sendMessageContext.setQueueOffset(responseHeader.getQueueOffset());
+204: 
+205:                 int commercialBaseCount = brokerController.getBrokerConfig().getCommercialBaseCount();
+206:                 int wroteSize = putMessageResult.getAppendMessageResult().getWroteBytes();
+207:                 int incValue = (int) Math.ceil(wroteSize / BrokerStatsManager.SIZE_PER_COUNT) * commercialBaseCount;
+208: 
+209:                 sendMessageContext.setCommercialSendStats(BrokerStatsManager.StatsType.SEND_SUCCESS);
+210:                 sendMessageContext.setCommercialSendTimes(incValue);
+211:                 sendMessageContext.setCommercialSendSize(wroteSize);
+212:                 sendMessageContext.setCommercialOwner(owner);
+213:             }
+214:             return null;
+215:         } else {
+216:             // hook：设置发送失败到context
+217:             if (hasSendMessageHook()) {
+218:                 int wroteSize = request.getBody().length;
+219:                 int incValue = (int) Math.ceil(wroteSize / BrokerStatsManager.SIZE_PER_COUNT);
+220: 
+221:                 sendMessageContext.setCommercialSendStats(BrokerStatsManager.StatsType.SEND_FAILURE);
+222:                 sendMessageContext.setCommercialSendTimes(incValue);
+223:                 sendMessageContext.setCommercialSendSize(wroteSize);
+224:                 sendMessageContext.setCommercialOwner(owner);
+225:             }
+226:         }
+227:     } else {
+228:         response.setCode(ResponseCode.SYSTEM_ERROR);
+229:         response.setRemark("store putMessage return null");
+230:     }
+231: 
+232:     return response;
+233: }
+```
+* `#processRequest()` 说明 ：处理消息请求。
+* `#sendMessage()` 说明 ：发送消息，并返回发送消息结果。
+* 第 51 至 55 行 ：消息配置(Topic配置）校验，详细解析见：[AbstractSendMessageProcessor#msgCheck](#abstractsendmessageprocessormsgcheck)。
+* 第 60 至 64 行 ：消息队列编号小于0时，`Broker` 可以设置随机选择一个消息队列。
+* 第 72 至 103 行 ：对RETRY类型的消息处理。如果超过最 消费次数，则topic修改成"%DLQ%" + 分组名， 即加  死信队 (Dead Letter Queue)，详细解析见：[《RocketMQ源码解析：Topic》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1001-RocketMQ源码解析：Topic.md)。
+* 第 105 至 118 行 ：创建`MessageExtBrokerInner`。
+* 第 132 ：存储消息，详细解析见：[DefaultMessageStore#putMessage](defaultmessagestoreputmessage)。
+* 第 133 至 183 行 ：处理消息发送结果，设置响应结果和提示。
+* 第 186 至 214 行 ：发送成功，响应。这里`doResponse(ctx, request, response)`进行响应，最后`return null`，原因是：响应给 `Producer` 可能发生异常，`#doResponse(ctx, request, response)`捕捉了该异常并输出日志。这样做的话，我们进行排查 `Broker` 接收消息成功后响应是否存在异常会方便很多。
+
+### AbstractSendMessageProcessor#msgCheck
+
+```Java
+  1: protected RemotingCommand msgCheck(final ChannelHandlerContext ctx,
+  2:                                    final SendMessageRequestHeader requestHeader, final RemotingCommand response) {
+  3:     // 检查 broker 是否有写入权限
+  4:     if (!PermName.isWriteable(this.brokerController.getBrokerConfig().getBrokerPermission())
+  5:         && this.brokerController.getTopicConfigManager().isOrderTopic(requestHeader.getTopic())) {
+  6:         response.setCode(ResponseCode.NO_PERMISSION);
+  7:         response.setRemark("the broker[" + this.brokerController.getBrokerConfig().getBrokerIP1()
+  8:             + "] sending message is forbidden");
+  9:         return response;
+ 10:     }
+ 11:     // 检查topic是否可以被发送。目前是{@link MixAll.DEFAULT_TOPIC}不被允许发送
+ 12:     if (!this.brokerController.getTopicConfigManager().isTopicCanSendMessage(requestHeader.getTopic())) {
+ 13:         String errorMsg = "the topic[" + requestHeader.getTopic() + "] is conflict with system reserved words.";
+ 14:         log.warn(errorMsg);
+ 15:         response.setCode(ResponseCode.SYSTEM_ERROR);
+ 16:         response.setRemark(errorMsg);
+ 17:         return response;
+ 18:     }
+ 19:     TopicConfig topicConfig = this.brokerController.getTopicConfigManager().selectTopicConfig(requestHeader.getTopic());
+ 20:     if (null == topicConfig) { // 不能存在topicConfig，则进行创建
+ 21:         int topicSysFlag = 0;
+ 22:         if (requestHeader.isUnitMode()) {
+ 23:             if (requestHeader.getTopic().startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
+ 24:                 topicSysFlag = TopicSysFlag.buildSysFlag(false, true);
+ 25:             } else {
+ 26:                 topicSysFlag = TopicSysFlag.buildSysFlag(true, false);
+ 27:             }
+ 28:         }
+ 29:         // 创建topic配置
+ 30:         log.warn("the topic {} not exist, producer: {}", requestHeader.getTopic(), ctx.channel().remoteAddress());
+ 31:         topicConfig = this.brokerController.getTopicConfigManager().createTopicInSendMessageMethod(//
+ 32:             requestHeader.getTopic(), //
+ 33:             requestHeader.getDefaultTopic(), //
+ 34:             RemotingHelper.parseChannelRemoteAddr(ctx.channel()), //
+ 35:             requestHeader.getDefaultTopicQueueNums(), topicSysFlag);
+ 36:         if (null == topicConfig) {
+ 37:             if (requestHeader.getTopic().startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
+ 38:                 topicConfig =
+ 39:                     this.brokerController.getTopicConfigManager().createTopicInSendMessageBackMethod(
+ 40:                         requestHeader.getTopic(), 1, PermName.PERM_WRITE | PermName.PERM_READ,
+ 41:                         topicSysFlag);
+ 42:             }
+ 43:         }
+ 44:         // 如果没配置
+ 45:         if (null == topicConfig) {
+ 46:             response.setCode(ResponseCode.TOPIC_NOT_EXIST);
+ 47:             response.setRemark("topic[" + requestHeader.getTopic() + "] not exist, apply first please!"
+ 48:                 + FAQUrl.suggestTodo(FAQUrl.APPLY_TOPIC_URL));
+ 49:             return response;
+ 50:         }
+ 51:     }
+ 52:     // 队列编号是否正确
+ 53:     int queueIdInt = requestHeader.getQueueId();
+ 54:     int idValid = Math.max(topicConfig.getWriteQueueNums(), topicConfig.getReadQueueNums());
+ 55:     if (queueIdInt >= idValid) {
+ 56:         String errorInfo = String.format("request queueId[%d] is illegal, %s Producer: %s",
+ 57:             queueIdInt,
+ 58:             topicConfig.toString(),
+ 59:             RemotingHelper.parseChannelRemoteAddr(ctx.channel()));
+ 60:         log.warn(errorInfo);
+ 61:         response.setCode(ResponseCode.SYSTEM_ERROR);
+ 62:         response.setRemark(errorInfo);
+ 63:         return response;
+ 64:     }
+ 65:     return response;
+ 66: }
+```
+* 说明：校验消息是否正确，主要是消息配置方面，例如：broker是否可写，topic配置是否存在，队列编号是否正确。
+* 第 11 至 18 行 ：检查topic是否可以被发送。目前是 `{@link MixAll.DEFAULT_TOPIC}` 被允许发送。
+* 第 20 至 51 行 ：当找不到Topic配置，则进行创建。当然，创建会存在不成功的情况，例如说：`defaultTopic` 的Topic配置不存在，又或者是存在但是不允许继承，详细解析见[《RocketMQ源码解析：Topic》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1001-RocketMQ源码解析：Topic.md)。
+
+## DefaultMessageStore#putMessage
+
+```Java
+  1: public PutMessageResult putMessage(MessageExtBrokerInner msg) {
+  2:     if (this.shutdown) {
+  3:         log.warn("message store has shutdown, so putMessage is forbidden");
+  4:         return new PutMessageResult(PutMessageStatus.SERVICE_NOT_AVAILABLE, null);
+  5:     }
+  6: 
+  7:     // 从节点不允许写入
+  8:     if (BrokerRole.SLAVE == this.messageStoreConfig.getBrokerRole()) {
+  9:         long value = this.printTimes.getAndIncrement();
+ 10:         if ((value % 50000) == 0) {
+ 11:             log.warn("message store is slave mode, so putMessage is forbidden ");
+ 12:         }
+ 13: 
+ 14:         return new PutMessageResult(PutMessageStatus.SERVICE_NOT_AVAILABLE, null);
+ 15:     }
+ 16: 
+ 17:     // store是否允许写入
+ 18:     if (!this.runningFlags.isWriteable()) {
+ 19:         long value = this.printTimes.getAndIncrement();
+ 20:         if ((value % 50000) == 0) {
+ 21:             log.warn("message store is not writeable, so putMessage is forbidden " + this.runningFlags.getFlagBits());
+ 22:         }
+ 23: 
+ 24:         return new PutMessageResult(PutMessageStatus.SERVICE_NOT_AVAILABLE, null);
+ 25:     } else {
+ 26:         this.printTimes.set(0);
+ 27:     }
+ 28: 
+ 29:     // 消息过长
+ 30:     if (msg.getTopic().length() > Byte.MAX_VALUE) {
+ 31:         log.warn("putMessage message topic length too long " + msg.getTopic().length());
+ 32:         return new PutMessageResult(PutMessageStatus.MESSAGE_ILLEGAL, null);
+ 33:     }
+ 34: 
+ 35:     // 消息附加属性过长
+ 36:     if (msg.getPropertiesString() != null && msg.getPropertiesString().length() > Short.MAX_VALUE) {
+ 37:         log.warn("putMessage message properties length too long " + msg.getPropertiesString().length());
+ 38:         return new PutMessageResult(PutMessageStatus.PROPERTIES_SIZE_EXCEEDED, null);
+ 39:     }
+ 40: 
+ 41:     if (this.isOSPageCacheBusy()) {
+ 42:         return new PutMessageResult(PutMessageStatus.OS_PAGECACHE_BUSY, null);
+ 43:     }
+ 44: 
+ 45:     long beginTime = this.getSystemClock().now();
+ 46:     // 添加消息到commitLog
+ 47:     PutMessageResult result = this.commitLog.putMessage(msg);
+ 48: 
+ 49:     long eclipseTime = this.getSystemClock().now() - beginTime;
+ 50:     if (eclipseTime > 500) {
+ 51:         log.warn("putMessage not in lock eclipse time(ms)={}, bodyLength={}", eclipseTime, msg.getBody().length);
+ 52:     }
+ 53:     this.storeStatsService.setPutMessageEntireTimeMax(eclipseTime);
+ 54: 
+ 55:     if (null == result || !result.isOk()) {
+ 56:         this.storeStatsService.getPutMessageFailedTimes().incrementAndGet();
+ 57:     }
+ 58: 
+ 59:     return result;
+ 60: }
+```
+* 说明：存储消息封装，最终存储需要 `CommitLog` 实现。
+* 第 7 至 27 行 ：校验 `Broker` 是否可以写入。
+* 第 29 至 39 行 ：消息格式与大小校验。
+* 第 47 行 ：调用 `CommitLong` 进行存储，详细逻辑见：[《RocketMQ源码解析：Message存储》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1004-RocketMQ源码解析：Message存储.md)
+
+# 4、某种结尾
+感谢阅读、收藏、点赞本文的工程师同学。
+阅读源码是件令自己很愉悦的事情，编写源码解析是让自己脑细胞死伤无数的过程，痛并快乐着。
+如果有内容写的存在错误，或是不清晰的地方，见笑了，🙂。欢迎加 QQ：7685413 我们一起探讨，共进步。
+再次感谢阅读、收藏、点赞本文的工程师同学。
+
 
 
 
