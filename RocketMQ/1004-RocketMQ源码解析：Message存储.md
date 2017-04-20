@@ -198,6 +198,54 @@
 
 ## MappedFileQueue#getLastMappedFile(...)
 
+![MappedQueue与MappedFile类图](images/1004/MappedQueue与MappedFile类图.png)
+
+```Java
+  1: public MappedFile getLastMappedFile(final long startOffset, boolean needCreate) {
+  2:     long createOffset = -1; // 创建文件开始offset。-1时，不创建
+  3:     MappedFile mappedFileLast = getLastMappedFile();
+  4: 
+  5:     if (mappedFileLast == null) { // 一个映射文件都不存在
+  6:         createOffset = startOffset - (startOffset % this.mappedFileSize);
+  7:     }
+  8: 
+  9:     if (mappedFileLast != null && mappedFileLast.isFull()) { // 最后一个文件已满
+ 10:         createOffset = mappedFileLast.getFileFromOffset() + this.mappedFileSize;
+ 11:     }
+ 12: 
+ 13:     if (createOffset != -1 && needCreate) { // 创建文件
+ 14:         String nextFilePath = this.storePath + File.separator + UtilAll.offset2FileName(createOffset);
+ 15:         String nextNextFilePath = this.storePath + File.separator
+ 16:             + UtilAll.offset2FileName(createOffset + this.mappedFileSize);
+ 17:         MappedFile mappedFile = null;
+ 18: 
+ 19:         if (this.allocateMappedFileService != null) {
+ 20:             mappedFile = this.allocateMappedFileService.putRequestAndReturnMappedFile(nextFilePath,
+ 21:                 nextNextFilePath, this.mappedFileSize);
+ 22:         } else {
+ 23:             try {
+ 24:                 mappedFile = new MappedFile(nextFilePath, this.mappedFileSize);
+ 25:             } catch (IOException e) {
+ 26:                 log.error("create mappedFile exception", e);
+ 27:             }
+ 28:         }
+ 29: 
+ 30:         if (mappedFile != null) {
+ 31:             if (this.mappedFiles.isEmpty()) {
+ 32:                 mappedFile.setFirstCreateInQueue(true);
+ 33:             }
+ 34:             this.mappedFiles.add(mappedFile);
+ 35:         }
+ 36: 
+ 37:         return mappedFile;
+ 38:     }
+ 39: 
+ 40:     return mappedFileLast;
+ 41: }
+```
+
+* 说明：获取最后一个 `MappedFile`，若不存在，则进行创建。
+
 ## MappedFile#appendMessage(...)
 
 ## DefaultAppendMessageCallback#doAppend(...)
