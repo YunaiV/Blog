@@ -198,7 +198,8 @@
 
 ## MappedFileQueue#getLastMappedFile(...)
 
-![MappedQueue与MappedFile类图](images/1004/MappedQueue与MappedFile类图.png)
+> ![MappedQueue与MappedFile类图](images/1004/MappedQueue与MappedFile类图.png)
+一个 `MappedQueue` 包含多个 `MappedFile`。基本等价理解成文件夹与文件的关系。
 
 ```Java
   1: public MappedFile getLastMappedFile(final long startOffset, boolean needCreate) {
@@ -244,9 +245,56 @@
  41: }
 ```
 
-* 说明：获取最后一个 `MappedFile`，若不存在，则进行创建。
+* 说明 ：获取最后一个 `MappedFile`，若不存在或文件已满，则进行创建。
+* 第 5 至 11 行 ：计算当文件不存在或已满时，新创建文件的 `createOffset`。
+* 第 14 行 ：计算文件名。从此处我们可
+以得知，`MappedFile`的文件命名规则：
 
+    > fileName[n] = fileName[n - 1] + n * mappedFileSize
+    > fileName[0] = startOffset - (startOffset % this.mappedFileSize)
+    
+    目前 `CommitLog` 的 `startOffset` 为 0。
+    此处有个**疑问**，为什么需要 `(startOffset % this.mappedFileSize)`。例如：
+    
+    | startOffset  | mappedFileSize | createOffset |
+    | --- | :-- | :-- |
+    | 5 | 1 | 5 |
+    | 5 | 2 | 4 |
+    | 5 | 3 | 3  |
+    | 5 | 4 | 4 |
+    | 5 | > 5 | 0 |
+    
+    _如果有知道的同学，麻烦提示下。😈_
+    
+* 第 30 至 35 行 ：设置 `MappedFile`是否是第一个创建的文件。该标识用于 `ConsumeQueue` 对应的 `MappedFile` ，详见 `ConsumeQueue#fillPreBlank`。
+    
 ## MappedFile#appendMessage(...)
+
+```Java
+  1: public AppendMessageResult appendMessage(final MessageExtBrokerInner msg, final AppendMessageCallback cb) {
+  2:     assert msg != null;
+  3:     assert cb != null;
+  4: 
+  5:     int currentPos = this.wrotePosition.get();
+  6: 
+  7:     if (currentPos < this.fileSize) {
+  8:         ByteBuffer byteBuffer = writeBuffer != null ? writeBuffer.slice() : this.mappedByteBuffer.slice();
+  9:         byteBuffer.position(currentPos);
+ 10:         AppendMessageResult result =
+ 11:             cb.doAppend(this.getFileFromOffset(), byteBuffer, this.fileSize - currentPos, msg);
+ 12:         this.wrotePosition.addAndGet(result.getWroteBytes());
+ 13:         this.storeTimestamp = result.getStoreTimestamp();
+ 14:         return result;
+ 15:     }
+ 16: 
+ 17:     log.error("MappedFile.appendMessage return null, wrotePosition: " + currentPos + " fileSize: "
+ 18:         + this.fileSize);
+ 19:     return new AppendMessageResult(AppendMessageStatus.UNKNOWN_ERROR);
+ 20: }
+```
+
+* 说明 ：**插入消息**到 `MappedFile`，并返回插入结果。
+* 第 8 行 ：获取需要写入的字节缓冲区。为什么会有 `writeBuffer != null` 的判断后，使用不同的字节缓冲区，见：[FlushCommitLogService](flushcommitlogservice)。
 
 ## DefaultAppendMessageCallback#doAppend(...)
 
