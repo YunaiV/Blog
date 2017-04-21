@@ -3,7 +3,72 @@
 本文接[《RocketMQ源码解析：Message发送&接收》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1003-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E5%8F%91%E9%80%81%26%E6%8E%A5%E6%94%B6.md)。
 主要解析 `CommitLog` 存储消息部分。考虑到 `CommitLog` 的初始化加载、过期删除有一些关系，因此，一起一起😈。
 
-# 2、CommitLog 存储消息
+# 2、CommitLog 结构
+
+`CommitLog`、`MappedFileQueue`、`MappedFile`的关系如下：
+
+> ![CommitLog、MappedFileQueue、MappedFile的关系](images/1004/CommitLog&MappedQueue&MappedFile类图.png)
+`CommitLog` : `MappedQueue` : `MappedFile` = 1 : 1 : N。
+
+反应到系统文件如下：
+
+```bash
+Yunai-MacdeMacBook-Pro-2:commitlog yunai$ pwd
+/Users/yunai/store/commitlog
+Yunai-MacdeMacBook-Pro-2:commitlog yunai$ ls -l
+total 10485760
+-rw-r--r--  1 yunai  staff  1073741824  4 21 16:27 00000000000000000000
+-rw-r--r--  1 yunai  staff  1073741824  4 21 16:29 00000000001073741824
+-rw-r--r--  1 yunai  staff  1073741824  4 21 16:32 00000000002147483648
+-rw-r--r--  1 yunai  staff  1073741824  4 21 16:33 00000000003221225472
+-rw-r--r--  1 yunai  staff  1073741824  4 21 16:32 00000000004294967296
+```
+
+-------
+
+定义如下：
+
+* `MappedFile` ：00000000000000000000、00000000001073741824、00000000002147483648等文件。
+* `MappedFileQueue` ：`MappedFile` 所在的文件夹，对 `MappedFile` 进行封装成文件队列，对上层提供可无限使用的文件容量。
+    * 每个 `MappedFile` 统一文件大小。
+    * 文件命名方式：fileName[n] = fileName[n - 1] + mappedFileSize。在 `CommitLog` 里默认为 1GB。
+* `CommitLog` ：针对 `MappedFileQueue` 的封装使用。
+
+`CommitLog` 目前存储在 `MappedFile` 有两种内容类型：
+
+1. Message ：消息。
+2. BLANK ：文件不足以存储消息时的空白占位。
+
+`CommitLog` 存储在 `MappedFile`的结构。
+
+> | Message[1] | Message[2] | ... | Message[n - 1] | Message[n] | BLANK |
+> | --- | --- | --- | --- | --- | --- |
+
+
+
+如下为每条消息在 `CommitLog` 存储的结构。
+
+| 第几位 | 字段 | 说明 | 数据类型 | 字节数 |
+| :-- | :-- | :-- | :-- | :-- |
+| 1 | MsgLen | 消息总长度 | Int | 4 |
+| 2 | MagicCode | MESSAGE_MAGIC_CODE | Int | 4 |
+| 3 | BodyCRC | 消息内容CRC | Int | 4 |
+| 4 | QueueId | 消息队列编号 | Int | 4 |
+| 5 | Flag |   |  |  |
+| 6 | QueueOffset | 消息队列位置 | Long | 8 |
+| 7 | PhysicalOffset | 物理位置。在 `CommitLog` 的顺序处理位置。 | Long | 8 |
+| 8 | SysFlag |  | Int | 4 |
+| 9 | BornTimestamp | 生成消息时间戳 | Long | 8 |
+| 10 | BornHost  | 生效消息的地址+端口 | Long | 8 |
+| 11 | StoreTimestamp | 存储消息时间戳 | Long | 8 |
+| 12 | StoreHost | 存储消息的地址+端口 | Long | 8 |
+| 13 | ReconsumeTimes | 重新消费消息次数 | Int | 4 |
+| 14 | PreparedTransationOffset |  | Long | 8 |
+| 15 | BodyLength + Body  | 内容长度 + 内容 | Int + Bytes | 4 + bodyLength |
+| 16 | TopicLength + Topic | Topic长度 + Topic | Byte + Bytes | 1 + topicLength |
+| 17 | PropertiesLength + Properties | 拓展字段长度 + 拓展字段 | Short + Bytes | 2 + PropertiesLength |
+
+# 3、CommitLog 存储消息
 
 > ![Broker存储发送消息顺序图](images/1004/Broker存储发送消息顺序图.png)
 
@@ -198,9 +263,6 @@
 
 ## MappedFileQueue#getLastMappedFile(...)
 
-> ![MappedQueue与MappedFile类图](images/1004/MappedQueue与MappedFile类图.png)
-一个 `MappedQueue` 包含多个 `MappedFile`。基本等价理解成文件夹与文件的关系。
-
 ```Java
   1: public MappedFile getLastMappedFile(final long startOffset, boolean needCreate) {
   2:     long createOffset = -1; // 创建文件开始offset。-1时，不创建
@@ -294,7 +356,8 @@
 ```
 
 * 说明 ：**插入消息**到 `MappedFile`，并返回插入结果。
-* 第 8 行 ：获取需要写入的字节缓冲区。为什么会有 `writeBuffer != null` 的判断后，使用不同的字节缓冲区，见：[FlushCommitLogService](flushcommitlogservice)。
+* 第 8 行 ：获取需要写入的字节缓冲区。为什么会有 `writeBuffer != null` 的判断后，使用不同的字节缓冲区，见：[FlushCommitLogService](#flushcommitlogservice)。
+* 第 9 至 11 行 ：设置写入 `position`，执行写入，更新 `wrotePosition`(当前写入位置，下次开始写入开始位置)。
 
 ## DefaultAppendMessageCallback#doAppend(...)
 
@@ -306,6 +369,6 @@
 ### FlushRealTimeService
 ### GroupCommitService
 
-# 3、CommitLog 初始化加载
-# 4、CommitLog 过期删除
+# 4、CommitLog 初始化加载
+# 5、CommitLog 过期删除
 
