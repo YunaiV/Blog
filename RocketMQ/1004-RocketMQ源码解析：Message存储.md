@@ -563,10 +563,11 @@ total 10485760
 * 第 45 行 ：计算物理位置。在 `CommitLog` 的顺序存储位置。
 * 第 47 至 49 行 ：计算 `CommitLog` 里的 `offsetMsgId`。这里一定要和 `msgId` 区分开。
 
-|   |   | 计算方式 | 长度 |
-| --- | --- | --- | --- |
+|   |   | 计算方式 | 长度 | |
+| --- | --- | --- | --- |  --- |
 | offsetMsgId | Broker存储时生成 | Hex(storeHostBytes, wroteOffset) | 32 |
-| msgId | Client发送消息时生成 | Hex(进程编号, IP, ClassLoader, startTime, currentTime, 自增序列) | 32 |
+| msgId | Client发送消息时生成 | Hex(进程编号, IP, ClassLoader, startTime, currentTime, 自增序列) | 32 | [《RocketMQ源码解析：Message基础》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1002-RocketMQ源码解析：Message基础.md)
+ |
 * 第 51 至 61 行 ：获取队列位置(offset)。
 * 第 78 至 95 行 ：计算消息总长度。
 * 第 98 至 112 行 ：当文件剩余空间不足时，写入 `BLANK` 占位，返回结果。
@@ -575,9 +576,21 @@ total 10485760
 
 ## FlushCommitLogService
 
-### CommitRealTimeService
+### MappedFile#落盘
+
+
+| 方式 |   |  |  |
+| --- | --- | :-- | :-- |
+| 方式一 | 写入内存字节缓冲区(writeBuffer) | 从内存字节缓冲区(write buffer)提交(commit)到文件通道(fileChannel) | 文件通道(fileChannel)flush |
+| 方式二 |  | 写入映射文件字节缓冲区(mappedByteBuffer) | 映射文件字节缓冲区(mappedByteBuffer)flush  |
+
+
 ### FlushRealTimeService
+
+### CommitRealTimeService
+
 ### GroupCommitService
+
 
 # 4、CommitLog 初始化加载
 # 5、CommitLog 过期删除
