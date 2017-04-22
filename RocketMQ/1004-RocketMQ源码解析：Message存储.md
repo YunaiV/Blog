@@ -578,6 +578,12 @@ total 10485760
 
 ![FlushCommitLogService类图](images/1004/FlushCommitLogService类图.png)
 
+| 线程服务 | 场景 | 插入消息性能 |
+| --- | --- | --- |
+| CommitRealTimeService | 异步刷盘 && 开启内存字节缓冲区 | 第一 |
+| FlushRealTimeService | 异步刷盘 && 关闭内存字节缓冲区 | 第二 |
+| GroupCommitService | 同步刷盘 | 第三 |
+
 ### MappedFile#落盘
 
 
@@ -586,13 +592,481 @@ total 10485760
 | 方式一 | 写入内存字节缓冲区(writeBuffer) | 从内存字节缓冲区(write buffer)提交(commit)到文件通道(fileChannel) | 文件通道(fileChannel)flush |
 | 方式二 |  | 写入映射文件字节缓冲区(mappedByteBuffer) | 映射文件字节缓冲区(mappedByteBuffer)flush  |
 
+![MappedFile的position迁移图](images/1004/MappedFile的position迁移图.jpeg)
+
+**flush相关代码**
+
+考虑到写入性能，满足 `flushLeastPages * OS_PAGE_SIZE` 才进行 `flush`。
+
+```Java
+  1: /**
+  2:  * flush
+  3:  *
+  4:  * @param flushLeastPages flush最小页数
+  5:  * @return The current flushed position
+  6:  */
+  7: public int flush(final int flushLeastPages) {
+  8:     if (this.isAbleToFlush(flushLeastPages)) {
+  9:         if (this.hold()) {
+ 10:             int value = getReadPosition();
+ 11: 
+ 12:             try {
+ 13:                 //We only append data to fileChannel or mappedByteBuffer, never both.
+ 14:                 if (writeBuffer != null || this.fileChannel.position() != 0) {
+ 15:                     this.fileChannel.force(false);
+ 16:                 } else {
+ 17:                     this.mappedByteBuffer.force();
+ 18:                 }
+ 19:             } catch (Throwable e) {
+ 20:                 log.error("Error occurred when force data to disk.", e);
+ 21:             }
+ 22: 
+ 23:             this.flushedPosition.set(value);
+ 24:             this.release();
+ 25:         } else {
+ 26:             log.warn("in flush, hold failed, flush offset = " + this.flushedPosition.get());
+ 27:             this.flushedPosition.set(getReadPosition());
+ 28:         }
+ 29:     }
+ 30:     return this.getFlushedPosition();
+ 31: }
+ 32: 
+ 33: /**
+ 34:  * 是否能够flush。满足如下条件任意条件：
+ 35:  * 1. 映射文件已经写满
+ 36:  * 2. flushLeastPages > 0 && 未flush部分超过flushLeastPages
+ 37:  * 3. flushLeastPages = 0 && 有新写入部分
+ 38:  *
+ 39:  * @param flushLeastPages flush最小分页
+ 40:  * @return 是否能够写入
+ 41:  */
+ 42: private boolean isAbleToFlush(final int flushLeastPages) {
+ 43:     int flush = this.flushedPosition.get();
+ 44:     int write = getReadPosition();
+ 45: 
+ 46:     if (this.isFull()) {
+ 47:         return true;
+ 48:     }
+ 49: 
+ 50:     if (flushLeastPages > 0) {
+ 51:         return ((write / OS_PAGE_SIZE) - (flush / OS_PAGE_SIZE)) >= flushLeastPages;
+ 52:     }
+ 53: 
+ 54:     return write > flush;
+ 55: }
+```
+
+**commit相关代码：**
+
+考虑到写入性能，满足 `commitLeastPages * OS_PAGE_SIZE` 才进行 `commit`。
+
+```Java
+  1: /**
+  2:  * commit
+  3:  * 当{@link #writeBuffer}为null时，直接返回{@link #wrotePosition}
+  4:  *
+  5:  * @param commitLeastPages commit最小页数
+  6:  * @return 当前commit位置
+  7:  */
+  8: public int commit(final int commitLeastPages) {
+  9:     if (writeBuffer == null) {
+ 10:         //no need to commit data to file channel, so just regard wrotePosition as committedPosition.
+ 11:         return this.wrotePosition.get();
+ 12:     }
+ 13:     if (this.isAbleToCommit(commitLeastPages)) {
+ 14:         if (this.hold()) {
+ 15:             commit0(commitLeastPages);
+ 16:             this.release();
+ 17:         } else {
+ 18:             log.warn("in commit, hold failed, commit offset = " + this.committedPosition.get());
+ 19:         }
+ 20:     }
+ 21: 
+ 22:     // All dirty data has been committed to FileChannel. 写到文件尾时，回收writeBuffer。
+ 23:     if (writeBuffer != null && this.transientStorePool != null && this.fileSize == this.committedPosition.get()) {
+ 24:         this.transientStorePool.returnBuffer(writeBuffer);
+ 25:         this.writeBuffer = null;
+ 26:     }
+ 27: 
+ 28:     return this.committedPosition.get();
+ 29: }
+ 30: 
+ 31: /**
+ 32:  * commit实现，将writeBuffer写入fileChannel。
+ 33:  * @param commitLeastPages commit最小页数。用不上该参数
+ 34:  */
+ 35: protected void commit0(final int commitLeastPages) {
+ 36:     int writePos = this.wrotePosition.get();
+ 37:     int lastCommittedPosition = this.committedPosition.get();
+ 38: 
+ 39:     if (writePos - this.committedPosition.get() > 0) {
+ 40:         try {
+ 41:             // 设置需要写入的byteBuffer
+ 42:             ByteBuffer byteBuffer = writeBuffer.slice();
+ 43:             byteBuffer.position(lastCommittedPosition);
+ 44:             byteBuffer.limit(writePos);
+ 45:             // 写入fileChannel
+ 46:             this.fileChannel.position(lastCommittedPosition);
+ 47:             this.fileChannel.write(byteBuffer);
+ 48:             // 设置position
+ 49:             this.committedPosition.set(writePos);
+ 50:         } catch (Throwable e) {
+ 51:             log.error("Error occurred when commit data to FileChannel.", e);
+ 52:         }
+ 53:     }
+ 54: }
+ 55: 
+ 56: /**
+ 57:  * 是否能够commit。满足如下条件任意条件：
+ 58:  * 1. 映射文件已经写满
+ 59:  * 2. commitLeastPages > 0 && 未commit部分超过commitLeastPages
+ 60:  * 3. commitLeastPages = 0 && 有新写入部分
+ 61:  *
+ 62:  * @param commitLeastPages commit最小分页
+ 63:  * @return 是否能够写入
+ 64:  */
+ 65: protected boolean isAbleToCommit(final int commitLeastPages) {
+ 66:     int flush = this.committedPosition.get();
+ 67:     int write = this.wrotePosition.get();
+ 68: 
+ 69:     if (this.isFull()) {
+ 70:         return true;
+ 71:     }
+ 72: 
+ 73:     if (commitLeastPages > 0) {
+ 74:         return ((write / OS_PAGE_SIZE) - (flush / OS_PAGE_SIZE)) >= commitLeastPages;
+ 75:     }
+ 76: 
+ 77:     return write > flush;
+ 78: }
+```
 
 ### FlushRealTimeService
 
+消息插入成功时，异步刷盘时使用。
+
+```Java
+  1: class FlushRealTimeService extends FlushCommitLogService {
+  2:     /**
+  3:      * 最后flush时间戳
+  4:      */
+  5:     private long lastFlushTimestamp = 0;
+  6:     /**
+  7:      * print计时器。
+  8:      * 满足print次数时，调用{@link #printFlushProgress()}
+  9:      */
+ 10:     private long printTimes = 0;
+ 11: 
+ 12:     public void run() {
+ 13:         CommitLog.log.info(this.getServiceName() + " service started");
+ 14: 
+ 15:         while (!this.isStopped()) {
+ 16:             boolean flushCommitLogTimed = CommitLog.this.defaultMessageStore.getMessageStoreConfig().isFlushCommitLogTimed();
+ 17:             int interval = CommitLog.this.defaultMessageStore.getMessageStoreConfig().getFlushIntervalCommitLog();
+ 18:             int flushPhysicQueueLeastPages = CommitLog.this.defaultMessageStore.getMessageStoreConfig().getFlushCommitLogLeastPages();
+ 19:             int flushPhysicQueueThoroughInterval = CommitLog.this.defaultMessageStore.getMessageStoreConfig().getFlushCommitLogThoroughInterval();
+ 20: 
+ 21:             // Print flush progress
+ 22:             // 当时间满足flushPhysicQueueThoroughInterval时，即使写入的数量不足flushPhysicQueueLeastPages，也进行flush
+ 23:             boolean printFlushProgress = false;
+ 24:             long currentTimeMillis = System.currentTimeMillis();
+ 25:             if (currentTimeMillis >= (this.lastFlushTimestamp + flushPhysicQueueThoroughInterval)) {
+ 26:                 this.lastFlushTimestamp = currentTimeMillis;
+ 27:                 flushPhysicQueueLeastPages = 0;
+ 28:                 printFlushProgress = (printTimes++ % 10) == 0;
+ 29:             }
+ 30: 
+ 31:             try {
+ 32:                 // 等待执行
+ 33:                 if (flushCommitLogTimed) {
+ 34:                     Thread.sleep(interval);
+ 35:                 } else {
+ 36:                     this.waitForRunning(interval);
+ 37:                 }
+ 38: 
+ 39:                 if (printFlushProgress) {
+ 40:                     this.printFlushProgress();
+ 41:                 }
+ 42: 
+ 43:                 // flush commitLog
+ 44:                 long begin = System.currentTimeMillis();
+ 45:                 CommitLog.this.mappedFileQueue.flush(flushPhysicQueueLeastPages);
+ 46:                 long storeTimestamp = CommitLog.this.mappedFileQueue.getStoreTimestamp();
+ 47:                 if (storeTimestamp > 0) {
+ 48:                     CommitLog.this.defaultMessageStore.getStoreCheckpoint().setPhysicMsgTimestamp(storeTimestamp);
+ 49:                 }
+ 50:                 long past = System.currentTimeMillis() - begin;
+ 51:                 if (past > 500) {
+ 52:                     log.info("Flush data to disk costs {} ms", past);
+ 53:                 }
+ 54:             } catch (Throwable e) {
+ 55:                 CommitLog.log.warn(this.getServiceName() + " service has exception. ", e);
+ 56:                 this.printFlushProgress();
+ 57:             }
+ 58:         }
+ 59: 
+ 60:         // Normal shutdown, to ensure that all the flush before exit
+ 61:         boolean result = false;
+ 62:         for (int i = 0; i < RETRY_TIMES_OVER && !result; i++) {
+ 63:             result = CommitLog.this.mappedFileQueue.flush(0);
+ 64:             CommitLog.log.info(this.getServiceName() + " service shutdown, retry " + (i + 1) + " times " + (result ? "OK" : "Not OK"));
+ 65:         }
+ 66: 
+ 67:         this.printFlushProgress();
+ 68: 
+ 69:         CommitLog.log.info(this.getServiceName() + " service end");
+ 70:     }
+ 71: 
+ 72:     @Override
+ 73:     public String getServiceName() {
+ 74:         return FlushRealTimeService.class.getSimpleName();
+ 75:     }
+ 76: 
+ 77:     private void printFlushProgress() {
+ 78:         // CommitLog.log.info("how much disk fall behind memory, "
+ 79:         // + CommitLog.this.mappedFileQueue.howMuchFallBehind());
+ 80:     }
+ 81: 
+ 82:     @Override
+ 83:     @SuppressWarnings("SpellCheckingInspection")
+ 84:     public long getJointime() {
+ 85:         return 1000 * 60 * 5;
+ 86:     }
+ 87: }
+```
+
+* 说明：实时 `flush `线程服务，调用 `MappedFile#flush` 相关逻辑。
+* 第 23 至 29 行 ：每 `flushPhysicQueueThoroughInterval` 周期，执行一次 `flush` 。因为不是每次循环到都能满足 `flushCommitLogLeastPages` 大小，因此，需要一定周期进行一次强制 `flush` 。当然，不能每次循环都去执行强制 `flush`，这样性能较差。
+* 第 33 行 至 37 行 ：根据 `flushCommitLogTimed` 参数，可以选择每次循环是**固定周期**还是**等待唤醒**。默认配置是后者，所以，每次插入消息完成，会去调用 `commitLogService.wakeup()` 。
+* 第 45 行 ：调用 `MappedFile` 进行 `flush`。
+* 第 61 至 65 行 ：`Broker` 关闭时，强制 `flush`，避免有未刷盘的数据。
+
 ### CommitRealTimeService
+
+消息插入成功时，异步刷盘时使用。
+和 `FlushRealTimeService` 类似，性能更好。
+
+```Java
+  1: class FlushRealTimeService extends FlushCommitLogService {
+  2:     /**
+  3:      * 最后flush时间戳
+  4:      */
+  5:     private long lastFlushTimestamp = 0;
+  6:     /**
+  7:      * print计时器。
+  8:      * 满足print次数时，调用{@link #printFlushProgress()}
+  9:      */
+ 10:     private long printTimes = 0;
+ 11: 
+ 12:     public void run() {
+ 13:         CommitLog.log.info(this.getServiceName() + " service started");
+ 14: 
+ 15:         while (!this.isStopped()) {
+ 16:             boolean flushCommitLogTimed = CommitLog.this.defaultMessageStore.getMessageStoreConfig().isFlushCommitLogTimed();
+ 17:             int interval = CommitLog.this.defaultMessageStore.getMessageStoreConfig().getFlushIntervalCommitLog();
+ 18:             int flushPhysicQueueLeastPages = CommitLog.this.defaultMessageStore.getMessageStoreConfig().getFlushCommitLogLeastPages();
+ 19:             int flushPhysicQueueThoroughInterval = CommitLog.this.defaultMessageStore.getMessageStoreConfig().getFlushCommitLogThoroughInterval();
+ 20: 
+ 21:             // Print flush progress
+ 22:             // 当时间满足flushPhysicQueueThoroughInterval时，即使写入的数量不足flushPhysicQueueLeastPages，也进行flush
+ 23:             boolean printFlushProgress = false;
+ 24:             long currentTimeMillis = System.currentTimeMillis();
+ 25:             if (currentTimeMillis >= (this.lastFlushTimestamp + flushPhysicQueueThoroughInterval)) {
+ 26:                 this.lastFlushTimestamp = currentTimeMillis;
+ 27:                 flushPhysicQueueLeastPages = 0;
+ 28:                 printFlushProgress = (printTimes++ % 10) == 0;
+ 29:             }
+ 30: 
+ 31:             try {
+ 32:                 // 等待执行
+ 33:                 if (flushCommitLogTimed) {
+ 34:                     Thread.sleep(interval);
+ 35:                 } else {
+ 36:                     this.waitForRunning(interval);
+ 37:                 }
+ 38: 
+ 39:                 if (printFlushProgress) {
+ 40:                     this.printFlushProgress();
+ 41:                 }
+ 42: 
+ 43:                 // flush commitLog
+ 44:                 long begin = System.currentTimeMillis();
+ 45:                 CommitLog.this.mappedFileQueue.flush(flushPhysicQueueLeastPages);
+ 46:                 long storeTimestamp = CommitLog.this.mappedFileQueue.getStoreTimestamp();
+ 47:                 if (storeTimestamp > 0) {
+ 48:                     CommitLog.this.defaultMessageStore.getStoreCheckpoint().setPhysicMsgTimestamp(storeTimestamp);
+ 49:                 }
+ 50:                 long past = System.currentTimeMillis() - begin;
+ 51:                 if (past > 500) {
+ 52:                     log.info("Flush data to disk costs {} ms", past);
+ 53:                 }
+ 54:             } catch (Throwable e) {
+ 55:                 CommitLog.log.warn(this.getServiceName() + " service has exception. ", e);
+ 56:                 this.printFlushProgress();
+ 57:             }
+ 58:         }
+ 59: 
+ 60:         // Normal shutdown, to ensure that all the flush before exit
+ 61:         boolean result = false;
+ 62:         for (int i = 0; i < RETRY_TIMES_OVER && !result; i++) {
+ 63:             result = CommitLog.this.mappedFileQueue.flush(0);
+ 64:             CommitLog.log.info(this.getServiceName() + " service shutdown, retry " + (i + 1) + " times " + (result ? "OK" : "Not OK"));
+ 65:         }
+ 66: 
+ 67:         this.printFlushProgress();
+ 68: 
+ 69:         CommitLog.log.info(this.getServiceName() + " service end");
+ 70:     }
+ 71: 
+ 72:     @Override
+ 73:     public String getServiceName() {
+ 74:         return FlushRealTimeService.class.getSimpleName();
+ 75:     }
+ 76: 
+ 77:     private void printFlushProgress() {
+ 78:         // CommitLog.log.info("how much disk fall behind memory, "
+ 79:         // + CommitLog.this.mappedFileQueue.howMuchFallBehind());
+ 80:     }
+ 81: 
+ 82:     @Override
+ 83:     @SuppressWarnings("SpellCheckingInspection")
+ 84:     public long getJointime() {
+ 85:         return 1000 * 60 * 5;
+ 86:     }
+ 87: }
+```
 
 ### GroupCommitService
 
+消息插入成功时，同步刷盘时使用。
+
+```Java
+  1: class GroupCommitService extends FlushCommitLogService {
+  2:     /**
+  3:      * 写入请求队列
+  4:      */
+  5:     private volatile List<GroupCommitRequest> requestsWrite = new ArrayList<>();
+  6:     /**
+  7:      * 读取请求队列
+  8:      */
+  9:     private volatile List<GroupCommitRequest> requestsRead = new ArrayList<>();
+ 10: 
+ 11:     /**
+ 12:      * 添加写入请求
+ 13:      *
+ 14:      * @param request 写入请求
+ 15:      */
+ 16:     public synchronized void putRequest(final GroupCommitRequest request) {
+ 17:         // 添加写入请求
+ 18:         synchronized (this.requestsWrite) {
+ 19:             this.requestsWrite.add(request);
+ 20:         }
+ 21:         // 切换读写队列
+ 22:         if (hasNotified.compareAndSet(false, true)) {
+ 23:             waitPoint.countDown(); // notify
+ 24:         }
+ 25:     }
+ 26: 
+ 27:     /**
+ 28:      * 切换读写队列
+ 29:      */
+ 30:     private void swapRequests() {
+ 31:         List<GroupCommitRequest> tmp = this.requestsWrite;
+ 32:         this.requestsWrite = this.requestsRead;
+ 33:         this.requestsRead = tmp;
+ 34:     }
+ 35: 
+ 36:     private void doCommit() {
+ 37:         synchronized (this.requestsRead) {
+ 38:             if (!this.requestsRead.isEmpty()) {
+ 39:                 for (GroupCommitRequest req : this.requestsRead) {
+ 40:                     // There may be a message in the next file, so a maximum of
+ 41:                     // two times the flush (可能批量提交的messages，分布在两个MappedFile)
+ 42:                     boolean flushOK = false;
+ 43:                     for (int i = 0; i < 2 && !flushOK; i++) {
+ 44:                         // 是否满足需要flush条件，即请求的offset超过flush的offset
+ 45:                         flushOK = CommitLog.this.mappedFileQueue.getFlushedWhere() >= req.getNextOffset();
+ 46:                         if (!flushOK) {
+ 47:                             CommitLog.this.mappedFileQueue.flush(0);
+ 48:                         }
+ 49:                     }
+ 50:                     // 唤醒等待请求
+ 51:                     req.wakeupCustomer(flushOK);
+ 52:                 }
+ 53: 
+ 54:                 long storeTimestamp = CommitLog.this.mappedFileQueue.getStoreTimestamp();
+ 55:                 if (storeTimestamp > 0) {
+ 56:                     CommitLog.this.defaultMessageStore.getStoreCheckpoint().setPhysicMsgTimestamp(storeTimestamp);
+ 57:                 }
+ 58: 
+ 59:                 // 清理读取队列
+ 60:                 this.requestsRead.clear();
+ 61:             } else {
+ 62:                 // Because of individual messages is set to not sync flush, it
+ 63:                 // will come to this process 不合法的请求，比如message上未设置isWaitStoreMsgOK。
+ 64:                 // 走到此处的逻辑，相当于发送一条消息，落盘一条消息，实际无批量提交的效果。
+ 65:                 CommitLog.this.mappedFileQueue.flush(0);
+ 66:             }
+ 67:         }
+ 68:     }
+ 69: 
+ 70:     public void run() {
+ 71:         CommitLog.log.info(this.getServiceName() + " service started");
+ 72: 
+ 73:         while (!this.isStopped()) {
+ 74:             try {
+ 75:                 this.waitForRunning(10);
+ 76:                 this.doCommit();
+ 77:             } catch (Exception e) {
+ 78:                 CommitLog.log.warn(this.getServiceName() + " service has exception. ", e);
+ 79:             }
+ 80:         }
+ 81: 
+ 82:         // Under normal circumstances shutdown, wait for the arrival of the
+ 83:         // request, and then flush
+ 84:         try {
+ 85:             Thread.sleep(10);
+ 86:         } catch (InterruptedException e) {
+ 87:             CommitLog.log.warn("GroupCommitService Exception, ", e);
+ 88:         }
+ 89: 
+ 90:         synchronized (this) {
+ 91:             this.swapRequests();
+ 92:         }
+ 93: 
+ 94:         this.doCommit();
+ 95: 
+ 96:         CommitLog.log.info(this.getServiceName() + " service end");
+ 97:     }
+ 98: 
+ 99:     /**
+100:      * 每次执行完，切换读写队列
+101:      */
+102:     @Override
+103:     protected void onWaitEnd() {
+104:         this.swapRequests();
+105:     }
+106: 
+107:     @Override
+108:     public String getServiceName() {
+109:         return GroupCommitService.class.getSimpleName();
+110:     }
+111: 
+112:     @Override
+113:     public long getJointime() {
+114:         return 1000 * 60 * 5;
+115:     }
+116: }
+```
+
+* 说明：批量写入线程服务。
+* 第 16 至 25 行 ：添加写入请求。方法设置了 `sync` 的原因：`this.requestsWrite` 会和 `this.requestsRead` 不断交换，无法保证稳定的同步。
+* 第 27 至 34 行 ：读写队列交换。
+* 第 38 至 60 行 ：循环写入队列，进行 `flush`。
+    * 第 43 行 ：考虑到有可能每次循环的消息写入的消息，可能分布在**两个** `MappedFile`(写第N个消息时，`MappedFile` 已满，创建了一个新的)，所以需要有循环2次。
+    * 第 51 行 ：唤醒等待写入请求线程，通过 `CountDownLatch` 实现。
+* 第 61 至 66 行 ：直接刷盘。此处是由于发送的消息的 `isWaitStoreMsgOK` 未设置成 `TRUE` ，导致未走批量提交。
+* 第 73 至 80 行 ：每 10ms 执行一次批量提交。当然，如果 `wakeup()` 时，则会立即进行一次批量提交。当 `Broker` 设置成同步落盘 && 消息 `isWaitStoreMsgOK=true`，消息需要略大于 10ms 才能发送成功。当然，性能相对异步落盘较差，可靠性更高，需要我们在实际使用时去取舍。 
 
 # 4、CommitLog 初始化加载
 # 5、CommitLog 过期删除
