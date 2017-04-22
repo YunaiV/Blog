@@ -1,14 +1,14 @@
 # 1、概述
 
 本文接[《RocketMQ源码解析：Message发送&接收》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1003-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E5%8F%91%E9%80%81%26%E6%8E%A5%E6%94%B6.md)。
-主要解析 `CommitLog` 存储消息部分。考虑到 `CommitLog` 的初始化加载、过期删除有一些关系，因此，一起一起😈。
+主要解析 `CommitLog` 存储消息部分。
 
 # 2、CommitLog 结构
 
 `CommitLog`、`MappedFileQueue`、`MappedFile` 的关系如下：
 
 > ![CommitLog、MappedFileQueue、MappedFile的关系](images/1004/CommitLog&MappedQueue&MappedFile类图.png)
-`CommitLog` : `MappedQueue` : `MappedFile` = 1 : 1 : N。
+`CommitLog` : `MappedFileQueue` : `MappedFile` = 1 : 1 : N。
 
 反应到系统文件如下：
 
@@ -52,10 +52,10 @@ total 10485760
 | 2 | MagicCode | MESSAGE_MAGIC_CODE | Int | 4 |
 | 3 | BodyCRC | 消息内容CRC | Int | 4 |
 | 4 | QueueId | 消息队列编号 | Int | 4 |
-| 5 | Flag |   |  |  |
+| 5 | Flag |  flag | Int  | 4 |
 | 6 | QueueOffset | 消息队列位置 | Long | 8 |
 | 7 | PhysicalOffset | 物理位置。在 `CommitLog` 的顺序存储位置。 | Long | 8 |
-| 8 | SysFlag |  | Int | 4 |
+| 8 | SysFlag | MessageSysFlag | Int | 4 |
 | 9 | BornTimestamp | 生成消息时间戳 | Long | 8 |
 | 10 | BornHost  | 生效消息的地址+端口 | Long | 8 |
 | 11 | StoreTimestamp | 存储消息时间戳 | Long | 8 |
@@ -1068,6 +1068,17 @@ total 10485760
 * 第 61 至 66 行 ：直接刷盘。此处是由于发送的消息的 `isWaitStoreMsgOK` 未设置成 `TRUE` ，导致未走批量提交。
 * 第 73 至 80 行 ：每 10ms 执行一次批量提交。当然，如果 `wakeup()` 时，则会立即进行一次批量提交。当 `Broker` 设置成同步落盘 && 消息 `isWaitStoreMsgOK=true`，消息需要略大于 10ms 才能发送成功。当然，性能相对异步落盘较差，可靠性更高，需要我们在实际使用时去取舍。 
 
-# 4、CommitLog 初始化加载
-# 5、CommitLog 过期删除
+
+# 结尾
+
+写的第二篇与RocketMQ源码相关的博文，看到有阅读、点赞、收藏甚至订阅，很受鼓舞。
+
+《Message存储》比起《Message发送&接收》从难度上说是更大的，当然也是更有趣的，如果存在理解错误或者表达不清晰，还请大家多多包含。如果可以的话，还请麻烦添加 QQ：7685413 进行指出，避免自己的理解错误，给大家造成困扰。
+
+推荐[《Kafka设计解析（六）- Kafka高性能架构之道》](http://www.jasongj.com/kafka/high_throughput/?hmsr=toutiao.io&utm_medium=toutiao.io&utm_source=toutiao.io)，作者站在的高度比我高的多的多，嗯，按照李小璐的说法：高一个喜马拉雅山。😈认真啃读《Linux内核设计与实现(原书第3版)》，day day up。
+
+再次感谢大家的阅读、点赞、收藏。
+
+下一篇：[《Message拉取&消费》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1005-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E6%8B%89%E5%8F%96%26%E6%B6%88%E8%B4%B9.md) 起航！
+
 
