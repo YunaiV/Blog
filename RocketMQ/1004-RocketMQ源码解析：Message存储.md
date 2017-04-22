@@ -566,8 +566,8 @@ total 10485760
 |   |   | 计算方式 | 长度 | |
 | --- | --- | --- | --- |  --- |
 | offsetMsgId | Broker存储时生成 | Hex(storeHostBytes, wroteOffset) | 32 |
-| msgId | Client发送消息时生成 | Hex(进程编号, IP, ClassLoader, startTime, currentTime, 自增序列) | 32 | [《RocketMQ源码解析：Message基础》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1002-RocketMQ源码解析：Message基础.md)
- |
+| msgId | Client发送消息时生成 | Hex(进程编号, IP, ClassLoader, startTime, currentTime, 自增序列) | 32 | [《RocketMQ源码解析：Message基础》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1002-RocketMQ源码解析：Message基础.md) |
+
 * 第 51 至 61 行 ：获取队列位置(offset)。
 * 第 78 至 95 行 ：计算消息总长度。
 * 第 98 至 112 行 ：当文件剩余空间不足时，写入 `BLANK` 占位，返回结果。
@@ -576,7 +576,7 @@ total 10485760
 
 ## FlushCommitLogService
 
-![FlushCommitLogService类图](images/FlushCommitLogService类图.png)
+![FlushCommitLogService类图](images/1004/FlushCommitLogService类图.png)
 
 ### MappedFile#落盘
 
