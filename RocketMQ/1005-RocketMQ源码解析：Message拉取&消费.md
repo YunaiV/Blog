@@ -425,9 +425,20 @@
 * 第 35 至 38 行 ：处理 `PullMessageRequestHeader.sysFlag` 对应的标志位。
 * 第 40 至 62 行 ：校验 `TopicConfig`(主题配置) 是否存在 && 可读 && 队列编号正确。
 * 第 64 至 110 行 ：校验 `SubscriptionData`(订阅信息) 是否正确。
-* 第 113 行 ：调用 `MessageStore#getMessage(...)` 获取消息。详细解析见：[MessageStore#getMessage(...)](#messagestoregetmessage)。
+* 第 113 行 ：调用 `MessageStore#getMessage(...)` 获取 `GetMessageResult`(消息)。详细解析见：[MessageStore#getMessage(...)](#messagestoregetmessage)。
+* 第 122 至 152 行 ：计算建议拉取消息 `brokerId` 。
+* TODO GetMessageResult 说明 
+* 第 204 至 244 行 ：`Hook` 逻辑，`#executeConsumeMessageHookBefore(...)` 。
+* 第 247 至 283 行 ：拉取消息成功，即拉取到消息。
+    * 第 255 至 263 行 ：方式一 ：调用 `readGetMessageResult(...)` 获取消息内容到堆内内存，设置到 响应`body`。
+    * 第 265 至 281 行 ：方式二 ：基于 `zero-copy` 实现，直接响应，无需堆内内存，性能更优。TODO 
+* 第 284 至 300 行 ：拉取不到消息，当满足条件 (`Broker` 允许挂起 && 请求要求挂起)，执行挂起请求。详细解析见：[PullRequestHoldService](#pullrequestholdservice)。
+* 第 304 至 328 行 ：TODO
+* 第 339 至 346 ：持久化消费进度，当满足 (`Broker` 非主 && 请求要求持久化进度)。详细解析见：[更新消费进度](#3broker-提供更新消费进度接口)
 
 ## MessageStore#getMessage(...)
+
+## PullRequestHoldService
 
 # 3、Broker 提供[更新消费进度]接口
 # 4、Broker 提供[发回消息]接口
