@@ -419,6 +419,16 @@
 348: }
 ```
 
+* 说明：处理拉取消息请求，返回响应。
+* 第 14 至 19 行 ：校验 `Broker` 是否可读。
+* 第 21 至 33 行 ：校验 `SubscriptionGroupConfig`(订阅分组配置) 是否存在 && 可以消费。
+* 第 35 至 38 行 ：处理 `PullMessageRequestHeader.sysFlag` 对应的标志位。
+* 第 40 至 62 行 ：校验 `TopicConfig`(主题配置) 是否存在 && 可读 && 队列编号正确。
+* 第 64 至 110 行 ：校验 `SubscriptionData`(订阅信息) 是否正确。
+* 第 113 行 ：调用 `MessageStore#getMessage(...)` 获取消息。详细解析见：[MessageStore#getMessage(...)](#messagestoregetmessage)。
+
+## MessageStore#getMessage(...)
+
 # 3、Broker 提供[更新消费进度]接口
 # 4、Broker 提供[发回消息]接口
 # 5、Consumer 调用[拉取消息]接口
