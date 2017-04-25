@@ -1,5 +1,10 @@
 # 1、概述
-# 2、Broker 提供[拉取消息]接口
+
+# 2、ConsumeQueue
+
+## ReputMessageService
+
+# 3、Broker 提供[拉取消息]接口
 
 ## PullMessageRequestHeader
 
@@ -434,16 +439,316 @@
     * 第 265 至 281 行 ：方式二 ：基于 `zero-copy` 实现，直接响应，无需堆内内存，性能更优。TODO 
 * 第 284 至 300 行 ：拉取不到消息，当满足条件 (`Broker` 允许挂起 && 请求要求挂起)，执行挂起请求。详细解析见：[PullRequestHoldService](#pullrequestholdservice)。
 * 第 304 至 328 行 ：TODO
-* 第 339 至 346 ：持久化消费进度，当满足 (`Broker` 非主 && 请求要求持久化进度)。详细解析见：[更新消费进度](#3broker-提供更新消费进度接口)
+* 第 339 至 346 ：持久化消费进度，当满足 (`Broker` 非主 && 请求要求持久化进度)。详细解析见：[更新消费进度](#3broker-提供更新消费进度接口)。
 
 ## MessageStore#getMessage(...)
 
+```Java
+  1: /**
+  2:  * 获取消息结果
+  3:  *
+  4:  * @param group 消费分组
+  5:  * @param topic 主题
+  6:  * @param queueId 队列编号
+  7:  * @param offset 队列位置
+  8:  * @param maxMsgNums 消息数量
+  9:  * @param subscriptionData 订阅信息
+ 10:  * @return 消息结果
+ 11:  */
+ 12: public GetMessageResult getMessage(final String group, final String topic, final int queueId, final long offset, final int maxMsgNums,
+ 13:     final SubscriptionData subscriptionData) {
+ 14:     // 是否关闭
+ 15:     if (this.shutdown) {
+ 16:         log.warn("message store has shutdown, so getMessage is forbidden");
+ 17:         return null;
+ 18:     }
+ 19:     // 是否可读
+ 20:     if (!this.runningFlags.isReadable()) {
+ 21:         log.warn("message store is not readable, so getMessage is forbidden " + this.runningFlags.getFlagBits());
+ 22:         return null;
+ 23:     }
+ 24: 
+ 25:     long beginTime = this.getSystemClock().now();
+ 26: 
+ 27:     GetMessageStatus status = GetMessageStatus.NO_MESSAGE_IN_QUEUE;
+ 28:     long nextBeginOffset = offset;
+ 29:     long minOffset = 0;
+ 30:     long maxOffset = 0;
+ 31: 
+ 32:     GetMessageResult getResult = new GetMessageResult();
+ 33: 
+ 34:     final long maxOffsetPy = this.commitLog.getMaxOffset();
+ 35: 
+ 36:     // 获取消费队列
+ 37:     ConsumeQueue consumeQueue = findConsumeQueue(topic, queueId);
+ 38:     if (consumeQueue != null) {
+ 39:         minOffset = consumeQueue.getMinOffsetInQueue(); // 消费队列 最小队列编号
+ 40:         maxOffset = consumeQueue.getMaxOffsetInQueue(); // 消费队列 最大队列编号
+ 41: 
+ 42:         // 判断 队列位置(offset)
+ 43:         if (maxOffset == 0) { // 消费队列无消息
+ 44:             status = GetMessageStatus.NO_MESSAGE_IN_QUEUE;
+ 45:             nextBeginOffset = nextOffsetCorrection(offset, 0);
+ 46:         } else if (offset < minOffset) { // 查询offset 太小
+ 47:             status = GetMessageStatus.OFFSET_TOO_SMALL;
+ 48:             nextBeginOffset = nextOffsetCorrection(offset, minOffset);
+ 49:         } else if (offset == maxOffset) { // 查询offset 超过 消费队列 一个位置
+ 50:             status = GetMessageStatus.OFFSET_OVERFLOW_ONE;
+ 51:             nextBeginOffset = nextOffsetCorrection(offset, offset);
+ 52:         } else if (offset > maxOffset) { // 查询offset 超过 消费队列 太多(大于一个位置)
+ 53:             status = GetMessageStatus.OFFSET_OVERFLOW_BADLY;
+ 54:             if (0 == minOffset) { // TODO blog 这里是？？为啥0 == minOffset做了特殊判断
+ 55:                 nextBeginOffset = nextOffsetCorrection(offset, minOffset);
+ 56:             } else {
+ 57:                 nextBeginOffset = nextOffsetCorrection(offset, maxOffset);
+ 58:             }
+ 59:         } else {
+ 60:             // 获得 映射Buffer结果(MappedFile)
+ 61:             SelectMappedBufferResult bufferConsumeQueue = consumeQueue.getIndexBuffer(offset);
+ 62:             if (bufferConsumeQueue != null) {
+ 63:                 try {
+ 64:                     status = GetMessageStatus.NO_MATCHED_MESSAGE;
+ 65: 
+ 66:                     long nextPhyFileStartOffset = Long.MIN_VALUE; // commitLog下一个文件(MappedFile)对应的开始offset。
+ 67:                     long maxPhyOffsetPulling = 0; // 消息物理位置拉取到的最大offset
+ 68: 
+ 69:                     int i = 0;
+ 70:                     final int maxFilterMessageCount = 16000;
+ 71:                     final boolean diskFallRecorded = this.messageStoreConfig.isDiskFallRecorded();
+ 72:                     // 循环获取 消息位置信息
+ 73:                     for (; i < bufferConsumeQueue.getSize() && i < maxFilterMessageCount; i += ConsumeQueue.CQ_STORE_UNIT_SIZE) {
+ 74:                         long offsetPy = bufferConsumeQueue.getByteBuffer().getLong(); // 消息物理位置offset
+ 75:                         int sizePy = bufferConsumeQueue.getByteBuffer().getInt(); // 消息长度
+ 76:                         long tagsCode = bufferConsumeQueue.getByteBuffer().getLong(); // 消息tagsCode
+ 77:                         // 设置消息物理位置拉取到的最大offset
+ 78:                         maxPhyOffsetPulling = offsetPy;
+ 79:                         // 当 offsetPy 小于 nextPhyFileStartOffset 时，意味着对应的 Message 已经移除，所以直接continue，直到可读取的Message。
+ 80:                         if (nextPhyFileStartOffset != Long.MIN_VALUE) {
+ 81:                             if (offsetPy < nextPhyFileStartOffset)
+ 82:                                 continue;
+ 83:                         }
+ 84:                         // 校验 commitLog 是否需要硬盘，无法全部放在内存
+ 85:                         boolean isInDisk = checkInDiskByCommitOffset(offsetPy, maxOffsetPy);
+ 86:                         // 是否已经获得足够消息
+ 87:                         if (this.isTheBatchFull(sizePy, maxMsgNums, getResult.getBufferTotalSize(), getResult.getMessageCount(),
+ 88:                             isInDisk)) {
+ 89:                             break;
+ 90:                         }
+ 91:                         // 判断消息是否符合条件
+ 92:                         if (this.messageFilter.isMessageMatched(subscriptionData, tagsCode)) {
+ 93:                             // 从commitLog获取对应消息ByteBuffer
+ 94:                             SelectMappedBufferResult selectResult = this.commitLog.getMessage(offsetPy, sizePy);
+ 95:                             if (selectResult != null) {
+ 96:                                 this.storeStatsService.getGetMessageTransferedMsgCount().incrementAndGet();
+ 97:                                 getResult.addMessage(selectResult);
+ 98:                                 status = GetMessageStatus.FOUND;
+ 99:                                 nextPhyFileStartOffset = Long.MIN_VALUE;
+100:                             } else {
+101:                                 // 从commitLog无法读取到消息，说明该消息对应的文件（MappedFile）已经删除，计算下一个MappedFile的起始位置
+102:                                 if (getResult.getBufferTotalSize() == 0) {
+103:                                     status = GetMessageStatus.MESSAGE_WAS_REMOVING;
+104:                                 }
+105:                                 nextPhyFileStartOffset = this.commitLog.rollNextFile(offsetPy);
+106:                             }
+107:                         } else {
+108:                             if (getResult.getBufferTotalSize() == 0) {
+109:                                 status = GetMessageStatus.NO_MATCHED_MESSAGE;
+110:                             }
+111: 
+112:                             if (log.isDebugEnabled()) {
+113:                                 log.debug("message type not matched, client: " + subscriptionData + " server: " + tagsCode);
+114:                             }
+115:                         }
+116:                     }
+117:                     // 统计剩余可拉取消息字节数
+118:                     if (diskFallRecorded) {
+119:                         long fallBehind = maxOffsetPy - maxPhyOffsetPulling;
+120:                         brokerStatsManager.recordDiskFallBehindSize(group, topic, queueId, fallBehind);
+121:                     }
+122:                     // 计算下次拉取消息的消息队列编号
+123:                     nextBeginOffset = offset + (i / ConsumeQueue.CQ_STORE_UNIT_SIZE);
+124:                     // 根据剩余可拉取消息字节数与内存判断是否建议读取从节点
+125:                     long diff = maxOffsetPy - maxPhyOffsetPulling;
+126:                     long memory = (long) (StoreUtil.TOTAL_PHYSICAL_MEMORY_SIZE
+127:                             * (this.messageStoreConfig.getAccessMessageInMemoryMaxRatio() / 100.0));
+128:                     getResult.setSuggestPullingFromSlave(diff > memory);
+129:                 } finally {
+130:                     bufferConsumeQueue.release();
+131:                 }
+132:             } else {
+133:                 status = GetMessageStatus.OFFSET_FOUND_NULL;
+134:                 nextBeginOffset = nextOffsetCorrection(offset, consumeQueue.rollNextFile(offset));
+135:                 log.warn("consumer request topic: " + topic + "offset: " + offset + " minOffset: " + minOffset + " maxOffset: "
+136:                     + maxOffset + ", but access logic queue failed.");
+137:             }
+138:         }
+139:     } else {
+140:         status = GetMessageStatus.NO_MATCHED_LOGIC_QUEUE;
+141:         nextBeginOffset = nextOffsetCorrection(offset, 0);
+142:     }
+143:     // 统计
+144:     if (GetMessageStatus.FOUND == status) {
+145:         this.storeStatsService.getGetMessageTimesTotalFound().incrementAndGet();
+146:     } else {
+147:         this.storeStatsService.getGetMessageTimesTotalMiss().incrementAndGet();
+148:     }
+149:     long eclipseTime = this.getSystemClock().now() - beginTime;
+150:     this.storeStatsService.setGetMessageEntireTimeMax(eclipseTime);
+151:     // 设置返回结果
+152:     getResult.setStatus(status);
+153:     getResult.setNextBeginOffset(nextBeginOffset);
+154:     getResult.setMaxOffset(maxOffset);
+155:     getResult.setMinOffset(minOffset);
+156:     return getResult;
+157: }
+158: 
+159: /**
+160:  * 根据 主题 + 队列编号 获取 消费队列
+161:  *
+162:  * @param topic 主题
+163:  * @param queueId 队列编号
+164:  * @return 消费队列
+165:  */
+166: public ConsumeQueue findConsumeQueue(String topic, int queueId) {
+167:     // 获取 topic 对应的 所有消费队列
+168:     ConcurrentHashMap<Integer, ConsumeQueue> map = consumeQueueTable.get(topic);
+169:     if (null == map) {
+170:         ConcurrentHashMap<Integer, ConsumeQueue> newMap = new ConcurrentHashMap<>(128);
+171:         ConcurrentHashMap<Integer, ConsumeQueue> oldMap = consumeQueueTable.putIfAbsent(topic, newMap);
+172:         if (oldMap != null) {
+173:             map = oldMap;
+174:         } else {
+175:             map = newMap;
+176:         }
+177:     }
+178:     // 获取 queueId 对应的 消费队列
+179:     ConsumeQueue logic = map.get(queueId);
+180:     if (null == logic) {
+181:         ConsumeQueue newLogic = new ConsumeQueue(//
+182:             topic, //
+183:             queueId, //
+184:             StorePathConfigHelper.getStorePathConsumeQueue(this.messageStoreConfig.getStorePathRootDir()), //
+185:             this.getMessageStoreConfig().getMapedFileSizeConsumeQueue(), //
+186:             this);
+187:         ConsumeQueue oldLogic = map.putIfAbsent(queueId, newLogic);
+188:         if (oldLogic != null) {
+189:             logic = oldLogic;
+190:         } else {
+191:             logic = newLogic;
+192:         }
+193:     }
+194: 
+195:     return logic;
+196: }
+197: 
+198: /**
+199:  * 下一个获取队列offset修正
+200:  * 修正条件：主节点 或者 从节点开启校验offset开关
+201:  *
+202:  * @param oldOffset 老队列offset
+203:  * @param newOffset 新队列offset
+204:  * @return 修正后的队列offset
+205:  */
+206: private long nextOffsetCorrection(long oldOffset, long newOffset) {
+207:     long nextOffset = oldOffset;
+208:     if (this.getMessageStoreConfig().getBrokerRole() != BrokerRole.SLAVE || this.getMessageStoreConfig().isOffsetCheckInSlave()) {
+209:         nextOffset = newOffset;
+210:     }
+211:     return nextOffset;
+212: }
+213: 
+214: /**
+215:  * 校验 commitLog 是否需要硬盘，无法全部放在内存
+216:  *
+217:  * @param offsetPy commitLog 指定offset
+218:  * @param maxOffsetPy commitLog 最大offset
+219:  * @return 是否需要硬盘
+220:  */
+221: private boolean checkInDiskByCommitOffset(long offsetPy, long maxOffsetPy) {
+222:     long memory = (long) (StoreUtil.TOTAL_PHYSICAL_MEMORY_SIZE * (this.messageStoreConfig.getAccessMessageInMemoryMaxRatio() / 100.0));
+223:     return (maxOffsetPy - offsetPy) > memory;
+224: }
+225: 
+226: /**
+227:  * 判断获取消息是否已经满
+228:  *
+229:  * @param sizePy 字节数
+230:  * @param maxMsgNums 最大消息数
+231:  * @param bufferTotal 目前已经计算字节数
+232:  * @param messageTotal 目前已经计算消息数
+233:  * @param isInDisk 是否在硬盘中
+234:  * @return 是否已满
+235:  */
+236: private boolean isTheBatchFull(int sizePy, int maxMsgNums, int bufferTotal, int messageTotal, boolean isInDisk) {
+237:     if (0 == bufferTotal || 0 == messageTotal) {
+238:         return false;
+239:     }
+240:     // 消息数量已经满足请求数量(maxMsgNums)
+241:     if ((messageTotal + 1) >= maxMsgNums) {
+242:         return true;
+243:     }
+244:     // 根据消息存储配置的最大传输字节数、最大传输消息数是否已满
+245:     if (isInDisk) {
+246:         if ((bufferTotal + sizePy) > this.messageStoreConfig.getMaxTransferBytesOnMessageInDisk()) {
+247:             return true;
+248:         }
+249: 
+250:         if ((messageTotal + 1) > this.messageStoreConfig.getMaxTransferCountOnMessageInDisk()) {
+251:             return true;
+252:         }
+253:     } else {
+254:         if ((bufferTotal + sizePy) > this.messageStoreConfig.getMaxTransferBytesOnMessageInMemory()) {
+255:             return true;
+256:         }
+257: 
+258:         if ((messageTotal + 1) > this.messageStoreConfig.getMaxTransferCountOnMessageInMemory()) {
+259:             return true;
+260:         }
+261:     }
+262: 
+263:     return false;
+264: }
+```
+
+* 说明 ：根据 消息分组(`group`) + 主题(`Topic`) + 队列编号(`queueId`) + 队列位置(`offset`) + 订阅信息(`subscriptionData`) 获取 指定条数(`maxMsgNums`) 消息(`Message`)。
+* 第 14 至 18 行 ：判断 `Store` 是否处于关闭状态，若关闭，则无法获取消息。
+* 第 19 至 23 行 ：判断当前运行状态是否可读，若不可读，则无法获取消息。
+* 第 37 行 ：根据 主题(`Topic`) + 队列编号(`queueId`) 获取 消息队列(`ConsumeQueue`)。
+    * `findConsumeQueue(...)` ：第 159 至 196 行。
+* 第 43 至 58 行 ：各种队列位置(`offset`) 无法读取消息，并针对对应的情况，计算下一次 `Client` 队列拉取位置。
+    * 第 43 至 45 行 ：消息队列无消息。
+    * 第 46 至 48 行 ：查询的消息队列位置（`offset`） 太小。
+    * 第 49 至 51 行 ：查询的消息队列位置（`offset`） 恰好等于 消息队列最大的队列位置。该情况是正常现象，相当于查询最新的消息。
+    * 第 52 至 58 行 ：查询的消息队列位置（`offset`） 超过过多。
+    * `nextOffsetCorrection(...)` ：第 198 至 212 行。
+* 第 61 行 ：根据 消费队列位置(`offset`) 获取 对应的`MappedFile`。
+* 第 72 至 128 行 ：**循环**获取 `消息位置信息`。
+    * 第 74 至 76 行 ：读取每一个 `消息位置信息`。
+    * 第 79 至 83 行 ：当 `offsetPy` 小于 `nextPhyFileStartOffset` 时，意味着对应的 `Message` 已经移除，所以直接continue，直到可读取的 `Message`。
+    * 第 84 至 90 行 ：判断是否已经获得足够的消息。
+        * `checkInDiskByCommitOffset(...)` ：第 214 至 224 行。
+        * `isTheBatchFull(...)` ：第 226 至 264 行。
+* 第 92 行 ：判断消息是否符合条件。详细解析见：[DefaultMessageFilter#isMessageMatched(...)](defaultmessagefilterismessagematched)。
+* 第 94 行 ：从 `CommitLog` 获取对应 `消息MappedByteBuffer`。
+* 第 95 至 99 行 ：获取 `消息MappedByteBuffer` 成功。
+* 第 100 至 106 行 ：获取 `消息MappedByteBuffer` 失败。从 `CommitLog` 无法读取到消息，说明 该消息对应的文件(`MappedFile`) 已经删除，此时计算下一个`MappedFile`的起始位置。**该逻辑需要配合（第 79 至 83 行）一起理解。**
+* 第 117 至 120 行 ：统计剩余可拉取消息字节数。
+* 第 123 行 ：计算下次拉取消息的消息队列编号。
+* 第 124 至 128 行 ：根据剩余可拉取消息字节数与内存判断是否建议读取从节点。
+* 第 130 行 ：释放 `bufferConsumeQueue` 对 `MappedFile` 的指向。此处 `MappedFile` 是 `ConsumeQueue` 里的文件，不是 `CommitLog` 下的文件。TODO
+* 第 133 至 136 行 ：获得消费队列位置(`offset`) 获取 对应的`MappedFile` 为**空**，计算`ConsumeQueue` 从 `offset` 开始的下一个 `MappedFile` 对应的位置。
+* 第 143 至 150 行 ：记录统计信息：消耗时间、拉取到消息/未拉取到消息次数。
+* 第 151 至 156 行 ：设置返回结果并返回。 
+
+## DefaultMessageFilter#isMessageMatched(...)
+
 ## PullRequestHoldService
 
-# 3、Broker 提供[更新消费进度]接口
-# 4、Broker 提供[发回消息]接口
-# 5、Consumer 调用[拉取消息]接口
-# 6、Consumer 消费消息
-# 7、Consumer 调用[发回消息]接口
-# 8、Consumer 调用[更新消费进度]接口
+
+# 4、Broker 提供[更新消费进度]接口
+# 5、Broker 提供[发回消息]接口
+# 6、Consumer 调用[拉取消息]接口
+# 7、Consumer 消费消息
+# 8、Consumer 调用[发回消息]接口
+# 9、Consumer 调用[更新消费进度]接口
 
