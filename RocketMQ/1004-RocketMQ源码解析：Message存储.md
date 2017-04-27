@@ -332,6 +332,7 @@ total 10485760
     | 5 | > 5 | 0 |
     
     _如果有知道的同学，麻烦提示下。😈_
+    *解答：fileName[0] = startOffset - (startOffset % this.mappedFileSize) 计算出来的是，以 `this.mappedFileSize` 为每个文件大小时，`startOffset` 所在文件的开始`offset`*
     
 * 第 30 至 35 行 ：设置 `MappedFile`是否是第一个创建的文件。该标识用于 `ConsumeQueue` 对应的 `MappedFile` ，详见 `ConsumeQueue#fillPreBlank`。
     

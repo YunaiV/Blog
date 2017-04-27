@@ -742,8 +742,273 @@
 
 ## DefaultMessageFilter#isMessageMatched(...)
 
+```Java
+  1: public class DefaultMessageFilter implements MessageFilter {
+  2: 
+  3:     @Override
+  4:     public boolean isMessageMatched(SubscriptionData subscriptionData, Long tagsCode) {
+  5:         // 消息tagsCode 空
+  6:         if (tagsCode == null) {
+  7:             return true;
+  8:         }
+  9:         // 订阅数据 空
+ 10:         if (null == subscriptionData) {
+ 11:             return true;
+ 12:         }
+ 13:         // classFilter
+ 14:         if (subscriptionData.isClassFilterMode())
+ 15:             return true;
+ 16:         // 订阅表达式 全匹配
+ 17:         if (subscriptionData.getSubString().equals(SubscriptionData.SUB_ALL)) {
+ 18:             return true;
+ 19:         }
+ 20:         // 订阅数据code数组 是否包含 消息tagsCode
+ 21:         return subscriptionData.getCodeSet().contains(tagsCode.intValue());
+ 22:     }
+ 23: 
+ 24: }
+```
+
+* 说明 ：消息过滤器默认实现。
+
 ## PullRequestHoldService
 
+```Java
+  1: public class PullRequestHoldService extends ServiceThread {
+  2: 
+  3:     private static final Logger log = LoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
+  4: 
+  5:     private static final String TOPIC_QUEUEID_SEPARATOR = "@";
+  6: 
+  7:     private final BrokerController brokerController;
+  8: 
+  9:     private final SystemClock systemClock = new SystemClock();
+ 10:     /**
+ 11:      * 消息过滤器
+ 12:      */
+ 13:     private final MessageFilter messageFilter = new DefaultMessageFilter();
+ 14:     /**
+ 15:      * 拉取消息请求集合
+ 16:      */
+ 17:     private ConcurrentHashMap<String/* topic@queueId */, ManyPullRequest> pullRequestTable =
+ 18:             new ConcurrentHashMap<>(1024);
+ 19: 
+ 20:     public PullRequestHoldService(final BrokerController brokerController) {
+ 21:         this.brokerController = brokerController;
+ 22:     }
+ 23: 
+ 24:     /**
+ 25:      * 添加拉取消息挂起请求
+ 26:      *
+ 27:      * @param topic 主题
+ 28:      * @param queueId 队列编号
+ 29:      * @param pullRequest 拉取消息请求
+ 30:      */
+ 31:     public void suspendPullRequest(final String topic, final int queueId, final PullRequest pullRequest) {
+ 32:         String key = this.buildKey(topic, queueId);
+ 33:         ManyPullRequest mpr = this.pullRequestTable.get(key);
+ 34:         if (null == mpr) {
+ 35:             mpr = new ManyPullRequest();
+ 36:             ManyPullRequest prev = this.pullRequestTable.putIfAbsent(key, mpr);
+ 37:             if (prev != null) {
+ 38:                 mpr = prev;
+ 39:             }
+ 40:         }
+ 41: 
+ 42:         mpr.addPullRequest(pullRequest);
+ 43:     }
+ 44: 
+ 45:     /**
+ 46:      * 根据 主题 + 队列编号 创建唯一标识
+ 47:      *
+ 48:      * @param topic 主题
+ 49:      * @param queueId 队列编号
+ 50:      * @return key
+ 51:      */
+ 52:     private String buildKey(final String topic, final int queueId) {
+ 53:         StringBuilder sb = new StringBuilder();
+ 54:         sb.append(topic);
+ 55:         sb.append(TOPIC_QUEUEID_SEPARATOR);
+ 56:         sb.append(queueId);
+ 57:         return sb.toString();
+ 58:     }
+ 59: 
+ 60:     @Override
+ 61:     public void run() {
+ 62:         log.info("{} service started", this.getServiceName());
+ 63:         while (!this.isStopped()) {
+ 64:             try {
+ 65:                 // 根据 长轮训 还是 短轮训 设置不同的等待时间
+ 66:                 if (this.brokerController.getBrokerConfig().isLongPollingEnable()) {
+ 67:                     this.waitForRunning(5 * 1000);
+ 68:                 } else {
+ 69:                     this.waitForRunning(this.brokerController.getBrokerConfig().getShortPollingTimeMills());
+ 70:                 }
+ 71:                 // 检查挂起请求是否有需要通知的
+ 72:                 long beginLockTimestamp = this.systemClock.now();
+ 73:                 this.checkHoldRequest();
+ 74:                 long costTime = this.systemClock.now() - beginLockTimestamp;
+ 75:                 if (costTime > 5 * 1000) {
+ 76:                     log.info("[NOTIFYME] check hold request cost {} ms.", costTime);
+ 77:                 }
+ 78:             } catch (Throwable e) {
+ 79:                 log.warn(this.getServiceName() + " service has exception. ", e);
+ 80:             }
+ 81:         }
+ 82: 
+ 83:         log.info("{} service end", this.getServiceName());
+ 84:     }
+ 85: 
+ 86:     @Override
+ 87:     public String getServiceName() {
+ 88:         return PullRequestHoldService.class.getSimpleName();
+ 89:     }
+ 90: 
+ 91:     /**
+ 92:      * 遍历挂起请求，检查是否有需要通知的请求。
+ 93:      */
+ 94:     private void checkHoldRequest() {
+ 95:         for (String key : this.pullRequestTable.keySet()) {
+ 96:             String[] kArray = key.split(TOPIC_QUEUEID_SEPARATOR);
+ 97:             if (2 == kArray.length) {
+ 98:                 String topic = kArray[0];
+ 99:                 int queueId = Integer.parseInt(kArray[1]);
+100:                 final long offset = this.brokerController.getMessageStore().getMaxOffsetInQuque(topic, queueId);
+101:                 try {
+102:                     this.notifyMessageArriving(topic, queueId, offset);
+103:                 } catch (Throwable e) {
+104:                     log.error("check hold request failed. topic={}, queueId={}", topic, queueId, e);
+105:                 }
+106:             }
+107:         }
+108:     }
+109: 
+110:     /**
+111:      * 检查是否有需要通知的请求
+112:      *
+113:      * @param topic 主题
+114:      * @param queueId 队列编号
+115:      * @param maxOffset 消费队列最大offset
+116:      */
+117:     public void notifyMessageArriving(final String topic, final int queueId, final long maxOffset) {
+118:         notifyMessageArriving(topic, queueId, maxOffset, null);
+119:     }
+120: 
+121:     /**
+122:      * 检查是否有需要通知的请求
+123:      *
+124:      * @param topic 主题
+125:      * @param queueId 队列编号
+126:      * @param maxOffset 消费队列最大offset
+127:      * @param tagsCode 过滤tagsCode
+128:      */
+129:     public void notifyMessageArriving(final String topic, final int queueId, final long maxOffset, final Long tagsCode) {
+130:         String key = this.buildKey(topic, queueId);
+131:         ManyPullRequest mpr = this.pullRequestTable.get(key);
+132:         if (mpr != null) {
+133:             //
+134:             List<PullRequest> requestList = mpr.cloneListAndClear();
+135:             if (requestList != null) {
+136:                 List<PullRequest> replayList = new ArrayList<>(); // 不符合唤醒的请求数组
+137: 
+138:                 for (PullRequest request : requestList) {
+139:                     // 如果 maxOffset 过小，则重新读取一次。
+140:                     long newestOffset = maxOffset;
+141:                     if (newestOffset <= request.getPullFromThisOffset()) {
+142:                         newestOffset = this.brokerController.getMessageStore().getMaxOffsetInQuque(topic, queueId);
+143:                     }
+144:                     // 有新的匹配消息，唤醒请求，即再次拉取消息。
+145:                     if (newestOffset > request.getPullFromThisOffset()) {
+146:                         if (this.messageFilter.isMessageMatched(request.getSubscriptionData(), tagsCode)) {
+147:                             try {
+148:                                 this.brokerController.getPullMessageProcessor().executeRequestWhenWakeup(request.getClientChannel(),
+149:                                     request.getRequestCommand());
+150:                             } catch (Throwable e) {
+151:                                 log.error("execute request when wakeup failed.", e);
+152:                             }
+153:                             continue;
+154:                         }
+155:                     }
+156:                     // 超过挂起时间，唤醒请求，即再次拉取消息。
+157:                     if (System.currentTimeMillis() >= (request.getSuspendTimestamp() + request.getTimeoutMillis())) {
+158:                         try {
+159:                             this.brokerController.getPullMessageProcessor().executeRequestWhenWakeup(request.getClientChannel(),
+160:                                 request.getRequestCommand());
+161:                         } catch (Throwable e) {
+162:                             log.error("execute request when wakeup failed.", e);
+163:                         }
+164:                         continue;
+165:                     }
+166:                     // 不符合再次拉取的请求，再次添加回去
+167:                     replayList.add(request);
+168:                 }
+169:                 // 添加回去
+170:                 if (!replayList.isEmpty()) {
+171:                     mpr.addPullRequest(replayList);
+172:                 }
+173:             }
+174:         }
+175:     }
+176: }
+```
+
+* `PullRequestHoldService` 说明 ：拉取消息请求挂起维护线程服务。
+* `suspendPullRequest(...)` 说明 ：添加拉取消息挂起请求到集合(`pullRequestTable`)。
+* `run(...)` 说明 ：**定时**检查挂起请求是否有需要通知重新拉取消息并进行通知。
+    * 第 65 至 70 行 ：根据`长轮训`or`短轮训`设置不同的等待时间。
+    * 第 71 至 77 行 ：检查挂起请求是否有需要通知的。
+* `checkHoldRequest(...)` 说明 ：遍历挂起请求，检查是否有需要通知的。
+* `notifyMessageArriving(...)` 说明 ：检查**指定队列**是否有需要通知的请求。
+    * 第 139 至 143 行 ：如果 `maxOffset` 过小，重新获取一次最新的。
+    * 第 144 至 155 行 ：有新的匹配消息，唤醒请求，即再次拉取消息。
+    * 第 156 至 165 行 ：超过挂起时间，唤醒请求，即再次拉取消息。
+    * 第 148 || 159 行 ：唤醒请求，再次拉取消息。原先担心拉取消息时间过长，导致影响整个挂起请求的遍历，后面查看`executeRequestWhenWakeup(...)`，实际是丢到线程池进行一步的消息拉取，不会有性能上的问题。详细解析见：[PullMessageProcessor#executeRequestWhenWakeup(...)](pullmessageprocessorexecuterequestwhenwakeup)。
+    * 第 166 至 172 行 ：不符合唤醒的请求重新添加到集合(`pullRequestTable`)。
+
+## PullMessageProcessor#executeRequestWhenWakeup(...)
+
+```Java
+  1: public void executeRequestWhenWakeup(final Channel channel, final RemotingCommand request) throws RemotingCommandException {
+  2:     Runnable run = new Runnable() {
+  3:         @Override
+  4:         public void run() {
+  5:             try {
+  6:                 // 调用拉取请求。本次调用，设置不挂起请求。
+  7:                 final RemotingCommand response = PullMessageProcessor.this.processRequest(channel, request, false);
+  8: 
+  9:                 if (response != null) {
+ 10:                     response.setOpaque(request.getOpaque());
+ 11:                     response.markResponseType();
+ 12:                     try {
+ 13:                         channel.writeAndFlush(response).addListener(new ChannelFutureListener() {
+ 14:                             @Override
+ 15:                             public void operationComplete(ChannelFuture future) throws Exception {
+ 16:                                 if (!future.isSuccess()) {
+ 17:                                     LOG.error("ProcessRequestWrapper response to {} failed", future.channel().remoteAddress(), future.cause());
+ 18:                                     LOG.error(request.toString());
+ 19:                                     LOG.error(response.toString());
+ 20:                                 }
+ 21:                             }
+ 22:                         });
+ 23:                     } catch (Throwable e) {
+ 24:                         LOG.error("ProcessRequestWrapper process request over, but response failed", e);
+ 25:                         LOG.error(request.toString());
+ 26:                         LOG.error(response.toString());
+ 27:                     }
+ 28:                 }
+ 29:             } catch (RemotingCommandException e1) {
+ 30:                 LOG.error("ExecuteRequestWhenWakeup run", e1);
+ 31:             }
+ 32:         }
+ 33:     };
+ 34:     // 提交拉取请求到线程池
+ 35:     this.brokerController.getPullMessageExecutor().submit(new RequestTask(run, channel, request));
+ 36: }
+```
+
+* 说明 ：执行请求唤醒，即再次拉取消息。该方法调用线程池，因此，不会阻塞。
+* 第 7 行 ：调用拉取消息请求。本次调用，设置即使请求不到消息，也不挂起请求。如果不设置，请求可能被无限挂起，被 `Broker` 不停循环。
+* 第 35 行 ：**提交拉取消息请求到线程池**。
 
 # 4、Broker 提供[更新消费进度]接口
 # 5、Broker 提供[发回消息]接口
