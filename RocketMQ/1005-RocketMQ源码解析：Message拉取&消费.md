@@ -1,6 +1,6 @@
 # 1、概述
 
-# 2、ConsumeQueue
+# 2、ConsumeQueue 结构
 
 `ConsumeQueue`、`MappedFileQueue`、`MappedFile` 的关系如下：
 
@@ -64,6 +64,8 @@ total 11720
 | 1 | | 0 | Long | 8 |
 | 2 | | Integer.MAX_VALUE | Int | 4 |
 | 3 | | 0 | Long | 8 |
+
+# 3、ConsumeQueue 存储
 
 ## ReputMessageService
 
@@ -218,10 +220,11 @@ total 11720
     * 该服务不断生成 消息位置信息 到 消费队列(ConsumeQueue)
     * 该服务不断生成 消息索引 到 索引文件(IndexFile)    
 * ![ReputMessageService顺序图](images/1005/ReputMessageService用例图.png)
-    *  第 61 行 ：获取 `reputFromOffset` 开始的 `CommitLog` 对应的 `MappedFile` 对应的 `MappedByteBuffer`。
-    *  第 67 行 ：遍历 `MappedByteBuffer`。
-    *  第 69 行 ：生成重放消息重放调度请求 (`DispatchRequest`) 。请求里主要包含一条消息 (`Message`) 或者 文件尾 (`BLANK`) 的基本信息。
-    *  第 72 至 96 行 ：请求是有效请求，进行逻辑处理。
+    * 第 61 行 ：获取 `reputFromOffset` 开始的 `CommitLog` 对应的 `MappedFile` 对应的 `MappedByteBuffer`。
+    * 第 67 行 ：遍历 `MappedByteBuffer`。
+    * 第 69 行 ：生成重放消息重放调度请求 (`DispatchRequest`) 。请求里主要包含一条消息 (`Message`) 或者 文件尾 (`BLANK`) 的基本信息。
+    * 第 72 至 96 行 ：请求是有效请求，进行逻辑处理。
+        * 第 75 至 81 行 ：当 `Broker` 是主节点 && `Broker` 开启的是长轮询，通知消费队列有新的消息。`NotifyMessageArrivingListener` 会 调用 `PullRequestHoldService#notifyMessageArriving(...)` 方法，详细解析见：[PullRequestHoldService](#pullrequestholdservice)
     * 第 73 至 92 行 ：请求对应的是 `Message`，进行调度，生成 `ConsumeQueue` 和 `IndexFile` 对应的内容。详细解析见：
     * 第 93 至 96 行 ：请求对应的是 `Blank`，即文件尾，跳转指向下一个 `MappedFile`。
     * 第 97 至 110 行 ：请求是无效请求。出现该情况，基本是一个**BUG**。
@@ -410,7 +413,7 @@ total 11720
 * 第 89 行 ：设置 `CommitLog` 重放消息到 `ConsumeQueue` 最大位置。
 * 第 91 行 ：插入消息位置到 `MappedFile`。
 
-# 3、Broker 提供[拉取消息]接口
+# 4、Broker 提供[拉取消息]接口
 
 ## PullMessageRequestHeader
 
@@ -1416,10 +1419,10 @@ total 11720
 * 第 7 行 ：调用拉取消息请求。本次调用，设置即使请求不到消息，也不挂起请求。如果不设置，请求可能被无限挂起，被 `Broker` 不停循环。
 * 第 35 行 ：**提交拉取消息请求到线程池**。
 
-# 4、Broker 提供[更新消费进度]接口
-# 5、Broker 提供[发回消息]接口
-# 6、Consumer 调用[拉取消息]接口
-# 7、Consumer 消费消息
-# 8、Consumer 调用[发回消息]接口
-# 9、Consumer 调用[更新消费进度]接口
+# 5、Broker 提供[更新消费进度]接口
+# 6、Broker 提供[发回消息]接口
+# 7、Consumer 调用[拉取消息]接口
+# 8、Consumer 消费消息
+# 9、Consumer 调用[发回消息]接口
+# 10、Consumer 调用[更新消费进度]接口
 
