@@ -6,7 +6,156 @@
 
 ![ReputMessageService顺序图](images/1005/ReputMessageService顺序图.png)
 
+```Java
+  1: class ReputMessageService extends ServiceThread {
+  2: 
+  3:     /**
+  4:      * 开始重放消息的CommitLog物理位置
+  5:      */
+  6:     private volatile long reputFromOffset = 0;
+  7: 
+  8:     public long getReputFromOffset() {
+  9:         return reputFromOffset;
+ 10:     }
+ 11: 
+ 12:     public void setReputFromOffset(long reputFromOffset) {
+ 13:         this.reputFromOffset = reputFromOffset;
+ 14:     }
+ 15: 
+ 16:     @Override
+ 17:     public void shutdown() {
+ 18:         for (int i = 0; i < 50 && this.isCommitLogAvailable(); i++) {
+ 19:             try {
+ 20:                 Thread.sleep(100);
+ 21:             } catch (InterruptedException ignored) {
+ 22:             }
+ 23:         }
+ 24: 
+ 25:         if (this.isCommitLogAvailable()) {
+ 26:             log.warn("shutdown ReputMessageService, but commitlog have not finish to be dispatched, CL: {} reputFromOffset: {}",
+ 27:                 DefaultMessageStore.this.commitLog.getMaxOffset(), this.reputFromOffset);
+ 28:         }
+ 29: 
+ 30:         super.shutdown();
+ 31:     }
+ 32: 
+ 33:     /**
+ 34:      * 剩余需要重放消息字节数
+ 35:      *
+ 36:      * @return 字节数
+ 37:      */
+ 38:     public long behind() {
+ 39:         return DefaultMessageStore.this.commitLog.getMaxOffset() - this.reputFromOffset;
+ 40:     }
+ 41: 
+ 42:     /**
+ 43:      * 是否commitLog需要重放消息
+ 44:      *
+ 45:      * @return 是否
+ 46:      */
+ 47:     private boolean isCommitLogAvailable() {
+ 48:         return this.reputFromOffset < DefaultMessageStore.this.commitLog.getMaxOffset();
+ 49:     }
+ 50: 
+ 51:     private void doReput() {
+ 52:         for (boolean doNext = true; this.isCommitLogAvailable() && doNext; ) {
+ 53: 
+ 54:             // TODO 疑问：这个是啥
+ 55:             if (DefaultMessageStore.this.getMessageStoreConfig().isDuplicationEnable() //
+ 56:                 && this.reputFromOffset >= DefaultMessageStore.this.getConfirmOffset()) {
+ 57:                 break;
+ 58:             }
+ 59: 
+ 60:             // 获取从reputFromOffset开始的commitLog对应的MappeFile对应的MappedByteBuffer
+ 61:             SelectMappedBufferResult result = DefaultMessageStore.this.commitLog.getData(reputFromOffset);
+ 62:             if (result != null) {
+ 63:                 try {
+ 64:                     this.reputFromOffset = result.getStartOffset();
+ 65: 
+ 66:                     // 遍历MappedByteBuffer
+ 67:                     for (int readSize = 0; readSize < result.getSize() && doNext; ) {
+ 68:                         // 生成重放消息重放调度请求
+ 69:                         DispatchRequest dispatchRequest = DefaultMessageStore.this.commitLog.checkMessageAndReturnSize(result.getByteBuffer(), false, false);
+ 70:                         int size = dispatchRequest.getMsgSize(); // 消息长度
+ 71:                         // 根据请求的结果处理
+ 72:                         if (dispatchRequest.isSuccess()) { // 读取成功
+ 73:                             if (size > 0) { // 读取Message
+ 74:                                 DefaultMessageStore.this.doDispatch(dispatchRequest);
+ 75:                                 // 通知有新消息
+ 76:                                 if (BrokerRole.SLAVE != DefaultMessageStore.this.getMessageStoreConfig().getBrokerRole()
+ 77:                                     && DefaultMessageStore.this.brokerConfig.isLongPollingEnable()) {
+ 78:                                     DefaultMessageStore.this.messageArrivingListener.arriving(dispatchRequest.getTopic(),
+ 79:                                         dispatchRequest.getQueueId(), dispatchRequest.getConsumeQueueOffset() + 1,
+ 80:                                         dispatchRequest.getTagsCode());
+ 81:                                 }
+ 82:                                 // FIXED BUG By shijia
+ 83:                                 this.reputFromOffset += size;
+ 84:                                 readSize += size;
+ 85:                                 // 统计
+ 86:                                 if (DefaultMessageStore.this.getMessageStoreConfig().getBrokerRole() == BrokerRole.SLAVE) {
+ 87:                                     DefaultMessageStore.this.storeStatsService
+ 88:                                         .getSinglePutMessageTopicTimesTotal(dispatchRequest.getTopic()).incrementAndGet();
+ 89:                                     DefaultMessageStore.this.storeStatsService
+ 90:                                         .getSinglePutMessageTopicSizeTotal(dispatchRequest.getTopic())
+ 91:                                         .addAndGet(dispatchRequest.getMsgSize());
+ 92:                                 }
+ 93:                             } else if (size == 0) { // 读取到MappedFile文件尾
+ 94:                                 this.reputFromOffset = DefaultMessageStore.this.commitLog.rollNextFile(this.reputFromOffset);
+ 95:                                 readSize = result.getSize();
+ 96:                             }
+ 97:                         } else if (!dispatchRequest.isSuccess()) { // 读取失败
+ 98:                             if (size > 0) { // 读取到Message却不是Message
+ 99:                                 log.error("[BUG]read total count not equals msg total size. reputFromOffset={}", reputFromOffset);
+100:                                 this.reputFromOffset += size;
+101:                             } else { // 读取到Blank却不是Blank
+102:                                 doNext = false;
+103:                                 if (DefaultMessageStore.this.brokerConfig.getBrokerId() == MixAll.MASTER_ID) {
+104:                                     log.error("[BUG]the master dispatch message to consume queue error, COMMITLOG OFFSET: {}",
+105:                                         this.reputFromOffset);
+106: 
+107:                                     this.reputFromOffset += result.getSize() - readSize;
+108:                                 }
+109:                             }
+110:                         }
+111:                     }
+112:                 } finally {
+113:                     result.release();
+114:                 }
+115:             } else {
+116:                 doNext = false;
+117:             }
+118:         }
+119:     }
+120: 
+121:     @Override
+122:     public void run() {
+123:         DefaultMessageStore.log.info(this.getServiceName() + " service started");
+124: 
+125:         while (!this.isStopped()) {
+126:             try {
+127:                 Thread.sleep(1);
+128:                 this.doReput();
+129:             } catch (Exception e) {
+130:                 DefaultMessageStore.log.warn(this.getServiceName() + " service has exception. ", e);
+131:             }
+132:         }
+133: 
+134:         DefaultMessageStore.log.info(this.getServiceName() + " service end");
+135:     }
+136: 
+137:     @Override
+138:     public String getServiceName() {
+139:         return ReputMessageService.class.getSimpleName();
+140:     }
+141: 
+142: }
+```
 
+* 说明：重放消息线程服务。
+    * 该服务不断生成 消息位置信息 到 消费队列(ConsumeQueue)
+    * 该服务不断生成 消息索引 到 索引文件(IndexFile)
+    * ![ReputMessageService顺序图](images/1005/ReputMessageService用例图.png)
+*  
 
 # 3、Broker 提供[拉取消息]接口
 
