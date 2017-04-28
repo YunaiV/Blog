@@ -2,6 +2,69 @@
 
 # 2、ConsumeQueue
 
+`ConsumeQueue`、`MappedFileQueue`、`MappedFile` 的关系如下：
+
+> ![ConsumeQueue、MappedFileQueue、MappedFile的关系](images/1005/ConsumeQueue类图.png)
+`CommitLog` : `MappedFileQueue` : `MappedFile` = 1 : 1 : N。
+
+反应到系统文件如下：
+
+```bash
+Yunai-MacdeMacBook-Pro-2:consumequeue yunai$ pwd
+/Users/yunai/store/consumequeue
+Yunai-MacdeMacBook-Pro-2:consumequeue yunai$ cd TopicRead3/
+Yunai-MacdeMacBook-Pro-2:TopicRead3 yunai$ pwd
+/Users/yunai/store/consumequeue/TopicRead3
+Yunai-MacdeMacBook-Pro-2:TopicRead3 yunai$ cd ..
+Yunai-MacdeMacBook-Pro-2:consumequeue yunai$ ls
+TopicRead3
+Yunai-MacdeMacBook-Pro-2:consumequeue yunai$ pwd
+/Users/yunai/store/consumequeue
+Yunai-MacdeMacBook-Pro-2:consumequeue yunai$ cd TopicRead3/
+Yunai-MacdeMacBook-Pro-2:TopicRead3 yunai$ ls -ls
+total 0
+0 drwxr-xr-x  3 yunai  staff  102  4 27 21:52 0
+0 drwxr-xr-x  3 yunai  staff  102  4 27 21:55 1
+0 drwxr-xr-x  3 yunai  staff  102  4 27 21:55 2
+0 drwxr-xr-x  3 yunai  staff  102  4 27 21:55 3
+Yunai-MacdeMacBook-Pro-2:TopicRead3 yunai$ cd 0/
+Yunai-MacdeMacBook-Pro-2:0 yunai$ ls -ls
+total 11720
+11720 -rw-r--r--  1 yunai  staff  6000000  4 27 21:55 00000000000000000000
+```
+
+-------
+
+`ConsumeQueue`、`MappedFileQueue`、`MappedFile` 的定义如下：
+
+* `MappedFile` ：00000000000000000000等文件。
+* `MappedFileQueue` ：`MappedFile` 所在的文件夹，对 `MappedFile` 进行封装成文件队列，对上层提供可无限使用的文件容量。
+    * 每个 `MappedFile` 统一文件大小。
+    * 文件命名方式：fileName[n] = fileName[n - 1] + mappedFileSize。在 `CommitLog` 里默认为 6000000B。
+* `ConsumeQueue` ：针对 `MappedFileQueue` 的封装使用。
+    * `Store : ConsumeQueue = ConcurrentHashMap<String/* topic */, ConcurrentHashMap<Integer/* queueId */, ConsumeQueue>>`
+
+`ConsumeQueue` 存储在 `MappedFile` 的内容必须大小是 20B(`ConsumeQueue.CQ_STORE_UNIT_SIZE`)，有两种内容类型：
+
+1. MessagePositionInfo ：消息位置信息。
+2. BLANK : 文件前置空白占位。当历史 `Message` 被删除时，需要用 `BLANK`占位被删除的消息。
+
+`MessagePositionInfo` 在 `ConsumeQueue` 存储结构：
+
+| 第几位 | 字段 | 说明 | 数据类型 | 字节数 |
+| :-- | :-- | :-- | :-- | :-- |
+| 1 | offset | 消息 `CommitLog` 存储位置 | Long | 8 |
+| 2 | size | 消息长度 | Int | 4 |
+| 3 | tagsCode | 消息tagsCode | Long | 8 |
+
+`BLANK` 在 `ConsumeQueue` 存储结构：
+
+| 第几位 | 字段 | 说明 | 数据类型 | 字节数 |
+| :-- | :-- | :-- | :-- | :-- |
+| 1 | | 0 | Long | 8 |
+| 2 | | Integer.MAX_VALUE | Int | 4 |
+| 3 | | 0 | Long | 8 |
+
 ## ReputMessageService
 
 ![ReputMessageService顺序图](images/1005/ReputMessageService顺序图.png)
@@ -159,11 +222,193 @@
     *  第 67 行 ：遍历 `MappedByteBuffer`。
     *  第 69 行 ：生成重放消息重放调度请求 (`DispatchRequest`) 。请求里主要包含一条消息 (`Message`) 或者 文件尾 (`BLANK`) 的基本信息。
     *  第 72 至 96 行 ：请求是有效请求，进行逻辑处理。
-    * 第 73 至 92 行 ：请求对应的是 `Message`，进行调度，生成 `ConsumeQueue` 和 `IndexFile` 对应的内容。
+    * 第 73 至 92 行 ：请求对应的是 `Message`，进行调度，生成 `ConsumeQueue` 和 `IndexFile` 对应的内容。详细解析见：
     * 第 93 至 96 行 ：请求对应的是 `Blank`，即文件尾，跳转指向下一个 `MappedFile`。
     * 第 97 至 110 行 ：请求是无效请求。出现该情况，基本是一个**BUG**。
 * 第 127 至 128 行 ：每 1ms 循环执行重放逻辑。
 * 第 18 至 30 行 ：`shutdown`时，多次 `sleep(100)` 直到 `CommitLog` 回放到最新位置。恩，如果未回放完，会输出警告日志。
+
+## DefaultMessageStore#doDispatch(...)
+
+```Java
+  1: /**
+  2:  * 执行调度请求
+  3:  * 1. 非事务消息 或 事务提交消息 建立 消息位置信息 到 ConsumeQueue
+  4:  * 2. 建立 索引信息 到 IndexFile
+  5:  *
+  6:  * @param req 调度请求
+  7:  */
+  8: public void doDispatch(DispatchRequest req) {
+  9:     // 非事务消息 或 事务提交消息 建立 消息位置信息 到 ConsumeQueue
+ 10:     final int tranType = MessageSysFlag.getTransactionValue(req.getSysFlag());
+ 11:     switch (tranType) {
+ 12:         case MessageSysFlag.TRANSACTION_NOT_TYPE:
+ 13:         case MessageSysFlag.TRANSACTION_COMMIT_TYPE:
+ 14:             DefaultMessageStore.this.putMessagePositionInfo(req.getTopic(), req.getQueueId(), req.getCommitLogOffset(), req.getMsgSize(),
+ 15:                 req.getTagsCode(), req.getStoreTimestamp(), req.getConsumeQueueOffset());
+ 16:             break;
+ 17:         case MessageSysFlag.TRANSACTION_PREPARED_TYPE:
+ 18:         case MessageSysFlag.TRANSACTION_ROLLBACK_TYPE:
+ 19:             break;
+ 20:     }
+ 21:     // 建立 索引信息 到 IndexFile
+ 22:     if (DefaultMessageStore.this.getMessageStoreConfig().isMessageIndexEnable()) {
+ 23:         DefaultMessageStore.this.indexService.buildIndex(req);
+ 24:     }
+ 25: }
+ 26: 
+ 27: /**
+ 28:  * 建立 消息位置信息 到 ConsumeQueue
+ 29:  *
+ 30:  * @param topic 主题
+ 31:  * @param queueId 队列编号
+ 32:  * @param offset commitLog存储位置
+ 33:  * @param size 消息长度
+ 34:  * @param tagsCode 消息tagsCode
+ 35:  * @param storeTimestamp 存储时间
+ 36:  * @param logicOffset 队列位置
+ 37:  */
+ 38: public void putMessagePositionInfo(String topic, int queueId, long offset, int size, long tagsCode, long storeTimestamp,
+ 39:     long logicOffset) {
+ 40:     ConsumeQueue cq = this.findConsumeQueue(topic, queueId);
+ 41:     cq.putMessagePositionInfoWrapper(offset, size, tagsCode, storeTimestamp, logicOffset);
+ 42: }
+```
+
+## ConsumeQueue#putMessagePositionInfoWrapper(...)
+
+```Java
+  1: /**
+  2:  * 添加位置信息封装
+  3:  *
+  4:  * @param offset commitLog存储位置
+  5:  * @param size 消息长度
+  6:  * @param tagsCode 消息tagsCode
+  7:  * @param storeTimestamp 消息存储时间
+  8:  * @param logicOffset 队列位置
+  9:  */
+ 10: public void putMessagePositionInfoWrapper(long offset, int size, long tagsCode, long storeTimestamp,
+ 11:     long logicOffset) {
+ 12:     final int maxRetries = 30;
+ 13:     boolean canWrite = this.defaultMessageStore.getRunningFlags().isWriteable();
+ 14:     // 多次循环写，直到成功
+ 15:     for (int i = 0; i < maxRetries && canWrite; i++) {
+ 16:         // 调用添加位置信息
+ 17:         boolean result = this.putMessagePositionInfo(offset, size, tagsCode, logicOffset);
+ 18:         if (result) {
+ 19:             // 添加成功，使用消息存储时间 作为 存储check point。
+ 20:             this.defaultMessageStore.getStoreCheckpoint().setLogicsMsgTimestamp(storeTimestamp);
+ 21:             return;
+ 22:         } else {
+ 23:             // XXX: warn and notify me
+ 24:             log.warn("[BUG]put commit log position info to " + topic + ":" + queueId + " " + offset
+ 25:                 + " failed, retry " + i + " times");
+ 26: 
+ 27:             try {
+ 28:                 Thread.sleep(1000);
+ 29:             } catch (InterruptedException e) {
+ 30:                 log.warn("", e);
+ 31:             }
+ 32:         }
+ 33:     }
+ 34: 
+ 35:     // XXX: warn and notify me 设置异常不可写入
+ 36:     log.error("[BUG]consume queue can not write, {} {}", this.topic, this.queueId);
+ 37:     this.defaultMessageStore.getRunningFlags().makeLogicsQueueError();
+ 38: }
+ 39: 
+ 40: /**
+ 41:  * 添加位置信息，并返回添加是否成功
+ 42:  *
+ 43:  * @param offset commitLog存储位置
+ 44:  * @param size 消息长度
+ 45:  * @param tagsCode 消息tagsCode
+ 46:  * @param cqOffset 队列位置
+ 47:  * @return 是否成功
+ 48:  */
+ 49: private boolean putMessagePositionInfo(final long offset, final int size, final long tagsCode,
+ 50:     final long cqOffset) {
+ 51:     // 如果已经重放过，直接返回成功
+ 52:     if (offset <= this.maxPhysicOffset) {
+ 53:         return true;
+ 54:     }
+ 55:     // 写入位置信息到byteBuffer
+ 56:     this.byteBufferIndex.flip();
+ 57:     this.byteBufferIndex.limit(CQ_STORE_UNIT_SIZE);
+ 58:     this.byteBufferIndex.putLong(offset);
+ 59:     this.byteBufferIndex.putInt(size);
+ 60:     this.byteBufferIndex.putLong(tagsCode);
+ 61:     // 计算consumeQueue存储位置，并获得对应的MappedFile
+ 62:     final long expectLogicOffset = cqOffset * CQ_STORE_UNIT_SIZE;
+ 63:     MappedFile mappedFile = this.mappedFileQueue.getLastMappedFile(expectLogicOffset);
+ 64:     if (mappedFile != null) {
+ 65:         // 当是ConsumeQueue第一个MappedFile && 队列位置非第一个 && MappedFile未写入内容，则填充前置空白占位
+ 66:         if (mappedFile.isFirstCreateInQueue() && cqOffset != 0 && mappedFile.getWrotePosition() == 0) { // TODO 疑问：为啥这个操作。目前能够想象到的是，一些老的消息很久没发送，突然发送，这个时候刚好满足。
+ 67:             this.minLogicOffset = expectLogicOffset;
+ 68:             this.mappedFileQueue.setFlushedWhere(expectLogicOffset);
+ 69:             this.mappedFileQueue.setCommittedWhere(expectLogicOffset);
+ 70:             this.fillPreBlank(mappedFile, expectLogicOffset);
+ 71:             log.info("fill pre blank space " + mappedFile.getFileName() + " " + expectLogicOffset + " "
+ 72:                 + mappedFile.getWrotePosition());
+ 73:         }
+ 74:         // 校验consumeQueue存储位置是否合法。TODO 如果不合法，继续写入会不会有问题？
+ 75:         if (cqOffset != 0) {
+ 76:             long currentLogicOffset = mappedFile.getWrotePosition() + mappedFile.getFileFromOffset();
+ 77:             if (expectLogicOffset != currentLogicOffset) {
+ 78:                 LOG_ERROR.warn(
+ 79:                     "[BUG]logic queue order maybe wrong, expectLogicOffset: {} currentLogicOffset: {} Topic: {} QID: {} Diff: {}",
+ 80:                     expectLogicOffset,
+ 81:                     currentLogicOffset,
+ 82:                     this.topic,
+ 83:                     this.queueId,
+ 84:                     expectLogicOffset - currentLogicOffset
+ 85:                 );
+ 86:             }
+ 87:         }
+ 88:         // 设置commitLog重放消息到ConsumeQueue位置。
+ 89:         this.maxPhysicOffset = offset;
+ 90:         // 插入mappedFile
+ 91:         return mappedFile.appendMessage(this.byteBufferIndex.array());
+ 92:     }
+ 93:     return false;
+ 94: }
+ 95: 
+ 96: /**
+ 97:  * 填充前置空白占位
+ 98:  *
+ 99:  * @param mappedFile MappedFile
+100:  * @param untilWhere consumeQueue存储位置
+101:  */
+102: private void fillPreBlank(final MappedFile mappedFile, final long untilWhere) {
+103:     // 写入前置空白占位到byteBuffer
+104:     ByteBuffer byteBuffer = ByteBuffer.allocate(CQ_STORE_UNIT_SIZE);
+105:     byteBuffer.putLong(0L);
+106:     byteBuffer.putInt(Integer.MAX_VALUE);
+107:     byteBuffer.putLong(0L);
+108:     // 循环填空
+109:     int until = (int) (untilWhere % this.mappedFileQueue.getMappedFileSize());
+110:     for (int i = 0; i < until; i += CQ_STORE_UNIT_SIZE) {
+111:         mappedFile.appendMessage(byteBuffer.array());
+112:     }
+113: }
+```
+
+* `#putMessagePositionInfoWrapper(...)` 说明 ：添加位置信息到 `ConsumeQueue` 的封装，实际需要调用 `#putMessagePositionInfo(...)` 方法。
+* 第 13 行 ：判断 `ConsumeQueue` 是否允许写入。当发生Bug时，不允许写入。
+* 第 17 行 ：调用 `#putMessagePositionInfo(...)` 方法，添加位置信息。
+* 第 18 至 21 行 ：添加成功，使用消息存储时间 作为 存储检查点。`StoreCheckPoint` 的详细解析见：[Store初始化与关闭](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1006-RocketMQ源码解析：Store初始化与关闭.md)。
+* 第 22 至 32 行 ：添加失败，目前基本可以认为是BUG。
+* 第 35 至 37 行 ：写入失败时，标记 `ConsumeQueue` 写入异常，不允许继续写入。
+* `#putMessagePositionInfo(...)` 说明 ：添加位置信息到 `ConsumeQueue`，并返回添加是否成功。
+* 第 51 至 54 行 ：如果 `offset`(存储位置) 小于等于  `maxPhysicOffset`(`CommitLog` 消息重放到 `ConsumeQueue` 最大的 `CommitLog` 存储位置)，表示已经重放过，此时，不再重复写入，直接返回写入成功。
+* 第 55 至 60 行 ：写 位置信息到byteBuffer。
+* 第 62 至 63 行 ：计算 `ConsumeQueue`存储位置，并获得对应的MappedFile。
+* 第 65 至 73 行 ：当 `MappedFile` 是 `ConsumeQueue` 当前第一个文件 && `MappedFile` 未写入内容 && 重放消息队列位置大于0，则需要进行 `MappedFile` 前置填充。
+   * *这块比较有疑问，什么场景下会需要。猜测产生的原因：一个 `Topic` 长期无消息产生，突然N天后进行发送，`Topic` 对应的历史消息以及和消费队列数据已经被清理，新生成的`MappedFile`需要前置占位。*
+* 第 74 至 87 行 ：校验 `ConsumeQueue` 存储位置是否合法，不合法则输出日志。
+    * *这块比较有疑问，如果计算出来的存储位置不合法，不返回添加失败，继续进行添加位置信息，会不会有问题？？？*
+* 第 89 行 ：设置 `CommitLog` 重放消息到 `ConsumeQueue` 最大位置。
+* 第 91 行 ：插入消息位置到 `MappedFile`。
 
 # 3、Broker 提供[拉取消息]接口
 
