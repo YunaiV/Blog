@@ -153,9 +153,17 @@
 
 * 说明：重放消息线程服务。
     * 该服务不断生成 消息位置信息 到 消费队列(ConsumeQueue)
-    * 该服务不断生成 消息索引 到 索引文件(IndexFile)
-    * ![ReputMessageService顺序图](images/1005/ReputMessageService用例图.png)
-*  
+    * 该服务不断生成 消息索引 到 索引文件(IndexFile)    
+* ![ReputMessageService顺序图](images/1005/ReputMessageService用例图.png)
+    *  第 61 行 ：获取 `reputFromOffset` 开始的 `CommitLog` 对应的 `MappedFile` 对应的 `MappedByteBuffer`。
+    *  第 67 行 ：遍历 `MappedByteBuffer`。
+    *  第 69 行 ：生成重放消息重放调度请求 (`DispatchRequest`) 。请求里主要包含一条消息 (`Message`) 或者 文件尾 (`BLANK`) 的基本信息。
+    *  第 72 至 96 行 ：请求是有效请求，进行逻辑处理。
+    * 第 73 至 92 行 ：请求对应的是 `Message`，进行调度，生成 `ConsumeQueue` 和 `IndexFile` 对应的内容。
+    * 第 93 至 96 行 ：请求对应的是 `Blank`，即文件尾，跳转指向下一个 `MappedFile`。
+    * 第 97 至 110 行 ：请求是无效请求。出现该情况，基本是一个**BUG**。
+* 第 127 至 128 行 ：每 1ms 循环执行重放逻辑。
+* 第 18 至 30 行 ：`shutdown`时，多次 `sleep(100)` 直到 `CommitLog` 回放到最新位置。恩，如果未回放完，会输出警告日志。
 
 # 3、Broker 提供[拉取消息]接口
 
