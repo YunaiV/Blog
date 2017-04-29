@@ -1826,4 +1826,205 @@ Yunai-MacdeMacBook-Pro-2:config yunai$ cat consumerOffset.json
 
 # 6、Broker 提供[发回消息]接口
 
+大部分逻辑和 [`Broker` 提供[接受消息]接口](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1003-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E5%8F%91%E9%80%81%26%E6%8E%A5%E6%94%B6.md#3broker-接收消息) 类似，可以先看下相关内容。
+
+## SendMessageProcessor#consumerSendMsgBack(...)
+
+```Java
+  1: private RemotingCommand consumerSendMsgBack(final ChannelHandlerContext ctx, final RemotingCommand request)
+  2:     throws RemotingCommandException {
+  3: 
+  4:     // 初始化响应
+  5:     final RemotingCommand response = RemotingCommand.createResponseCommand(null);
+  6:     final ConsumerSendMsgBackRequestHeader requestHeader =
+  7:         (ConsumerSendMsgBackRequestHeader) request.decodeCommandCustomHeader(ConsumerSendMsgBackRequestHeader.class);
+  8: 
+  9:     // hook（独有）
+ 10:     if (this.hasConsumeMessageHook() && !UtilAll.isBlank(requestHeader.getOriginMsgId())) {
+ 11: 
+ 12:         ConsumeMessageContext context = new ConsumeMessageContext();
+ 13:         context.setConsumerGroup(requestHeader.getGroup());
+ 14:         context.setTopic(requestHeader.getOriginTopic());
+ 15:         context.setCommercialRcvStats(BrokerStatsManager.StatsType.SEND_BACK);
+ 16:         context.setCommercialRcvTimes(1);
+ 17:         context.setCommercialOwner(request.getExtFields().get(BrokerStatsManager.COMMERCIAL_OWNER));
+ 18: 
+ 19:         this.executeConsumeMessageHookAfter(context);
+ 20:     }
+ 21: 
+ 22:     // 判断消费分组是否存在（独有）
+ 23:     SubscriptionGroupConfig subscriptionGroupConfig =
+ 24:         this.brokerController.getSubscriptionGroupManager().findSubscriptionGroupConfig(requestHeader.getGroup());
+ 25:     if (null == subscriptionGroupConfig) {
+ 26:         response.setCode(ResponseCode.SUBSCRIPTION_GROUP_NOT_EXIST);
+ 27:         response.setRemark("subscription group not exist, " + requestHeader.getGroup() + " "
+ 28:             + FAQUrl.suggestTodo(FAQUrl.SUBSCRIPTION_GROUP_NOT_EXIST));
+ 29:         return response;
+ 30:     }
+ 31: 
+ 32:     // 检查 broker 是否有写入权限
+ 33:     if (!PermName.isWriteable(this.brokerController.getBrokerConfig().getBrokerPermission())) {
+ 34:         response.setCode(ResponseCode.NO_PERMISSION);
+ 35:         response.setRemark("the broker[" + this.brokerController.getBrokerConfig().getBrokerIP1() + "] sending message is forbidden");
+ 36:         return response;
+ 37:     }
+ 38: 
+ 39:     // 检查 重试队列数 是否大于0（独有）
+ 40:     if (subscriptionGroupConfig.getRetryQueueNums() <= 0) {
+ 41:         response.setCode(ResponseCode.SUCCESS);
+ 42:         response.setRemark(null);
+ 43:         return response;
+ 44:     }
+ 45: 
+ 46:     // 计算retry Topic
+ 47:     String newTopic = MixAll.getRetryTopic(requestHeader.getGroup());
+ 48: 
+ 49:     // 计算队列编号（独有）
+ 50:     int queueIdInt = Math.abs(this.random.nextInt() % 99999999) % subscriptionGroupConfig.getRetryQueueNums();
+ 51: 
+ 52:     // 计算sysFlag（独有）
+ 53:     int topicSysFlag = 0;
+ 54:     if (requestHeader.isUnitMode()) {
+ 55:         topicSysFlag = TopicSysFlag.buildSysFlag(false, true);
+ 56:     }
+ 57: 
+ 58:     // 获取topicConfig。如果获取不到，则进行创建
+ 59:     TopicConfig topicConfig = this.brokerController.getTopicConfigManager().createTopicInSendMessageBackMethod(//
+ 60:         newTopic, //
+ 61:         subscriptionGroupConfig.getRetryQueueNums(), //
+ 62:         PermName.PERM_WRITE | PermName.PERM_READ, topicSysFlag);
+ 63:     if (null == topicConfig) { // 没有配置
+ 64:         response.setCode(ResponseCode.SYSTEM_ERROR);
+ 65:         response.setRemark("topic[" + newTopic + "] not exist");
+ 66:         return response;
+ 67:     }
+ 68:     if (!PermName.isWriteable(topicConfig.getPerm())) { // 不允许写入
+ 69:         response.setCode(ResponseCode.NO_PERMISSION);
+ 70:         response.setRemark(String.format("the topic[%s] sending message is forbidden", newTopic));
+ 71:         return response;
+ 72:     }
+ 73: 
+ 74:     // 查询消息。若不存在，返回异常错误。（独有）
+ 75:     MessageExt msgExt = this.brokerController.getMessageStore().lookMessageByOffset(requestHeader.getOffset());
+ 76:     if (null == msgExt) {
+ 77:         response.setCode(ResponseCode.SYSTEM_ERROR);
+ 78:         response.setRemark("look message by offset failed, " + requestHeader.getOffset());
+ 79:         return response;
+ 80:     }
+ 81: 
+ 82:     // 设置retryTopic到拓展属性（独有）
+ 83:     final String retryTopic = msgExt.getProperty(MessageConst.PROPERTY_RETRY_TOPIC);
+ 84:     if (null == retryTopic) {
+ 85:         MessageAccessor.putProperty(msgExt, MessageConst.PROPERTY_RETRY_TOPIC, msgExt.getTopic());
+ 86:     }
+ 87: 
+ 88:     // 设置消息不等待存储完成（独有） TODO 疑问：如果设置成不等待存储，broker设置成同步落盘，岂不是不能批量提交了？
+ 89:     msgExt.setWaitStoreMsgOK(false);
+ 90: 
+ 91:     // 处理 delayLevel（独有）。
+ 92:     int delayLevel = requestHeader.getDelayLevel();
+ 93:     int maxReconsumeTimes = subscriptionGroupConfig.getRetryMaxTimes();
+ 94:     if (request.getVersion() >= MQVersion.Version.V3_4_9.ordinal()) {
+ 95:         maxReconsumeTimes = requestHeader.getMaxReconsumeTimes();
+ 96:     }
+ 97:     if (msgExt.getReconsumeTimes() >= maxReconsumeTimes//
+ 98:         || delayLevel < 0) { // 如果超过最大消费次数，则topic修改成"%DLQ%" + 分组名，即加入 死信队列(Dead Letter Queue)
+ 99:         newTopic = MixAll.getDLQTopic(requestHeader.getGroup());
+100:         queueIdInt = Math.abs(this.random.nextInt() % 99999999) % DLQ_NUMS_PER_GROUP;
+101: 
+102:         topicConfig = this.brokerController.getTopicConfigManager().createTopicInSendMessageBackMethod(newTopic, //
+103:             DLQ_NUMS_PER_GROUP, //
+104:             PermName.PERM_WRITE, 0
+105:         );
+106:         if (null == topicConfig) {
+107:             response.setCode(ResponseCode.SYSTEM_ERROR);
+108:             response.setRemark("topic[" + newTopic + "] not exist");
+109:             return response;
+110:         }
+111:     } else {
+112:         if (0 == delayLevel) {
+113:             delayLevel = 3 + msgExt.getReconsumeTimes();
+114:         }
+115:         msgExt.setDelayTimeLevel(delayLevel);
+116:     }
+117: 
+118:     // 创建MessageExtBrokerInner
+119:     MessageExtBrokerInner msgInner = new MessageExtBrokerInner();
+120:     msgInner.setTopic(newTopic);
+121:     msgInner.setBody(msgExt.getBody());
+122:     msgInner.setFlag(msgExt.getFlag());
+123:     MessageAccessor.setProperties(msgInner, msgExt.getProperties());
+124:     msgInner.setPropertiesString(MessageDecoder.messageProperties2String(msgExt.getProperties()));
+125:     msgInner.setTagsCode(MessageExtBrokerInner.tagsString2tagsCode(null, msgExt.getTags()));
+126:     msgInner.setQueueId(queueIdInt);
+127:     msgInner.setSysFlag(msgExt.getSysFlag());
+128:     msgInner.setBornTimestamp(msgExt.getBornTimestamp());
+129:     msgInner.setBornHost(msgExt.getBornHost());
+130:     msgInner.setStoreHost(this.getStoreHost());
+131:     msgInner.setReconsumeTimes(msgExt.getReconsumeTimes() + 1);
+132: 
+133:     // 设置原始消息编号到拓展字段（独有）
+134:     String originMsgId = MessageAccessor.getOriginMessageId(msgExt);
+135:     MessageAccessor.setOriginMessageId(msgInner, UtilAll.isBlank(originMsgId) ? msgExt.getMsgId() : originMsgId);
+136: 
+137:     // 添加消息
+138:     PutMessageResult putMessageResult = this.brokerController.getMessageStore().putMessage(msgInner);
+139:     if (putMessageResult != null) {
+140:         switch (putMessageResult.getPutMessageStatus()) {
+141:             case PUT_OK:
+142:                 String backTopic = msgExt.getTopic();
+143:                 String correctTopic = msgExt.getProperty(MessageConst.PROPERTY_RETRY_TOPIC);
+144:                 if (correctTopic != null) {
+145:                     backTopic = correctTopic;
+146:                 }
+147: 
+148:                 this.brokerController.getBrokerStatsManager().incSendBackNums(requestHeader.getGroup(), backTopic);
+149: 
+150:                 response.setCode(ResponseCode.SUCCESS);
+151:                 response.setRemark(null);
+152: 
+153:                 return response;
+154:             default:
+155:                 break;
+156:         }
+157: 
+158:         response.setCode(ResponseCode.SYSTEM_ERROR);
+159:         response.setRemark(putMessageResult.getPutMessageStatus().name());
+160:         return response;
+161:     }
+162: 
+163:     response.setCode(ResponseCode.SYSTEM_ERROR);
+164:     response.setRemark("putMessageResult is null");
+165:     return response;
+166: }
+```
+
+* 说明 ：当 `Consumer` 消费某条消息失败时，会调用该接口发回消息。`Broker` 会存储发回的消息。这样，下次 `Consumer` 拉取该消息，能够从 `CommitLog` 和 `ConsumeQueue` 顺序读取。
+* [x] 因为大多数逻辑和 **`Broker` 接收普通消息** 很相似，时候 `TODO` 标记成独有的逻辑。
+* 第 4 至 7 行 ：初始化响应。
+* [x] 第 9 至 20 行 ：Hook逻辑。
+* [x] 第22 至 30 行 ：判断消费分组是否存在。
+* 第 32 至 37 行 ：检查 `Broker` 是否有写入权限。
+* [x] 第 39 至 44 行 ：检查重试队列数是否大于0。
+* 第 47 行 ：计算 retry topic。
+* [x] 第 50 行 ：随机分配队列编号，依赖 `retryQueueNums`。
+* [x] 第 52 至 56 行 ：计算 `sysFlag`。
+* 第 58 至 72 行 ：获取 `TopicConfig`。如果不存在，则创建。
+* [x] 第 74 至 80 行 ：查询消息。若不存在，返回异常错误。
+* [x] 第 82 至 86 行 ：设置 `retryTopic` 到消息拓展属性。
+* [x] 第 89 行 ：设置消息不等待存储完成。
+    * 当 `Broker` 刷盘方式为同步，会导致同步落盘不能批量提交，这样会不会存在问题？有知道的同学麻烦告知下。😈。
+* [x] 第 91 至 116 行 ：处理 `delayLevel` 。
+* 第 118 至 131 行 ：创建 `MessageExtBrokerInner` 。
+* [x] 第 133 至 135 行 ：设置原始消息编号到拓展属性。
+* 第 137 至 161 行 ：添加消息。
+
+# 7、结尾
+
+感谢同学们对本文的阅读、收藏、点赞。
+
+😈如果解析存在问题或者表达误解的，表示抱歉。如果方便的话，可以加下 **QQ：7685413**。让我们来一场 1 ：1 交流（搞基）。
+
+再次表示十分感谢。
+
 
