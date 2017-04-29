@@ -67,6 +67,9 @@ total 11720
 
 # 3、ConsumeQueue 存储
 
+* `ReputMessageService` ：write ConsumeQueue。
+* `FlushConsumeQueueService` ：flush ConsumeQueue。
+
 ## ReputMessageService
 
 ![ReputMessageService顺序图](images/1005/ReputMessageService顺序图.png)
@@ -231,7 +234,7 @@ total 11720
 * 第 127 至 128 行 ：每 1ms 循环执行重放逻辑。
 * 第 18 至 30 行 ：`shutdown`时，多次 `sleep(100)` 直到 `CommitLog` 回放到最新位置。恩，如果未回放完，会输出警告日志。
 
-## DefaultMessageStore#doDispatch(...)
+### DefaultMessageStore#doDispatch(...)
 
 ```Java
   1: /**
@@ -278,7 +281,7 @@ total 11720
  42: }
 ```
 
-## ConsumeQueue#putMessagePositionInfoWrapper(...)
+### ConsumeQueue#putMessagePositionInfoWrapper(...)
 
 ```Java
   1: /**
@@ -412,6 +415,89 @@ total 11720
     * *这块比较有疑问，如果计算出来的存储位置不合法，不返回添加失败，继续进行添加位置信息，会不会有问题？？？*
 * 第 89 行 ：设置 `CommitLog` 重放消息到 `ConsumeQueue` 最大位置。
 * 第 91 行 ：插入消息位置到 `MappedFile`。
+
+## FlushConsumeQueueService
+
+```Java
+  1: class FlushConsumeQueueService extends ServiceThread {
+  2:     private static final int RETRY_TIMES_OVER = 3;
+  3:     /**
+  4:      * 最后flush时间戳
+  5:      */
+  6:     private long lastFlushTimestamp = 0;
+  7: 
+  8:     private void doFlush(int retryTimes) {
+  9:         int flushConsumeQueueLeastPages = DefaultMessageStore.this.getMessageStoreConfig().getFlushConsumeQueueLeastPages();
+ 10: 
+ 11:         // retryTimes == RETRY_TIMES_OVER时，进行强制flush。主要用于shutdown时。
+ 12:         if (retryTimes == RETRY_TIMES_OVER) {
+ 13:             flushConsumeQueueLeastPages = 0;
+ 14:         }
+ 15:         // 当时间满足flushConsumeQueueThoroughInterval时，即使写入的数量不足flushConsumeQueueLeastPages，也进行flush
+ 16:         long logicsMsgTimestamp = 0;
+ 17:         int flushConsumeQueueThoroughInterval = DefaultMessageStore.this.getMessageStoreConfig().getFlushConsumeQueueThoroughInterval();
+ 18:         long currentTimeMillis = System.currentTimeMillis();
+ 19:         if (currentTimeMillis >= (this.lastFlushTimestamp + flushConsumeQueueThoroughInterval)) {
+ 20:             this.lastFlushTimestamp = currentTimeMillis;
+ 21:             flushConsumeQueueLeastPages = 0;
+ 22:             logicsMsgTimestamp = DefaultMessageStore.this.getStoreCheckpoint().getLogicsMsgTimestamp();
+ 23:         }
+ 24:         // flush消费队列
+ 25:         ConcurrentHashMap<String, ConcurrentHashMap<Integer, ConsumeQueue>> tables = DefaultMessageStore.this.consumeQueueTable;
+ 26:         for (ConcurrentHashMap<Integer, ConsumeQueue> maps : tables.values()) {
+ 27:             for (ConsumeQueue cq : maps.values()) {
+ 28:                 boolean result = false;
+ 29:                 for (int i = 0; i < retryTimes && !result; i++) {
+ 30:                     result = cq.flush(flushConsumeQueueLeastPages);
+ 31:                 }
+ 32:             }
+ 33:         }
+ 34:         // flush 存储 check point
+ 35:         if (0 == flushConsumeQueueLeastPages) {
+ 36:             if (logicsMsgTimestamp > 0) {
+ 37:                 DefaultMessageStore.this.getStoreCheckpoint().setLogicsMsgTimestamp(logicsMsgTimestamp);
+ 38:             }
+ 39:             DefaultMessageStore.this.getStoreCheckpoint().flush();
+ 40:         }
+ 41:     }
+ 42: 
+ 43:     public void run() {
+ 44:         DefaultMessageStore.log.info(this.getServiceName() + " service started");
+ 45: 
+ 46:         while (!this.isStopped()) {
+ 47:             try {
+ 48:                 int interval = DefaultMessageStore.this.getMessageStoreConfig().getFlushIntervalConsumeQueue();
+ 49:                 this.waitForRunning(interval);
+ 50:                 this.doFlush(1);
+ 51:             } catch (Exception e) {
+ 52:                 DefaultMessageStore.log.warn(this.getServiceName() + " service has exception. ", e);
+ 53:             }
+ 54:         }
+ 55: 
+ 56:         this.doFlush(RETRY_TIMES_OVER);
+ 57: 
+ 58:         DefaultMessageStore.log.info(this.getServiceName() + " service end");
+ 59:     }
+ 60: 
+ 61:     @Override
+ 62:     public String getServiceName() {
+ 63:         return FlushConsumeQueueService.class.getSimpleName();
+ 64:     }
+ 65: 
+ 66:     @Override
+ 67:     public long getJointime() {
+ 68:         return 1000 * 60;
+ 69:     }
+ 70: }
+```
+
+* 说明 ：flush `ConsumeQueue`(消费队列) 线程服务。
+* 第 11 至 14 行 ：当 `retryTimes == RETRY_TIMES_OVER` 时，进行强制flush。用于 `shutdown` 时。
+* 第 15 至 23 行 ：每 flushConsumeQueueThoroughInterval 周期，执行一次 flush 。因为不是每次循环到都能满足 flushConsumeQueueLeastPages 大小，因此，需要一定周期进行一次强制 flush 。当然，不能每次循环都去执行强制 flush，这样性能较差。
+* 第 24 至 33 行 ：flush `ConsumeQueue`(消费队列)。
+    * flush 逻辑：[MappedFile#落盘](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1004-RocketMQ源码解析：Message存储.md#mappedfile落盘)。
+* 第 34 至 40 行 ：flush `StoreCheckpoint`。`StoreCheckPoint` 的详细解析见：[Store初始化与关闭](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1006-RocketMQ源码解析：Store初始化与关闭.md)。
+* 第 43 至 59 行 ：每 1000ms 执行一次 `flush`。如果 wakeup() 时，则会立即进行一次 `flush`。目前，暂时不存在 wakeup() 的调用。
 
 # 4、Broker 提供[拉取消息]接口
 
@@ -1133,7 +1219,8 @@ total 11720
 * 第 61 行 ：根据 消费队列位置(`offset`) 获取 对应的`MappedFile`。
 * 第 72 至 128 行 ：**循环**获取 `消息位置信息`。
     * 第 74 至 76 行 ：读取每一个 `消息位置信息`。
-    * 第 79 至 83 行 ：当 `offsetPy` 小于 `nextPhyFileStartOffset` 时，意味着对应的 `Message` 已经移除，所以直接continue，直到可读取的 `Message`。
+    * 第 79 至 83 行 ：当 `offsetPy` 小于 `nextPhyFileStartOffset` 时，意味着对
+应的 `Message` 已经移除，所以直接continue，直到可读取的 `Message`。
     * 第 84 至 90 行 ：判断是否已经获得足够的消息。
         * `checkInDiskByCommitOffset(...)` ：第 214 至 224 行。
         * `isTheBatchFull(...)` ：第 226 至 264 行。
@@ -1420,9 +1507,310 @@ total 11720
 * 第 35 行 ：**提交拉取消息请求到线程池**。
 
 # 5、Broker 提供[更新消费进度]接口
+
+```bash
+Yunai-MacdeMacBook-Pro-2:config yunai$ pwd
+/Users/yunai/store/config
+Yunai-MacdeMacBook-Pro-2:config yunai$ ls -ls
+total 40
+8 -rw-r--r--  1 yunai  staff    21  4 28 16:58 consumerOffset.json
+8 -rw-r--r--  1 yunai  staff    21  4 28 16:58 consumerOffset.json.bak
+8 -rw-r--r--  1 yunai  staff    21  4 28 16:58 delayOffset.json
+8 -rw-r--r--  1 yunai  staff    21  4 28 16:58 delayOffset.json.bak
+8 -rw-r--r--  1 yunai  staff  1401  4 27 21:51 topics.json
+Yunai-MacdeMacBook-Pro-2:config yunai$ cat consumerOffset.json
+{
+	"offsetTable":{
+		"%RETRY%please_rename_unique_group_name_4@please_rename_unique_group_name_4":{0:0
+		},
+		"TopicRead3@please_rename_unique_group_name_4":{1:5
+		}
+	}
+}
+```
+
+* `consumerOffset.json` ：消费进度存储文件。
+* `consumerOffset.json.bak` ：消费进度存储文件备份。
+* 每次写入 `consumerOffset.json`，将原内容备份到 `consumerOffset.json.bak`。实现见：[MixAll#string2File(...)](mixallstring2file)。
+
+## BrokerController#initialize(...)
+
+```Java
+  1:             this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+  2:                 @Override
+  3:                 public void run() {
+  4:                     try {
+  5:                         BrokerController.this.consumerOffsetManager.persist();
+  6:                     } catch (Throwable e) {
+  7:                         log.error("schedule persist consumerOffset error.", e);
+  8:                     }
+  9:                 }
+ 10:             }, 1000 * 10, this.brokerConfig.getFlushConsumerOffsetInterval(), TimeUnit.MILLISECONDS);
+```
+
+* 说明 ：每 5s 执行一次持久化逻辑。
+
+## ConfigManager
+
+```Java
+  1: public abstract class ConfigManager {
+  2: private static final Logger PLOG = LoggerFactory.getLogger(LoggerName.COMMON_LOGGER_NAME);
+  3: 
+  4: /**
+  5:  * 编码内容
+  6:  * @return 编码后的内容
+  7:  */
+  8: public abstract String encode();
+  9: 
+ 10: /**
+ 11:  * 加载文件
+ 12:  *
+ 13:  * @return 加载是否成功
+ 14:  */
+ 15: public boolean load() {
+ 16:     String fileName = null;
+ 17:     try {
+ 18:         fileName = this.configFilePath();
+ 19:         String jsonString = MixAll.file2String(fileName);
+ 20:         // 如果内容不存在，则加载备份文件
+ 21:         if (null == jsonString || jsonString.length() == 0) {
+ 22:             return this.loadBak();
+ 23:         } else {
+ 24:             this.decode(jsonString);
+ 25:             PLOG.info("load {} OK", fileName);
+ 26:             return true;
+ 27:         }
+ 28:     } catch (Exception e) {
+ 29:         PLOG.error("load " + fileName + " Failed, and try to load backup file", e);
+ 30:         return this.loadBak();
+ 31:     }
+ 32: }
+ 33: 
+ 34: /**
+ 35:  * 配置文件地址
+ 36:  *
+ 37:  * @return 配置文件地址
+ 38:  */
+ 39: public abstract String configFilePath();
+ 40: 
+ 41: /**
+ 42:  * 加载备份文件
+ 43:  *
+ 44:  * @return 是否成功
+ 45:  */
+ 46: private boolean loadBak() {
+ 47:     String fileName = null;
+ 48:     try {
+ 49:         fileName = this.configFilePath();
+ 50:         String jsonString = MixAll.file2String(fileName + ".bak");
+ 51:         if (jsonString != null && jsonString.length() > 0) {
+ 52:             this.decode(jsonString);
+ 53:             PLOG.info("load " + fileName + " OK");
+ 54:             return true;
+ 55:         }
+ 56:     } catch (Exception e) {
+ 57:         PLOG.error("load " + fileName + " Failed", e);
+ 58:         return false;
+ 59:     }
+ 60: 
+ 61:     return true;
+ 62: }
+ 63: 
+ 64: /**
+ 65:  * 解码内容
+ 66:  *
+ 67:  * @param jsonString 内容
+ 68:  */
+ 69: public abstract void decode(final String jsonString);
+ 70: 
+ 71: /**
+ 72:  * 持久化
+ 73:  */
+ 74: public synchronized void persist() {
+ 75:     String jsonString = this.encode(true);
+ 76:     if (jsonString != null) {
+ 77:         String fileName = this.configFilePath();
+ 78:         try {
+ 79:             MixAll.string2File(jsonString, fileName);
+ 80:         } catch (IOException e) {
+ 81:             PLOG.error("persist file Exception, " + fileName, e);
+ 82:         }
+ 83:     }
+ 84: }
+ 85: 
+ 86: /**
+ 87:  * 编码存储内容
+ 88:  *
+ 89:  * @param prettyFormat 是否格式化
+ 90:  * @return 内容
+ 91:  */
+ 92: public abstract String encode(final boolean prettyFormat);
+ 93: }
+```
+
+### MixAll#string2File(...)
+
+```Java
+  1: /**
+  2:  * 将内容写到文件
+  3:  * 安全写
+  4:  * 1. 写到.tmp文件
+  5:  * 2. 备份准备写入文件到.bak文件
+  6:  * 3. 删除原文件，将.tmp修改成文件
+  7:  *
+  8:  * @param str 内容
+  9:  * @param fileName 文件名
+ 10:  * @throws IOException 当IO发生异常时
+ 11:  */
+ 12: public static void string2File(final String str, final String fileName) throws IOException {
+ 13:     // 写到 tmp文件
+ 14:     String tmpFile = fileName + ".tmp";
+ 15:     string2FileNotSafe(str, tmpFile);
+ 16:     //
+ 17:     String bakFile = fileName + ".bak";
+ 18:     String prevContent = file2String(fileName);
+ 19:     if (prevContent != null) {
+ 20:         string2FileNotSafe(prevContent, bakFile);
+ 21:     }
+ 22: 
+ 23:     File file = new File(fileName);
+ 24:     file.delete();
+ 25: 
+ 26:     file = new File(tmpFile);
+ 27:     file.renameTo(new File(fileName));
+ 28: }
+ 29: 
+ 30: /**
+ 31:  * 将内容写到文件
+ 32:  * 非安全写
+ 33:  *
+ 34:  * @param str 内容
+ 35:  * @param fileName 文件内容
+ 36:  * @throws IOException 当IO发生异常时
+ 37:  */
+ 38: public static void string2FileNotSafe(final String str, final String fileName) throws IOException {
+ 39:     File file = new File(fileName);
+ 40:     // 创建上级目录
+ 41:     File fileParent = file.getParentFile();
+ 42:     if (fileParent != null) {
+ 43:         fileParent.mkdirs();
+ 44:     }
+ 45:     // 写内容
+ 46:     FileWriter fileWriter = null;
+ 47:     try {
+ 48:         fileWriter = new FileWriter(file);
+ 49:         fileWriter.write(str);
+ 50:     } catch (IOException e) {
+ 51:         throw e;
+ 52:     } finally {
+ 53:         if (fileWriter != null) {
+ 54:             fileWriter.close();
+ 55:         }
+ 56:     }
+ 57: }
+```
+
+## ConsumerOffsetManager
+
+```Java
+  1: public class ConsumerOffsetManager extends ConfigManager {
+  2:     private static final Logger log = LoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
+  3:     private static final String TOPIC_GROUP_SEPARATOR = "@";
+  4: 
+  5:     /**
+  6:      * 消费进度集合
+  7:      */
+  8:     private ConcurrentHashMap<String/* topic@group */, ConcurrentHashMap<Integer, Long>> offsetTable = new ConcurrentHashMap<>(512);
+  9: 
+ 10:     private transient BrokerController brokerController;
+ 11: 
+ 12:     public ConsumerOffsetManager() {
+ 13:     }
+ 14: 
+ 15:     public ConsumerOffsetManager(BrokerController brokerController) {
+ 16:         this.brokerController = brokerController;
+ 17:     }
+ 18: 
+ 19:     /**
+ 20:      * 提交消费进度
+ 21:      *
+ 22:      * @param clientHost 提交client地址
+ 23:      * @param group 消费分组
+ 24:      * @param topic 主题
+ 25:      * @param queueId 队列编号
+ 26:      * @param offset 进度（队列位置）
+ 27:      */
+ 28:     public void commitOffset(final String clientHost, final String group, final String topic, final int queueId, final long offset) {
+ 29:         // topic@group
+ 30:         String key = topic + TOPIC_GROUP_SEPARATOR + group;
+ 31:         this.commitOffset(clientHost, key, queueId, offset);
+ 32:     }
+ 33: 
+ 34:     /**
+ 35:      * 提交消费进度
+ 36:      *
+ 37:      * @param clientHost 提交client地址
+ 38:      * @param key 主题@消费分组
+ 39:      * @param queueId 队列编号
+ 40:      * @param offset 进度（队列位置）
+ 41:      */
+ 42:     private void commitOffset(final String clientHost, final String key, final int queueId, final long offset) {
+ 43:         ConcurrentHashMap<Integer, Long> map = this.offsetTable.get(key);
+ 44:         if (null == map) {
+ 45:             map = new ConcurrentHashMap<>(32);
+ 46:             map.put(queueId, offset);
+ 47:             this.offsetTable.put(key, map);
+ 48:         } else {
+ 49:             Long storeOffset = map.put(queueId, offset);
+ 50:             if (storeOffset != null && offset < storeOffset) {
+ 51:                 log.warn("[NOTIFYME]update consumer offset less than store. clientHost={}, key={}, queueId={}, requestOffset={}, storeOffset={}", clientHost, key, queueId, offset, storeOffset);
+ 52:             }
+ 53:         }
+ 54:     }
+ 55: 
+ 56:     public String encode() {
+ 57:         return this.encode(false);
+ 58:     }
+ 59: 
+ 60:     @Override
+ 61:     public String configFilePath() {
+ 62:         return BrokerPathConfigHelper.getConsumerOffsetPath(this.brokerController.getMessageStoreConfig().getStorePathRootDir());
+ 63:     }
+ 64: 
+ 65:     /**
+ 66:      * 解码内容
+ 67:      * 格式:JSON
+ 68:      *
+ 69:      * @param jsonString 内容
+ 70:      */
+ 71:     @Override
+ 72:     public void decode(String jsonString) {
+ 73:         if (jsonString != null) {
+ 74:             ConsumerOffsetManager obj = RemotingSerializable.fromJson(jsonString, ConsumerOffsetManager.class);
+ 75:             if (obj != null) {
+ 76:                 this.offsetTable = obj.offsetTable;
+ 77:             }
+ 78:         }
+ 79:     }
+ 80: 
+ 81:     /**
+ 82:      * 编码内容
+ 83:      * 格式为JSON
+ 84:      *
+ 85:      * @param prettyFormat 是否格式化
+ 86:      * @return 编码后的内容
+ 87:      */
+ 88:     public String encode(final boolean prettyFormat) {
+ 89:         return RemotingSerializable.toJson(this, prettyFormat);
+ 90:     }
+ 91: 
+ 92: }
+```
+
+* 说明 ：消费进度管理器。
+
 # 6、Broker 提供[发回消息]接口
-# 7、Consumer 调用[拉取消息]接口
-# 8、Consumer 消费消息
-# 9、Consumer 调用[发回消息]接口
-# 10、Consumer 调用[更新消费进度]接口
+
+
+
 

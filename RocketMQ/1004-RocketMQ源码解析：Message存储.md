@@ -1080,6 +1080,6 @@ total 10485760
 
 再次感谢大家的阅读、点赞、收藏。
 
-下一篇：[《Message拉取&消费》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1005-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E6%8B%89%E5%8F%96%26%E6%B6%88%E8%B4%B9.md) 起航！
+下一篇：[《Message拉取&消费》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1005-RocketMQ源码解析：Message拉取&消费（上）.md) 起航！
 
 
