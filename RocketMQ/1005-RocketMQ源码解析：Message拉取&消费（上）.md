@@ -1,20 +1,22 @@
 # 1、概述
 
-本章主要解析**消费**逻辑涉及到的源码。
+本章主要解析 **消费** 逻辑涉及到的源码。
 因为篇幅较长，分成上下两篇：
 
-1. 上篇：broker相关。
-2. 下篇：consumer相关。
+1. 上篇：`Broker` 相关源码。
+2. 下篇：`Consumer` 相关源码。
 
 *本文即是上篇。*
 
 -------
 
-ok，先看一张关于消费逻辑的图：
+ok，先看第一张关于消费逻辑的图：
 
 > ![消费逻辑图](images/1005/消费逻辑图.png)
 
+再看消费逻辑精简的顺序图（实际情况会略有差别）：
 
+> ![Consumer&Broker消费精简图.png](images/1005/Consumer&Broker消费精简图.png)
 
 # 2、ConsumeQueue 结构
 
@@ -26,14 +28,6 @@ ok，先看一张关于消费逻辑的图：
 反应到系统文件如下：
 
 ```bash
-Yunai-MacdeMacBook-Pro-2:consumequeue yunai$ pwd
-/Users/yunai/store/consumequeue
-Yunai-MacdeMacBook-Pro-2:consumequeue yunai$ cd TopicRead3/
-Yunai-MacdeMacBook-Pro-2:TopicRead3 yunai$ pwd
-/Users/yunai/store/consumequeue/TopicRead3
-Yunai-MacdeMacBook-Pro-2:TopicRead3 yunai$ cd ..
-Yunai-MacdeMacBook-Pro-2:consumequeue yunai$ ls
-TopicRead3
 Yunai-MacdeMacBook-Pro-2:consumequeue yunai$ pwd
 /Users/yunai/store/consumequeue
 Yunai-MacdeMacBook-Pro-2:consumequeue yunai$ cd TopicRead3/
@@ -56,16 +50,16 @@ total 11720
 * `MappedFile` ：00000000000000000000等文件。
 * `MappedFileQueue` ：`MappedFile` 所在的文件夹，对 `MappedFile` 进行封装成文件队列，对上层提供可无限使用的文件容量。
     * 每个 `MappedFile` 统一文件大小。
-    * 文件命名方式：fileName[n] = fileName[n - 1] + mappedFileSize。在 `CommitLog` 里默认为 6000000B。
+    * 文件命名方式：fileName[n] = fileName[n - 1] + mappedFileSize。在 `ConsumeQueue` 里默认为 6000000B。
 * `ConsumeQueue` ：针对 `MappedFileQueue` 的封装使用。
-    * `Store : ConsumeQueue = ConcurrentHashMap<String/* topic */, ConcurrentHashMap<Integer/* queueId */, ConsumeQueue>>`
+    * `Store : ConsumeQueue = ConcurrentHashMap<String/* topic */, ConcurrentHashMap<Integer/* queueId */, ConsumeQueue>>`。
 
-`ConsumeQueue` 存储在 `MappedFile` 的内容必须大小是 20B(`ConsumeQueue.CQ_STORE_UNIT_SIZE`)，有两种内容类型：
+`ConsumeQueue` 存储在 `MappedFile` 的内容**必须**大小是 20B( `ConsumeQueue.CQ_STORE_UNIT_SIZE` )，有两种内容类型：
 
-1. MessagePositionInfo ：消息位置信息。
-2. BLANK : 文件前置空白占位。当历史 `Message` 被删除时，需要用 `BLANK`占位被删除的消息。
+1. `MESSAGE_POSITION_INFO` ：消息位置信息。
+2. `BLANK` : 文件前置空白占位。当历史 `Message` 被删除时，需要用 `BLANK`占位被删除的消息。
 
-`MessagePositionInfo` 在 `ConsumeQueue` 存储结构：
+`MESSAGE_POSITION_INFO` 在 `ConsumeQueue` 存储结构：
 
 | 第几位 | 字段 | 说明 | 数据类型 | 字节数 |
 | :-- | :-- | :-- | :-- | :-- |
@@ -82,6 +76,10 @@ total 11720
 | 3 | | 0 | Long | 8 |
 
 # 3、ConsumeQueue 存储
+
+![CommitLog重放ConsumeQueue图](images/1005/CommitLog重放ConsumeQueue图.png)
+
+主要有两个组件：
 
 * `ReputMessageService` ：write ConsumeQueue。
 * `FlushConsumeQueueService` ：flush ConsumeQueue。
@@ -416,21 +414,21 @@ total 11720
 ```
 
 * `#putMessagePositionInfoWrapper(...)` 说明 ：添加位置信息到 `ConsumeQueue` 的封装，实际需要调用 `#putMessagePositionInfo(...)` 方法。
-* 第 13 行 ：判断 `ConsumeQueue` 是否允许写入。当发生Bug时，不允许写入。
-* 第 17 行 ：调用 `#putMessagePositionInfo(...)` 方法，添加位置信息。
-* 第 18 至 21 行 ：添加成功，使用消息存储时间 作为 存储检查点。`StoreCheckPoint` 的详细解析见：[Store初始化与关闭](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1006-RocketMQ源码解析：Store初始化与关闭.md)。
-* 第 22 至 32 行 ：添加失败，目前基本可以认为是BUG。
-* 第 35 至 37 行 ：写入失败时，标记 `ConsumeQueue` 写入异常，不允许继续写入。
+    * 第 13 行 ：判断 `ConsumeQueue` 是否允许写入。当发生Bug时，不允许写入。
+    * 第 17 行 ：调用 `#putMessagePositionInfo(...)` 方法，添加位置信息。
+    * 第 18 至 21 行 ：添加成功，使用消息存储时间 作为 存储检查点。`StoreCheckpoint` 的详细解析见：[Store初始化与关闭](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1006-RocketMQ源码解析：Store初始化与关闭.md)。
+    * 第 22 至 32 行 ：添加失败，目前基本可以认为是BUG。
+    * 第 35 至 37 行 ：写入失败时，标记 `ConsumeQueue` 写入异常，不允许继续写入。
 * `#putMessagePositionInfo(...)` 说明 ：添加位置信息到 `ConsumeQueue`，并返回添加是否成功。
-* 第 51 至 54 行 ：如果 `offset`(存储位置) 小于等于  `maxPhysicOffset`(`CommitLog` 消息重放到 `ConsumeQueue` 最大的 `CommitLog` 存储位置)，表示已经重放过，此时，不再重复写入，直接返回写入成功。
-* 第 55 至 60 行 ：写 位置信息到byteBuffer。
-* 第 62 至 63 行 ：计算 `ConsumeQueue`存储位置，并获得对应的MappedFile。
-* 第 65 至 73 行 ：当 `MappedFile` 是 `ConsumeQueue` 当前第一个文件 && `MappedFile` 未写入内容 && 重放消息队列位置大于0，则需要进行 `MappedFile` 前置填充。
-   * *这块比较有疑问，什么场景下会需要。猜测产生的原因：一个 `Topic` 长期无消息产生，突然N天后进行发送，`Topic` 对应的历史消息以及和消费队列数据已经被清理，新生成的`MappedFile`需要前置占位。*
-* 第 74 至 87 行 ：校验 `ConsumeQueue` 存储位置是否合法，不合法则输出日志。
-    * *这块比较有疑问，如果计算出来的存储位置不合法，不返回添加失败，继续进行添加位置信息，会不会有问题？？？*
-* 第 89 行 ：设置 `CommitLog` 重放消息到 `ConsumeQueue` 最大位置。
-* 第 91 行 ：插入消息位置到 `MappedFile`。
+    * 第 51 至 54 行 ：如果 `offset`(存储位置) 小于等于  `maxPhysicOffset`(`CommitLog` 消息重放到 `ConsumeQueue` 最大的 `CommitLog` 存储位置)，表示已经重放过，此时，不再重复写入，直接返回写入成功。
+    * 第 55 至 60 行 ：写 位置信息到byteBuffer。
+    * 第 62 至 63 行 ：计算 `ConsumeQueue`存储位置，并获得对应的MappedFile。
+    * 第 65 至 73 行 ：当 `MappedFile` 是 `ConsumeQueue` 当前第一个文件 && `MappedFile` 未写入内容 && 重放消息队列位置大于0，则需要进行 `MappedFile` 填充前置  `BLANK`。
+       * *这块比较有疑问，什么场景下会需要。猜测产生的原因：一个 `Topic` 长期无消息产生，突然N天后进行发送，`Topic` 对应的历史消息以及和消费队列数据已经被清理，新生成的`MappedFile`需要前置占位。*
+    * 第 74 至 87 行 ：校验 `ConsumeQueue` 存储位置是否合法，不合法则输出日志。
+        * *这块比较有疑问，如果计算出来的存储位置不合法，不返回添加失败，继续进行添加位置信息，会不会有问题？？？*
+    * 第 89 行 ：设置 `CommitLog` 重放消息到 `ConsumeQueue` 的最大位置。
+    * 第 91 行 ：插入消息位置到 `MappedFile`。
 
 ## FlushConsumeQueueService
 
@@ -512,7 +510,7 @@ total 11720
 * 第 15 至 23 行 ：每 flushConsumeQueueThoroughInterval 周期，执行一次 flush 。因为不是每次循环到都能满足 flushConsumeQueueLeastPages 大小，因此，需要一定周期进行一次强制 flush 。当然，不能每次循环都去执行强制 flush，这样性能较差。
 * 第 24 至 33 行 ：flush `ConsumeQueue`(消费队列)。
     * flush 逻辑：[MappedFile#落盘](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1004-RocketMQ源码解析：Message存储.md#mappedfile落盘)。
-* 第 34 至 40 行 ：flush `StoreCheckpoint`。`StoreCheckPoint` 的详细解析见：[Store初始化与关闭](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1006-RocketMQ源码解析：Store初始化与关闭.md)。
+* 第 34 至 40 行 ：flush `StoreCheckpoint`。`StoreCheckpoint` 的详细解析见：[Store初始化与关闭](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1006-RocketMQ源码解析：Store初始化与关闭.md)。
 * 第 43 至 59 行 ：每 1000ms 执行一次 `flush`。如果 wakeup() 时，则会立即进行一次 `flush`。目前，暂时不存在 wakeup() 的调用。
 
 # 4、Broker 提供[拉取消息]接口
@@ -745,8 +743,8 @@ total 11720
 158:             case MESSAGE_WAS_REMOVING:
 159:                 response.setCode(ResponseCode.PULL_RETRY_IMMEDIATELY);
 160:                 break;
-161:             case NO_MATCHED_LOGIC_QUEUE: // TODO 待补充博客
-162:             case NO_MESSAGE_IN_QUEUE: // TODO 待补充博客
+161:             case NO_MATCHED_LOGIC_QUEUE:
+162:             case NO_MESSAGE_IN_QUEUE:
 163:                 if (0 != requestHeader.getQueueOffset()) {
 164:                     response.setCode(ResponseCode.PULL_OFFSET_MOVED);
 165: 
@@ -768,15 +766,15 @@ total 11720
 181:             case OFFSET_FOUND_NULL:
 182:                 response.setCode(ResponseCode.PULL_NOT_FOUND);
 183:                 break;
-184:             case OFFSET_OVERFLOW_BADLY: // TODO 待补充博客
+184:             case OFFSET_OVERFLOW_BADLY:
 185:                 response.setCode(ResponseCode.PULL_OFFSET_MOVED);
 186:                 // XXX: warn and notify me
 187:                 LOG.info("The request offset:{} over flow badly, broker max offset:{} , consumer: {}", requestHeader.getQueueOffset(), getMessageResult.getMaxOffset(), channel.remoteAddress());
 188:                 break;
-189:             case OFFSET_OVERFLOW_ONE: // TODO 待补充博客
+189:             case OFFSET_OVERFLOW_ONE:
 190:                 response.setCode(ResponseCode.PULL_NOT_FOUND);
 191:                 break;
-192:             case OFFSET_TOO_SMALL: // TODO 待补充博客
+192:             case OFFSET_TOO_SMALL:
 193:                 response.setCode(ResponseCode.PULL_OFFSET_MOVED);
 194:                 LOG.info("The request offset is too small. group={}, topic={}, requestOffset={}, brokerMinOffset={}, clientIp={}",
 195:                     requestHeader.getConsumerGroup(), requestHeader.getTopic(), requestHeader.getQueueOffset(),
@@ -943,13 +941,13 @@ total 11720
 * 第 64 至 110 行 ：校验 `SubscriptionData`(订阅信息) 是否正确。
 * 第 113 行 ：调用 `MessageStore#getMessage(...)` 获取 `GetMessageResult`(消息)。详细解析见：[MessageStore#getMessage(...)](#messagestoregetmessage)。
 * 第 122 至 152 行 ：计算建议拉取消息 `brokerId` 。
-* TODO GetMessageResult 说明 
+* 第 154 至 201 行 ：![PullMessageProcessor拉取消息状态图](images/1005/PullMessageProcessor拉取消息状态图.png)
 * 第 204 至 244 行 ：`Hook` 逻辑，`#executeConsumeMessageHookBefore(...)` 。
 * 第 247 至 283 行 ：拉取消息成功，即拉取到消息。
     * 第 255 至 263 行 ：方式一 ：调用 `readGetMessageResult(...)` 获取消息内容到堆内内存，设置到 响应`body`。
-    * 第 265 至 281 行 ：方式二 ：基于 `zero-copy` 实现，直接响应，无需堆内内存，性能更优。TODO 
+    * 第 265 至 281 行 ：方式二 ：基于 `zero-copy` 实现，直接响应，无需堆内内存，性能更优。*TODO ：此处等对zero-copy有研究，再补充一些*。
 * 第 284 至 300 行 ：拉取不到消息，当满足条件 (`Broker` 允许挂起 && 请求要求挂起)，执行挂起请求。详细解析见：[PullRequestHoldService](#pullrequestholdservice)。
-* 第 304 至 328 行 ：TODO
+* 第 304 至 328 行 ：*TODO ：此处等对`tools`模块研究后再补充*。
 * 第 339 至 346 ：持久化消费进度，当满足 (`Broker` 非主 && 请求要求持久化进度)。详细解析见：[更新消费进度](#3broker-提供更新消费进度接口)。
 
 ## MessageStore#getMessage(...)
@@ -1225,28 +1223,28 @@ total 11720
 * 第 14 至 18 行 ：判断 `Store` 是否处于关闭状态，若关闭，则无法获取消息。
 * 第 19 至 23 行 ：判断当前运行状态是否可读，若不可读，则无法获取消息。
 * 第 37 行 ：根据 主题(`Topic`) + 队列编号(`queueId`) 获取 消息队列(`ConsumeQueue`)。
-    * `findConsumeQueue(...)` ：第 159 至 196 行。
+    * `#findConsumeQueue(...)` ：第 159 至 196 行。
 * 第 43 至 58 行 ：各种队列位置(`offset`) 无法读取消息，并针对对应的情况，计算下一次 `Client` 队列拉取位置。
     * 第 43 至 45 行 ：消息队列无消息。
     * 第 46 至 48 行 ：查询的消息队列位置（`offset`） 太小。
     * 第 49 至 51 行 ：查询的消息队列位置（`offset`） 恰好等于 消息队列最大的队列位置。该情况是正常现象，相当于查询最新的消息。
     * 第 52 至 58 行 ：查询的消息队列位置（`offset`） 超过过多。
-    * `nextOffsetCorrection(...)` ：第 198 至 212 行。
+    * `#nextOffsetCorrection(...)` ：第 198 至 212 行。
 * 第 61 行 ：根据 消费队列位置(`offset`) 获取 对应的`MappedFile`。
 * 第 72 至 128 行 ：**循环**获取 `消息位置信息`。
     * 第 74 至 76 行 ：读取每一个 `消息位置信息`。
     * 第 79 至 83 行 ：当 `offsetPy` 小于 `nextPhyFileStartOffset` 时，意味着对应的 `Message` 已经移除，所以直接continue，直到可读取的 `Message`。
     * 第 84 至 90 行 ：判断是否已经获得足够的消息。
-        * `checkInDiskByCommitOffset(...)` ：第 214 至 224 行。
-        * `isTheBatchFull(...)` ：第 226 至 264 行。
+        * `#checkInDiskByCommitOffset(...)` ：第 214 至 224 行。
+        * `#isTheBatchFull(...)` ：第 226 至 264 行。
 * 第 92 行 ：判断消息是否符合条件。详细解析见：[DefaultMessageFilter#isMessageMatched(...)](defaultmessagefilterismessagematched)。
-* 第 94 行 ：从 `CommitLog` 获取对应 `消息MappedByteBuffer`。
+* 第 94 行 ：从 `CommitLog` 获取对应 消息的`MappedByteBuffer`。
 * 第 95 至 99 行 ：获取 `消息MappedByteBuffer` 成功。
 * 第 100 至 106 行 ：获取 `消息MappedByteBuffer` 失败。从 `CommitLog` 无法读取到消息，说明 该消息对应的文件(`MappedFile`) 已经删除，此时计算下一个`MappedFile`的起始位置。**该逻辑需要配合（第 79 至 83 行）一起理解。**
 * 第 117 至 120 行 ：统计剩余可拉取消息字节数。
 * 第 123 行 ：计算下次拉取消息的消息队列编号。
 * 第 124 至 128 行 ：根据剩余可拉取消息字节数与内存判断是否建议读取从节点。
-* 第 130 行 ：释放 `bufferConsumeQueue` 对 `MappedFile` 的指向。此处 `MappedFile` 是 `ConsumeQueue` 里的文件，不是 `CommitLog` 下的文件。TODO
+* 第 130 行 ：释放 `bufferConsumeQueue` 对 `MappedFile` 的指向。此处 `MappedFile` 是 `ConsumeQueue` 里的文件，不是 `CommitLog` 下的文件。
 * 第 133 至 136 行 ：获得消费队列位置(`offset`) 获取 对应的`MappedFile` 为**空**，计算`ConsumeQueue` 从 `offset` 开始的下一个 `MappedFile` 对应的位置。
 * 第 143 至 150 行 ：记录统计信息：消耗时间、拉取到消息/未拉取到消息次数。
 * 第 151 至 156 行 ：设置返回结果并返回。 
@@ -1464,16 +1462,18 @@ total 11720
 ```
 
 * `PullRequestHoldService` 说明 ：拉取消息请求挂起维护线程服务。
-* `suspendPullRequest(...)` 说明 ：添加拉取消息挂起请求到集合(`pullRequestTable`)。
-* `run(...)` 说明 ：**定时**检查挂起请求是否有需要通知重新拉取消息并进行通知。
+    * 当拉取消息请求获得不了消息时，则会将请求进行挂起，添加到该服务。
+    * 当有符合条件信息时 或 挂起超时时，重新执行获取消息逻辑。
+* `#suspendPullRequest(...)` 说明 ：添加拉取消息挂起请求到集合( `pullRequestTable` )。
+* `#run(...)` 说明 ：**定时**检查挂起请求是否有需要通知重新拉取消息并进行通知。
     * 第 65 至 70 行 ：根据`长轮训`or`短轮训`设置不同的等待时间。
     * 第 71 至 77 行 ：检查挂起请求是否有需要通知的。
-* `checkHoldRequest(...)` 说明 ：遍历挂起请求，检查是否有需要通知的。
-* `notifyMessageArriving(...)` 说明 ：检查**指定队列**是否有需要通知的请求。
+* `#checkHoldRequest(...)` 说明 ：遍历挂起请求，检查是否有需要通知的。
+* `#notifyMessageArriving(...)` 说明 ：检查**指定队列**是否有需要通知的请求。
     * 第 139 至 143 行 ：如果 `maxOffset` 过小，重新获取一次最新的。
     * 第 144 至 155 行 ：有新的匹配消息，唤醒请求，即再次拉取消息。
     * 第 156 至 165 行 ：超过挂起时间，唤醒请求，即再次拉取消息。
-    * 第 148 || 159 行 ：唤醒请求，再次拉取消息。原先担心拉取消息时间过长，导致影响整个挂起请求的遍历，后面查看`executeRequestWhenWakeup(...)`，实际是丢到线程池进行一步的消息拉取，不会有性能上的问题。详细解析见：[PullMessageProcessor#executeRequestWhenWakeup(...)](pullmessageprocessorexecuterequestwhenwakeup)。
+    * 第 148 || 159 行 ：唤醒请求，再次拉取消息。原先担心拉取消息时间过长，导致影响整个挂起请求的遍历，后面查看`#executeRequestWhenWakeup(...)`，实际是丢到线程池进行一步的消息拉取，不会有性能上的问题。详细解析见：[PullMessageProcessor#executeRequestWhenWakeup(...)](pullmessageprocessorexecuterequestwhenwakeup)。
     * 第 166 至 172 行 ：不符合唤醒的请求重新添加到集合(`pullRequestTable`)。
 
 ## PullMessageProcessor#executeRequestWhenWakeup(...)
@@ -1518,7 +1518,7 @@ total 11720
 ```
 
 * 说明 ：执行请求唤醒，即再次拉取消息。该方法调用线程池，因此，不会阻塞。
-* 第 7 行 ：调用拉取消息请求。本次调用，设置即使请求不到消息，也不挂起请求。如果不设置，请求可能被无限挂起，被 `Broker` 不停循环。
+* 第 7 行 ：调用拉取消息请求。本次调用，设置即使请求不到消息，也不挂起请求。如果不设置，请求可能被无限挂起，被 `Broker` 无限循环。
 * 第 35 行 ：**提交拉取消息请求到线程池**。
 
 # 5、Broker 提供[更新消费进度]接口
@@ -1551,16 +1551,16 @@ Yunai-MacdeMacBook-Pro-2:config yunai$ cat consumerOffset.json
 ## BrokerController#initialize(...)
 
 ```Java
-  1:             this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
-  2:                 @Override
-  3:                 public void run() {
-  4:                     try {
-  5:                         BrokerController.this.consumerOffsetManager.persist();
-  6:                     } catch (Throwable e) {
-  7:                         log.error("schedule persist consumerOffset error.", e);
-  8:                     }
-  9:                 }
- 10:             }, 1000 * 10, this.brokerConfig.getFlushConsumerOffsetInterval(), TimeUnit.MILLISECONDS);
+  1:this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+  2:    @Override
+  3:    public void run() {
+  4:        try {
+  5:            BrokerController.this.consumerOffsetManager.persist();
+  6:        } catch (Throwable e) {
+  7:            log.error("schedule persist consumerOffset error.", e);
+  8:        }
+  9:    }
+ 10:}, 1000 * 10, this.brokerConfig.getFlushConsumerOffsetInterval(), TimeUnit.MILLISECONDS);
 ```
 
 * 说明 ：每 5s 执行一次持久化逻辑。
@@ -1826,10 +1826,4 @@ Yunai-MacdeMacBook-Pro-2:config yunai$ cat consumerOffset.json
 
 # 6、Broker 提供[发回消息]接口
 
-
-
-# 7、Consumer 调用[拉取消息]接口
-# 8、Consumer 消费消息
-# 9、Consumer 调用[发回消息]接口
-# 10、Consumer 调用[更新消费进度]接口
 
