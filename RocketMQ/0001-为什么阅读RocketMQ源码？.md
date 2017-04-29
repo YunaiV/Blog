@@ -16,17 +16,16 @@
 - [ ] consumer 启动
 - [ ] 消息模型
     - [ ] 消息唯一编号
-- [ ] producer 发消息
-- [ ] broker 收消息
-- [ ] broker 发消息
+- [x] producer 发消息
+- [x] broker 收消息
+- [x] broker 发消息
 - [ ] consumer 收消息
     - [ ] 多消费者
     - [ ] 重试消息
 - [ ] consumer 消息确认
 - [ ] consumer 负载均衡
-- [ ] broker 队列模型
-- [ ] broker store 消息存储
-- [ ] broker store 消息同步
+- [x] broker 队列模型
+- [x] broker store 消息存储
 - [ ] 顺序消息
 - [ ] 事务消息
 - [ ] 定时消息
@@ -37,3 +36,4 @@
 - [ ] remoting 调用（server、client）
 - [ ] 跨机房
 - [ ] Hook 机制
+
