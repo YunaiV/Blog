@@ -1,11 +1,27 @@
 # 1、概述
 
+本章主要解析**消费**逻辑涉及到的源码。
+因为篇幅较长，分成上下两篇：
+
+1. 上篇：broker相关。
+2. 下篇：consumer相关。
+
+*本文即是上篇。*
+
+-------
+
+ok，先看一张关于消费逻辑的图：
+
+> ![消费逻辑图](images/1005/消费逻辑图.png)
+
+
+
 # 2、ConsumeQueue 结构
 
 `ConsumeQueue`、`MappedFileQueue`、`MappedFile` 的关系如下：
 
 > ![ConsumeQueue、MappedFileQueue、MappedFile的关系](images/1005/ConsumeQueue类图.png)
-`CommitLog` : `MappedFileQueue` : `MappedFile` = 1 : 1 : N。
+`ConsumeQueue` : `MappedFileQueue` : `MappedFile` = 1 : 1 : N。
 
 反应到系统文件如下：
 
@@ -1219,8 +1235,7 @@ total 11720
 * 第 61 行 ：根据 消费队列位置(`offset`) 获取 对应的`MappedFile`。
 * 第 72 至 128 行 ：**循环**获取 `消息位置信息`。
     * 第 74 至 76 行 ：读取每一个 `消息位置信息`。
-    * 第 79 至 83 行 ：当 `offsetPy` 小于 `nextPhyFileStartOffset` 时，意味着对
-应的 `Message` 已经移除，所以直接continue，直到可读取的 `Message`。
+    * 第 79 至 83 行 ：当 `offsetPy` 小于 `nextPhyFileStartOffset` 时，意味着对应的 `Message` 已经移除，所以直接continue，直到可读取的 `Message`。
     * 第 84 至 90 行 ：判断是否已经获得足够的消息。
         * `checkInDiskByCommitOffset(...)` ：第 214 至 224 行。
         * `isTheBatchFull(...)` ：第 226 至 264 行。
@@ -1813,4 +1828,8 @@ Yunai-MacdeMacBook-Pro-2:config yunai$ cat consumerOffset.json
 
 
 
+# 7、Consumer 调用[拉取消息]接口
+# 8、Consumer 消费消息
+# 9、Consumer 调用[发回消息]接口
+# 10、Consumer 调用[更新消费进度]接口
 
