@@ -345,7 +345,7 @@ MQ 提供了两类消费者：
         *  第 63 至 72 行 ：更新 `Topic` 对应的消费队列。
 * `#updateProcessQueueTableInRebalance(...)` 说明 ：当分配队列时，更新 `Topic` 对应的消费队列，并返回是否有变更。
     * 第 93 至 126 行 ：移除不存在于 分配的消费队列( `mqSet` ) 的 消息处理队列( `processQueueTable` )。
-        * 第 103 行 ：移除不需要的消费队列。详细解析见：[RebalancePushImpl#removeUnnecessaryMessageQueue(...)](rebalancepushimplremoveunnecessarymessagequeue)。
+        * 第 103 行 ：移除不需要的消费队列。详细解析见：[RebalancePushImpl#removeUnnecessaryMessageQueue(...)](#rebalancepushimplremoveunnecessarymessagequeue)。
         * 第 108 行 ：队列拉取超时，即 `当前时间 - 最后一次拉取消息时间 > 120s` ( 120s 可配置)，判定发生 **BUG**，过久未进行消息拉取，移除队列。移除后，下面**#新增队列逻辑#**可以重新加入新的该队列。
     * 第 128 至 158 行 ：增加 分配的消费队列( `mqSet` ) 新增的消费队列。
         * 第 132 至 135 行 ：`顺序消费` 相关跳过，详细解析见：[《Message顺序发送与消费》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1007-RocketMQ源码解析：Message顺序发送与消费.md)。
@@ -396,7 +396,7 @@ MQ 提供了两类消费者：
 
 #### `[PullConsumer]` RebalancePullImpl#removeUnnecessaryMessageQueue(...)
 
-```
+```Java
   1: public boolean removeUnnecessaryMessageQueue(MessageQueue mq, ProcessQueue pq) {
   2:     this.defaultMQPullConsumerImpl.getOffsetStore().persist(mq);
   3:     this.defaultMQPullConsumerImpl.getOffsetStore().removeOffset(mq);
