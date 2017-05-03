@@ -431,6 +431,29 @@ MQ 提供了两类消费者：
 
 * 说明 ：移除不需要的消费队列相关的信息，并返回移除成功。**和`RebalancePushImpl#removeUnnecessaryMessageQueue(...)`基本一致。**
 
+### RebalancePushImpl#dispatchPullRequest(...)
+
+```Java
+  1: public void dispatchPullRequest(List<PullRequest> pullRequestList) {
+  2:     for (PullRequest pullRequest : pullRequestList) {
+  3:         this.defaultMQPushConsumerImpl.executePullRequestImmediately(pullRequest);
+  4:         log.info("doRebalance, {}, add a new pull request {}", consumerGroup, pullRequest);
+  5:     }
+  6: }
+```
+
+* 说明 ：发起消息拉取请求。**该调用是`PushConsumer`不断不断不断拉取消息的起点**。
+
+#### DefaultMQPushConsumerImpl#executePullRequestImmediately(...)
+
+```Java
+  1: public void executePullRequestImmediately(final PullRequest pullRequest) {
+  2:     this.mQClientFactory.getPullMessageService().executePullRequestImmediately(pullRequest);
+  3: }
+```
+
+* 说明 ：提交拉取请求。提交后，`PullMessageService` **异步执行**，**非阻塞**。详细解析见：[PullMessageService](pullmessageservice)。
+
 ### AllocateMessageQueueStrategy
 
 ![AllocateMessageQueueStrategy类图](images/1005/AllocateMessageQueueStrategy类图.png)
@@ -649,9 +672,220 @@ MQ 提供了两类消费者：
 
 ## RebalancePushImpl#computePullFromWhere(...)
 
+```Java
+  1: public long computePullFromWhere(MessageQueue mq) {
+  2:     long result = -1;
+  3:     final ConsumeFromWhere consumeFromWhere = this.defaultMQPushConsumerImpl.getDefaultMQPushConsumer().getConsumeFromWhere();
+  4:     final OffsetStore offsetStore = this.defaultMQPushConsumerImpl.getOffsetStore();
+  5:     switch (consumeFromWhere) {
+  6:         case CONSUME_FROM_LAST_OFFSET_AND_FROM_MIN_WHEN_BOOT_FIRST: // 废弃
+  7:         case CONSUME_FROM_MIN_OFFSET: // 废弃
+  8:         case CONSUME_FROM_MAX_OFFSET: // 废弃
+  9:         case CONSUME_FROM_LAST_OFFSET: {
+ 10:             long lastOffset = offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_STORE);
+ 11:             if (lastOffset >= 0) {
+ 12:                 result = lastOffset;
+ 13:             }
+ 14:             // First start,no offset
+ 15:             else if (-1 == lastOffset) {
+ 16:                 if (mq.getTopic().startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
+ 17:                     result = 0L;
+ 18:                 } else {
+ 19:                     try {
+ 20:                         result = this.mQClientFactory.getMQAdminImpl().maxOffset(mq);
+ 21:                     } catch (MQClientException e) {
+ 22:                         result = -1;
+ 23:                     }
+ 24:                 }
+ 25:             } else {
+ 26:                 result = -1;
+ 27:             }
+ 28:             break;
+ 29:         }
+ 30:         case CONSUME_FROM_FIRST_OFFSET: {
+ 31:             long lastOffset = offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_STORE);
+ 32:             if (lastOffset >= 0) {
+ 33:                 result = lastOffset;
+ 34:             } else if (-1 == lastOffset) {
+ 35:                 result = 0L;
+ 36:             } else {
+ 37:                 result = -1;
+ 38:             }
+ 39:             break;
+ 40:         }
+ 41:         case CONSUME_FROM_TIMESTAMP: {
+ 42:             long lastOffset = offsetStore.readOffset(mq, ReadOffsetType.READ_FROM_STORE);
+ 43:             if (lastOffset >= 0) {
+ 44:                 result = lastOffset;
+ 45:             } else if (-1 == lastOffset) {
+ 46:                 if (mq.getTopic().startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
+ 47:                     try {
+ 48:                         result = this.mQClientFactory.getMQAdminImpl().maxOffset(mq);
+ 49:                     } catch (MQClientException e) {
+ 50:                         result = -1;
+ 51:                     }
+ 52:                 } else {
+ 53:                     try {
+ 54:                         long timestamp = UtilAll.parseDate(this.defaultMQPushConsumerImpl.getDefaultMQPushConsumer().getConsumeTimestamp(),
+ 55:                             UtilAll.YYYY_MMDD_HHMMSS).getTime();
+ 56:                         result = this.mQClientFactory.getMQAdminImpl().searchOffset(mq, timestamp);
+ 57:                     } catch (MQClientException e) {
+ 58:                         result = -1;
+ 59:                     }
+ 60:                 }
+ 61:             } else {
+ 62:                 result = -1;
+ 63:             }
+ 64:             break;
+ 65:         }
+ 66: 
+ 67:         default:
+ 68:             break;
+ 69:     }
+ 70: 
+ 71:     return result;
+ 72: }
+```
+
+* 说明 ：计算消费队列开始消费位置。
+* `PushConsumer` 读取消费进度有三种选项：
+    * `CONSUME_FROM_LAST_OFFSET` ：第 6 至 29 行 ：一个新的消费集群第一次启动从**队列的最后位置**开始消费。**后续再启动接着上次消费的进度开始消费**。
+    * `CONSUME_FROM_FIRST_OFFSET` ：第 30 至 40 行 ：一个新的消费集群第一次启动从队列的**最前位置**开始消费。**后续再启动接着上次消费的进度开始消费**。
+    * `CONSUME_FROM_TIMESTAMP` ：第 41 至 65 行 ：一个新的消费集群第一次启动从**指定时间点**开始消费。**后续再启动接着上次消费的进度开始消费**。
+
+
 ## `[PullConsumer]` RebalancePullImpl#computePullFromWhere(...)
 
-# 7、Consumer 调用[拉取消息]接口
+TOTOTOTOTO
+
+# 6、PushConsumer 拉取消息
+
+![DefaultMQPushConsumerImpl拉取消息](images/1005/DefaultMQPushConsumerImpl拉取消息.png)
+
+## PullMessageService
+
+```Java
+  1: public class PullMessageService extends ServiceThread {
+  2:     private final Logger log = ClientLogger.getLog();
+  3:     /**
+  4:      * 拉取消息请求队列
+  5:      */
+  6:     private final LinkedBlockingQueue<PullRequest> pullRequestQueue = new LinkedBlockingQueue<>();
+  7:     /**
+  8:      * MQClient对象
+  9:      */
+ 10:     private final MQClientInstance mQClientFactory;
+ 11:     /**
+ 12:      * 定时器。用于延迟提交拉取请求
+ 13:      */
+ 14:     private final ScheduledExecutorService scheduledExecutorService = Executors
+ 15:         .newSingleThreadScheduledExecutor(new ThreadFactory() {
+ 16:             @Override
+ 17:             public Thread newThread(Runnable r) {
+ 18:                 return new Thread(r, "PullMessageServiceScheduledThread");
+ 19:             }
+ 20:         });
+ 21: 
+ 22:     public PullMessageService(MQClientInstance mQClientFactory) {
+ 23:         this.mQClientFactory = mQClientFactory;
+ 24:     }
+ 25: 
+ 26:     /**
+ 27:      * 执行延迟拉取消息请求
+ 28:      *
+ 29:      * @param pullRequest 拉取消息请求
+ 30:      * @param timeDelay 延迟时长
+ 31:      */
+ 32:     public void executePullRequestLater(final PullRequest pullRequest, final long timeDelay) {
+ 33:         this.scheduledExecutorService.schedule(new Runnable() {
+ 34: 
+ 35:             @Override
+ 36:             public void run() {
+ 37:                 PullMessageService.this.executePullRequestImmediately(pullRequest);
+ 38:             }
+ 39:         }, timeDelay, TimeUnit.MILLISECONDS);
+ 40:     }
+ 41: 
+ 42:     /**
+ 43:      * 执行立即拉取消息请求
+ 44:      *
+ 45:      * @param pullRequest 拉取消息请求
+ 46:      */
+ 47:     public void executePullRequestImmediately(final PullRequest pullRequest) {
+ 48:         try {
+ 49:             this.pullRequestQueue.put(pullRequest);
+ 50:         } catch (InterruptedException e) {
+ 51:             log.error("executePullRequestImmediately pullRequestQueue.put", e);
+ 52:         }
+ 53:     }
+ 54: 
+ 55:     /**
+ 56:      * 执行延迟任务
+ 57:      *
+ 58:      * @param r 任务
+ 59:      * @param timeDelay 延迟时长
+ 60:      */
+ 61:     public void executeTaskLater(final Runnable r, final long timeDelay) {
+ 62:         this.scheduledExecutorService.schedule(r, timeDelay, TimeUnit.MILLISECONDS);
+ 63:     }
+ 64: 
+ 65:     public ScheduledExecutorService getScheduledExecutorService() {
+ 66:         return scheduledExecutorService;
+ 67:     }
+ 68: 
+ 69:     /**
+ 70:      * 拉取消息
+ 71:      *
+ 72:      * @param pullRequest 拉取消息请求
+ 73:      */
+ 74:     private void pullMessage(final PullRequest pullRequest) {
+ 75:         final MQConsumerInner consumer = this.mQClientFactory.selectConsumer(pullRequest.getConsumerGroup());
+ 76:         if (consumer != null) {
+ 77:             DefaultMQPushConsumerImpl impl = (DefaultMQPushConsumerImpl) consumer;
+ 78:             impl.pullMessage(pullRequest);
+ 79:         } else {
+ 80:             log.warn("No matched consumer for the PullRequest {}, drop it", pullRequest);
+ 81:         }
+ 82:     }
+ 83: 
+ 84:     @Override
+ 85:     public void run() {
+ 86:         log.info(this.getServiceName() + " service started");
+ 87: 
+ 88:         while (!this.isStopped()) {
+ 89:             try {
+ 90:                 PullRequest pullRequest = this.pullRequestQueue.take();
+ 91:                 if (pullRequest != null) {
+ 92:                     this.pullMessage(pullRequest);
+ 93:                 }
+ 94:             } catch (InterruptedException e) {
+ 95:             } catch (Exception e) {
+ 96:                 log.error("Pull Message Service Run Method exception", e);
+ 97:             }
+ 98:         }
+ 99: 
+100:         log.info(this.getServiceName() + " service end");
+101:     }
+102: 
+103:     @Override
+104:     public String getServiceName() {
+105:         return PullMessageService.class.getSimpleName();
+106:     }
+107: 
+108: }
+```
+
+* 说明 ：拉取消息线程服务，不断不断不断从 `Broker` 拉取消息，并提交消费任务到 `ConsumeMessageService`。
+* `#executePullRequestLater(...)` ：第 26 至 40 行 ： 提交**延迟**拉取消息请求。
+* `#executePullRequestImmediately(...)` ：第 42 至 53 行 ：提交**立即**拉取消息请求。
+* `#executeTaskLater(...)` ：第 55 至 63 行 ：提交**延迟任务**。
+* `#pullMessage(...)` ：第 69 至 82 行 ：执行拉取消息逻辑。详细解析见：[DefaultMQPushConsumerImpl#pullMessage(...)](#defaultmqpushconsumerimplpullmessage)。
+* `#run(...)` ：第 84 至 101 行 ：循环拉取消息请求队列( `pullRequestQueue` )，进行消息拉取。
+
+## DefaultMQPushConsumerImpl#pullMessage(...)
+
+
+
 # 8、Consumer 消费消息
 # 9、Consumer 调用[发回消息]接口
 # 10、Consumer 调用[更新消费进度]接口
