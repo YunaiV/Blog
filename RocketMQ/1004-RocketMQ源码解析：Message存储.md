@@ -1,3 +1,19 @@
+**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+
+- [1、概述](#)
+- [2、CommitLog 结构](#)
+- [3、CommitLog 存储消息](#)
+	- [CommitLog#putMessage(...)](#)
+	- [MappedFileQueue#getLastMappedFile(...)](#)
+	- [MappedFile#appendMessage(...)](#)
+	- [DefaultAppendMessageCallback#doAppend(...)](#)
+	- [FlushCommitLogService](#)
+		- [MappedFile#落盘](#)
+		- [FlushRealTimeService](#)
+		- [CommitRealTimeService](#)
+		- [GroupCommitService](#)
+- [结尾](#)
+
 # 1、概述
 
 本文接[《RocketMQ源码解析：Message发送&接收》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1003-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E5%8F%91%E9%80%81%26%E6%8E%A5%E6%94%B6.md)。
