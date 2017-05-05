@@ -1159,9 +1159,27 @@ TOTOTOTOTO
     * 第 50 至 70 行 ：`顺序消费` 相关跳过，详细解析见：[《Message顺序发送与消费》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1007-RocketMQ源码解析：Message顺序发送与消费.md)。
     * 第 72 至 78 行 ：`Topic` 对应的订阅信息不存在，不进行消息拉取，*提交**延迟**拉取消息请求*。
     * 第 222 至 224 行 ：判断请求是否使用 `Consumer` 自己的订阅信息，而不使用 `Broker` 里的 `SubscriptionData`。详细解析见：[PullMessageProcessor#processRequest(...) 第 64 至 110 行代码](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1005-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E6%8B%89%E5%8F%96%26%E6%B6%88%E8%B4%B9%EF%BC%88%E4%B8%8A%EF%BC%89.md#pullmessageprocessorprocessrequest)。
-    * 第 226 行 ：是否开启过滤类过滤模式。《》
-    * 第 229 至 235 行 ：
-    * 第 237 至 255 行 ：
+    * 第 226 行 ：是否开启过滤类过滤模式。详细解析见：[《Filtersrv》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1008-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AFiltersrv.md)。
+    * 第 229 至 235 行 ：计算拉取消息请求系统标识。详细解析见：[PullMessageRequestHeader.sysFlag](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1005-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E6%8B%89%E5%8F%96%26%E6%B6%88%E8%B4%B9%EF%BC%88%E4%B8%8A%EF%BC%89.md#pullmessagerequestheader)。
+    * 第 237 至 255 行 ：执行消息拉取**异步**请求。当发起请求产生异常时，*提交**延迟**拉取消息请求*。对应 `Broker` 处理拉取消息逻辑见：[PullMessageProcessor#processRequest(...)](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1005-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E6%8B%89%E5%8F%96%26%E6%B6%88%E8%B4%B9%EF%BC%88%E4%B8%8A%EF%BC%89.md#pullmessageprocessorprocessrequest)。
+* `PullCallback` ：拉取消息回调：
+   * 第 86 行 ：处理拉取结果。详细逻辑见：[PullAPIWrapper#processPullResult(...)](#pullapiwrapperprocesspullresult)。
+   * 第 89 至 192 行 ：处理拉取状态结果：
+        * 第 90 至 139 行 ：拉取到消息( `FOUND` ) ：
+            * 第 91 至 93 行 ：设置下次拉取消息队列位置。
+            * 第 95 至 97 行 ：统计。
+            * 第 101 至 102 行 ：拉取到消息的消息列表为空， *提交**立即**拉取消息请求*。*为什么会存在拉取到消息，但是消息结果未空呢？*详细逻辑见：[PullAPIWrapper#processPullResult(...)](#pullapiwrapperprocesspullresult)。
+            * 第 106 至 108 行 ：统计。
+            * 第 111 行 ：提交拉取到的消息到消息处理队列。
+            * 第 113 至 118 行 ：提交消费请求到 `ConsumeMessageService`。详细解析见：TOTOTO
+            * 第 120 至 126 行 ：根据拉取频率( `pullInterval` )，*提交**立即 或者 延迟**拉取消息请求*。默认拉取频率为 0ms ，*提交**立即**拉取消息请求*。
+            * 第 129 至 137 行 ：下次拉取消费队列位置小于上次拉取消息队列位置 或者 第一条 消息的消费队列位置小于上次拉取消息队列位置，则判定为**BUG**，输出警告日志。
+       * 第 140 至 149 行 ：
+       * 第 150 至 159 行 ：
+       * 第 160 至 189 行 ：
+
+
+## PullAPIWrapper#processPullResult(...)
 
 # 8、Consumer 消费消息
 # 9、Consumer 调用[发回消息]接口
