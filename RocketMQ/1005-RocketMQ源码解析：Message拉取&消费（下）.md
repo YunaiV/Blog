@@ -1168,7 +1168,7 @@ TOTOTOTOTO
         * 第 90 至 139 行 ：拉取到消息( `FOUND` ) ：
             * 第 91 至 93 行 ：设置下次拉取消息队列位置。
             * 第 95 至 97 行 ：统计。
-            * 第 101 至 102 行 ：拉取到消息的消息列表为空， *提交**立即**拉取消息请求*。*为什么会存在拉取到消息，但是消息结果未空呢？*详细逻辑见：[PullAPIWrapper#processPullResult(...)](#pullapiwrapperprocesspullresult)。
+            * 第 101 至 102 行 ：拉取到消息的消息列表为空，*提交**立即**拉取消息请求*。为什么会存在拉取到消息，但是消息结果未空呢？原因见：[PullAPIWrapper#processPullResult(...)](#pullapiwrapperprocesspullresult)。
             * 第 106 至 108 行 ：统计。
             * 第 111 行 ：提交拉取到的消息到消息处理队列。
             * 第 113 至 118 行 ：提交消费请求到 `ConsumeMessageService`。详细解析见：TOTOTO
