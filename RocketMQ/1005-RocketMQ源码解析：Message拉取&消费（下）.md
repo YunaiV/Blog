@@ -1161,7 +1161,9 @@ TOTOTOTOTO
     * 第 222 至 224 行 ：判断请求是否使用 `Consumer` 自己的订阅信息，而不使用 `Broker` 里的 `SubscriptionData`。详细解析见：[PullMessageProcessor#processRequest(...) 第 64 至 110 行代码](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1005-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E6%8B%89%E5%8F%96%26%E6%B6%88%E8%B4%B9%EF%BC%88%E4%B8%8A%EF%BC%89.md#pullmessageprocessorprocessrequest)。
     * 第 226 行 ：是否开启过滤类过滤模式。详细解析见：[《Filtersrv》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1008-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AFiltersrv.md)。
     * 第 229 至 235 行 ：计算拉取消息请求系统标识。详细解析见：[PullMessageRequestHeader.sysFlag](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1005-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E6%8B%89%E5%8F%96%26%E6%B6%88%E8%B4%B9%EF%BC%88%E4%B8%8A%EF%BC%89.md#pullmessagerequestheader)。
-    * 第 237 至 255 行 ：执行消息拉取**异步**请求。当发起请求产生异常时，*提交**延迟**拉取消息请求*。对应 `Broker` 处理拉取消息逻辑见：[PullMessageProcessor#processRequest(...)](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1005-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E6%8B%89%E5%8F%96%26%E6%B6%88%E8%B4%B9%EF%BC%88%E4%B8%8A%EF%BC%89.md#pullmessageprocessorprocessrequest)。
+    * 第 237 至 255 行 ：
+        * 执行消息拉取**异步**请求。详细解析见：[PullAPIWrapper#pullKernelImpl(...)](#pullapiwrapperpullkernelimpl)。
+        * 当发起请求产生异常时，*提交**延迟**拉取消息请求*。对应 `Broker` 处理拉取消息逻辑见：[PullMessageProcessor#processRequest(...)](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1005-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E6%8B%89%E5%8F%96%26%E6%B6%88%E8%B4%B9%EF%BC%88%E4%B8%8A%EF%BC%89.md#pullmessageprocessorprocessrequest)。
 * `PullCallback` ：拉取消息回调：
    * 第 86 行 ：处理拉取结果。详细逻辑见：[PullAPIWrapper#processPullResult(...)](#pullapiwrapperprocesspullresult)。
    * 第 89 至 192 行 ：处理拉取状态结果：
@@ -1171,18 +1173,297 @@ TOTOTOTOTO
             * 第 101 至 102 行 ：拉取到消息的消息列表为空，*提交**立即**拉取消息请求*。为什么会存在拉取到消息，但是消息结果未空呢？原因见：[PullAPIWrapper#processPullResult(...)](#pullapiwrapperprocesspullresult)。
             * 第 106 至 108 行 ：统计。
             * 第 111 行 ：提交拉取到的消息到消息处理队列。
-            * 第 113 至 118 行 ：提交消费请求到 `ConsumeMessageService`。详细解析见：TOTOTO
-            * 第 120 至 126 行 ：根据拉取频率( `pullInterval` )，*提交**立即 或者 延迟**拉取消息请求*。默认拉取频率为 0ms ，*提交**立即**拉取消息请求*。
+            * 第 113 至 118 行 ：提交消费请求到 `ConsumeMessageService`。详细解析见：TOTOTO。
+            * 第 120 至 126 行 ：根据拉取频率( `pullInterval` )，*提交**立即或者延迟**拉取消息请求*。默认拉取频率为 0ms ，*提交**立即**拉取消息请求*。
             * 第 129 至 137 行 ：下次拉取消费队列位置小于上次拉取消息队列位置 或者 第一条 消息的消费队列位置小于上次拉取消息队列位置，则判定为**BUG**，输出警告日志。
-       * 第 140 至 149 行 ：
-       * 第 150 至 159 行 ：
-       * 第 160 至 189 行 ：
+       * 第 140 至 149 行 ：没有新消息( `NO_NEW_MSG` ) ：
+            * 第 142 行 ： 设置下次拉取消息队列位置。
+            * 第 145 行 ：更正消费进度。详细解析见：`#correctTagsOffset(...)`。
+            * 第 148 行 ：*提交**立即**拉取消息请求*。
+       * 第 150 至 159 行 ：有新消息但是不匹配( `NO_MATCHED_MSG` )。逻辑同 `NO_NEW_MSG` 。
+       * 第 160 至 189 行 ：拉取请求的消息队列位置不合法 (`OFFSET_ILLEGAL`)。
+            * 第 164 行 ：设置下次拉取消息队列位置。
+            * 第 167 行 ：设置消息处理队列为 `dropped`。
+            * 第 169 至 188 行 ：提交延迟任务，进行队列移除。
+                * 第 175 至 178 行 ：更新消费进度，同步消费进度到 `Broker`。
+                * 第 181 行 ：移除消费处理队列。TOTOTO：为什么不立即移除。
+  * 第 196 至 204 行 ：发生异常，*提交**延迟**拉取消息请求*。
+* `#correctTagsOffset(...)` ：更正消费进度。
+    * 第 258 至 261 行 ： 当消费处理队列持有消息数量为 **0** 时，更新消费进度为拉取请求的拉取消息队列位置。
 
+### PullAPIWrapper#pullKernelImpl(...)
 
-## PullAPIWrapper#processPullResult(...)
+```Java
+  1: /**
+  2:  * 拉取消息核心方法
+  3:  *
+  4:  * @param mq 消息队列
+  5:  * @param subExpression 订阅表达式
+  6:  * @param subVersion 订阅版本号
+  7:  * @param offset 拉取队列开始位置
+  8:  * @param maxNums 批量拉 取消息数量
+  9:  * @param sysFlag 拉取系统标识
+ 10:  * @param commitOffset 提交消费进度
+ 11:  * @param brokerSuspendMaxTimeMillis broker挂起请求最大时间
+ 12:  * @param timeoutMillis 请求broker超时时间
+ 13:  * @param communicationMode 通讯模式
+ 14:  * @param pullCallback 拉取回调
+ 15:  * @return 拉取消息结果。只有通讯模式为同步时，才返回结果，否则返回null。
+ 16:  * @throws MQClientException 当寻找不到 broker 时，或发生其他client异常
+ 17:  * @throws RemotingException 当远程调用发生异常时
+ 18:  * @throws MQBrokerException 当 broker 发生异常时。只有通讯模式为同步时才会发生该异常。
+ 19:  * @throws InterruptedException 当发生中断异常时
+ 20:  */
+ 21: protected PullResult pullKernelImpl(
+ 22:     final MessageQueue mq,
+ 23:     final String subExpression,
+ 24:     final long subVersion,
+ 25:     final long offset,
+ 26:     final int maxNums,
+ 27:     final int sysFlag,
+ 28:     final long commitOffset,
+ 29:     final long brokerSuspendMaxTimeMillis,
+ 30:     final long timeoutMillis,
+ 31:     final CommunicationMode communicationMode,
+ 32:     final PullCallback pullCallback
+ 33: ) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {
+ 34:     // 获取Broker信息
+ 35:     FindBrokerResult findBrokerResult =
+ 36:         this.mQClientFactory.findBrokerAddressInSubscribe(mq.getBrokerName(),
+ 37:             this.recalculatePullFromWhichNode(mq), false);
+ 38:     if (null == findBrokerResult) {
+ 39:         this.mQClientFactory.updateTopicRouteInfoFromNameServer(mq.getTopic());
+ 40:         findBrokerResult =
+ 41:             this.mQClientFactory.findBrokerAddressInSubscribe(mq.getBrokerName(),
+ 42:                 this.recalculatePullFromWhichNode(mq), false);
+ 43:     }
+ 44: 
+ 45:     // 请求拉取消息
+ 46:     if (findBrokerResult != null) {
+ 47:         int sysFlagInner = sysFlag;
+ 48: 
+ 49:         if (findBrokerResult.isSlave()) {
+ 50:             sysFlagInner = PullSysFlag.clearCommitOffsetFlag(sysFlagInner);
+ 51:         }
+ 52: 
+ 53:         PullMessageRequestHeader requestHeader = new PullMessageRequestHeader();
+ 54:         requestHeader.setConsumerGroup(this.consumerGroup);
+ 55:         requestHeader.setTopic(mq.getTopic());
+ 56:         requestHeader.setQueueId(mq.getQueueId());
+ 57:         requestHeader.setQueueOffset(offset);
+ 58:         requestHeader.setMaxMsgNums(maxNums);
+ 59:         requestHeader.setSysFlag(sysFlagInner);
+ 60:         requestHeader.setCommitOffset(commitOffset);
+ 61:         requestHeader.setSuspendTimeoutMillis(brokerSuspendMaxTimeMillis);
+ 62:         requestHeader.setSubscription(subExpression);
+ 63:         requestHeader.setSubVersion(subVersion);
+ 64: 
+ 65:         String brokerAddr = findBrokerResult.getBrokerAddr();
+ 66:         if (PullSysFlag.hasClassFilterFlag(sysFlagInner)) { // TODO filtersrv
+ 67:             brokerAddr = computPullFromWhichFilterServer(mq.getTopic(), brokerAddr);
+ 68:         }
+ 69: 
+ 70:         PullResult pullResult = this.mQClientFactory.getMQClientAPIImpl().pullMessage(
+ 71:             brokerAddr,
+ 72:             requestHeader,
+ 73:             timeoutMillis,
+ 74:             communicationMode,
+ 75:             pullCallback);
+ 76: 
+ 77:         return pullResult;
+ 78:     }
+ 79: 
+ 80:     // Broker信息不存在，则抛出异常
+ 81:     throw new MQClientException("The broker[" + mq.getBrokerName() + "] not exist", null);
+ 82: }
+```
+
+* 说明 ：拉取消息核心方法。*该方法参数较多，可以看下代码注释上每个参数的说明*😈。
+* 第 34 至 43 行 ：获取 `Broker` 信息(`Broker` 地址、是否为从节点)。
+    * [#recalculatePullFromWhichNode(...)](#pullapiwrapperrecalculatepullfromwhichnode)
+    * [#MQClientInstance#findBrokerAddressInSubscribe(...)](#mqclientinstancefindbrokeraddressinsubscribe)
+* 第 45 至 78 行 ：请求拉取消息。
+* 第 81 行 ：当 `Broker` 信息不存在，则抛出异常。
+
+#### PullAPIWrapper#recalculatePullFromWhichNode(...)
+
+```Java
+  1: /**
+  2:  * 消息队列 与 拉取Broker 的映射
+  3:  * 当拉取消息时，会通过该映射获取拉取请求对应的Broker
+  4:  */
+  5: private ConcurrentHashMap<MessageQueue, AtomicLong/* brokerId */> pullFromWhichNodeTable =
+  6:     new ConcurrentHashMap<MessageQueue, AtomicLong>(32);
+  7: /**
+  8:  * 是否使用默认Broker
+  9:  */
+ 10: private volatile boolean connectBrokerByUser = false;
+ 11: /**
+ 12:  * 默认Broker编号
+ 13:  */
+ 14: private volatile long defaultBrokerId = MixAll.MASTER_ID;
+ 15: 
+ 16: /**
+ 17:  * 计算消息队列拉取消息对应的Broker编号
+ 18:  *
+ 19:  * @param mq 消息队列
+ 20:  * @return Broker编号
+ 21:  */
+ 22: public long recalculatePullFromWhichNode(final MessageQueue mq) {
+ 23:     // 若开启默认Broker开关，则返回默认Broker编号
+ 24:     if (this.isConnectBrokerByUser()) {
+ 25:         return this.defaultBrokerId;
+ 26:     }
+ 27: 
+ 28:     // 若消息队列映射拉取Broker存在，则返回映射Broker编号
+ 29:     AtomicLong suggest = this.pullFromWhichNodeTable.get(mq);
+ 30:     if (suggest != null) {
+ 31:         return suggest.get();
+ 32:     }
+ 33: 
+ 34:     // 返回Broker主节点编号
+ 35:     return MixAll.MASTER_ID;
+ 36: }
+```
+
+* 说明 ：计算消息队列拉取消息对应的 `Broker` 编号。
+
+#### MQClientInstance#findBrokerAddressInSubscribe(...)
+
+```Java
+  1: /**
+  2:  * Broker名字 和 Broker地址相关 Map
+  3:  */
+  4: private final ConcurrentHashMap<String/* Broker Name */, HashMap<Long/* brokerId */, String/* address */>> brokerAddrTable =
+  5:         new ConcurrentHashMap<>();
+  6: 
+  7: /**
+  8:  * 获得Broker信息
+  9:  *
+ 10:  * @param brokerName broker名字
+ 11:  * @param brokerId broker编号
+ 12:  * @param onlyThisBroker 是否必须是该broker
+ 13:  * @return Broker信息
+ 14:  */
+ 15: public FindBrokerResult findBrokerAddressInSubscribe(//
+ 16:     final String brokerName, //
+ 17:     final long brokerId, //
+ 18:     final boolean onlyThisBroker//
+ 19: ) {
+ 20:     String brokerAddr = null; // broker地址
+ 21:     boolean slave = false; // 是否为从节点
+ 22:     boolean found = false; // 是否找到
+ 23: 
+ 24:     // 获得Broker信息
+ 25:     HashMap<Long/* brokerId */, String/* address */> map = this.brokerAddrTable.get(brokerName);
+ 26:     if (map != null && !map.isEmpty()) {
+ 27:         brokerAddr = map.get(brokerId);
+ 28:         slave = brokerId != MixAll.MASTER_ID;
+ 29:         found = brokerAddr != null;
+ 30: 
+ 31:         // 如果不强制获得，选择一个Broker
+ 32:         if (!found && !onlyThisBroker) {
+ 33:             Entry<Long, String> entry = map.entrySet().iterator().next();
+ 34:             brokerAddr = entry.getValue();
+ 35:             slave = entry.getKey() != MixAll.MASTER_ID;
+ 36:             found = true;
+ 37:         }
+ 38:     }
+ 39: 
+ 40:     // 找到broker，则返回信息
+ 41:     if (found) {
+ 42:         return new FindBrokerResult(brokerAddr, slave);
+ 43:     }
+ 44: 
+ 45:     // 找不到，则返回空
+ 46:     return null;
+ 47: }
+```
+
+* 说明 ：获取 `Broker` 信息(`Broker` 地址、是否为从节点)。
+
+### PullAPIWrapper#processPullResult(...)
+
+```Java
+  1: /**
+  2:  * 处理拉取结果
+  3:  * 1. 更新消息队列拉取消息Broker编号的映射
+  4:  * 2. 解析消息，并根据订阅信息消息tagCode匹配合适消息
+  5:  *
+  6:  * @param mq 消息队列
+  7:  * @param pullResult 拉取结果
+  8:  * @param subscriptionData 订阅信息
+  9:  * @return 拉取结果
+ 10:  */
+ 11: public PullResult processPullResult(final MessageQueue mq, final PullResult pullResult,
+ 12:     final SubscriptionData subscriptionData) {
+ 13:     PullResultExt pullResultExt = (PullResultExt) pullResult;
+ 14: 
+ 15:     // 更新消息队列拉取消息Broker编号的映射
+ 16:     this.updatePullFromWhichNode(mq, pullResultExt.getSuggestWhichBrokerId());
+ 17: 
+ 18:     // 解析消息，并根据订阅信息消息tagCode匹配合适消息
+ 19:     if (PullStatus.FOUND == pullResult.getPullStatus()) {
+ 20:         // 解析消息
+ 21:         ByteBuffer byteBuffer = ByteBuffer.wrap(pullResultExt.getMessageBinary());
+ 22:         List<MessageExt> msgList = MessageDecoder.decodes(byteBuffer);
+ 23: 
+ 24:         // 根据订阅信息消息tagCode匹配合适消息
+ 25:         List<MessageExt> msgListFilterAgain = msgList;
+ 26:         if (!subscriptionData.getTagsSet().isEmpty() && !subscriptionData.isClassFilterMode()) {
+ 27:             msgListFilterAgain = new ArrayList<>(msgList.size());
+ 28:             for (MessageExt msg : msgList) {
+ 29:                 if (msg.getTags() != null) {
+ 30:                     if (subscriptionData.getTagsSet().contains(msg.getTags())) {
+ 31:                         msgListFilterAgain.add(msg);
+ 32:                     }
+ 33:                 }
+ 34:             }
+ 35:         }
+ 36: 
+ 37:         // Hook
+ 38:         if (this.hasHook()) {
+ 39:             FilterMessageContext filterMessageContext = new FilterMessageContext();
+ 40:             filterMessageContext.setUnitMode(unitMode);
+ 41:             filterMessageContext.setMsgList(msgListFilterAgain);
+ 42:             this.executeHook(filterMessageContext);
+ 43:         }
+ 44: 
+ 45:         // 设置消息队列当前最小/最大位置到消息拓展字段
+ 46:         for (MessageExt msg : msgListFilterAgain) {
+ 47:             MessageAccessor.putProperty(msg, MessageConst.PROPERTY_MIN_OFFSET,
+ 48:                 Long.toString(pullResult.getMinOffset()));
+ 49:             MessageAccessor.putProperty(msg, MessageConst.PROPERTY_MAX_OFFSET,
+ 50:                 Long.toString(pullResult.getMaxOffset()));
+ 51:         }
+ 52: 
+ 53:         // 设置消息列表
+ 54:         pullResultExt.setMsgFoundList(msgListFilterAgain);
+ 55:     }
+ 56: 
+ 57:     // 清空消息二进制数组
+ 58:     pullResultExt.setMessageBinary(null);
+ 59: 
+ 60:     return pullResult;
+ 61: }
+```
+
+* 说明 ：处理拉取结果。
+    *  更新消息队列拉取消息Broker编号的映射。
+    *  解析消息，并根据订阅信息消息tagCode匹配合适消息。
+* 第 16 行 ：更新消息队列拉取消息 `Broker` 编号的映射。下次拉取消息时，如果未设置默认拉取的 `Broker` 编号，会使用更新后的 `Broker` 编号。
+* 第 18 至 55 行 ：解析消息，并根据订阅信息消息tagCode匹配合适消息。
+    * 第 20 至 22 行 ：解析消息。详细解析见：[《RocketMQ源码解析：Message基础》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1002-RocketMQ源码解析：Message基础.md) 。
+    * 第 24 至 35 行 ：根据订阅信息`tagCode` 匹配消息。
+    * 第 37 至 43 行 ：`Hook`。
+    * 第 45 至 51 行 ：设置消息队列当前最小/最大位置到消息拓展字段。
+    * 第 54 行 ：设置消息队列。
+* 第 58 行 ：清空消息二进制数组。
 
 # 8、Consumer 消费消息
 # 9、Consumer 调用[发回消息]接口
 # 10、Consumer 调用[更新消费进度]接口
 
+
+# 11、Consumer 订阅 TOTOTO
 
