@@ -1561,7 +1561,7 @@ while (true) {
 
 # 6、PushConsumer 消费消息
 
-[DefaultMQPushConsumerImpl消费消息](images/1005/DefaultMQPushConsumerImpl消费消息.png)
+![DefaultMQPushConsumerImpl消费消息](images/1005/DefaultMQPushConsumerImpl消费消息.png)
 
 ## ConsumeMessageConcurrentlyService 提交消费请求
 
