@@ -1561,7 +1561,7 @@ while (true) {
 
 # 6、PushConsumer 消费消息
 
-TOTOTO 图
+[DefaultMQPushConsumerImpl消费消息](images/1005/DefaultMQPushConsumerImpl消费消息.png)
 
 ## ConsumeMessageConcurrentlyService 提交消费请求
 
@@ -1943,6 +1943,99 @@ TOTOTO 图
 ```
 
 ## ConsumeMessageConcurrentlyService#cleanExpireMsg(...)
+
+```Java
+  1: public void start() {
+  2:     this.cleanExpireMsgExecutors.scheduleAtFixedRate(new Runnable() {
+  3: 
+  4:         @Override
+  5:         public void run() {
+  6:             cleanExpireMsg();
+  7:         }
+  8: 
+  9:     }, this.defaultMQPushConsumer.getConsumeTimeout(), this.defaultMQPushConsumer.getConsumeTimeout(), TimeUnit.MINUTES);
+ 10: }
+ 11: 
+ 12: /**
+ 13:  * 清理过期消息
+ 14:  */
+ 15: private void cleanExpireMsg() {
+ 16:     Iterator<Map.Entry<MessageQueue, ProcessQueue>> it =
+ 17:         this.defaultMQPushConsumerImpl.getRebalanceImpl().getProcessQueueTable().entrySet().iterator();
+ 18:     while (it.hasNext()) {
+ 19:         Map.Entry<MessageQueue, ProcessQueue> next = it.next();
+ 20:         ProcessQueue pq = next.getValue();
+ 21:         pq.cleanExpiredMsg(this.defaultMQPushConsumer);
+ 22:     }
+ 23: }
+```
+
+* 说明 ：定时清理过期消息，默认周期：15min。
+
+### ProcessQueue#cleanExpiredMsg(...)
+
+```Java
+  1: public void cleanExpiredMsg(DefaultMQPushConsumer pushConsumer) {
+  2:     // 顺序消费时，直接返回
+  3:     if (pushConsumer.getDefaultMQPushConsumerImpl().isConsumeOrderly()) {
+  4:         return;
+  5:     }
+  6: 
+  7:     // 循环移除消息
+  8:     int loop = msgTreeMap.size() < 16 ? msgTreeMap.size() : 16; // 每次循环最多移除16条
+  9:     for (int i = 0; i < loop; i++) {
+ 10:         // 获取第一条消息。判断是否超时，若不超时，则结束循环
+ 11:         MessageExt msg = null;
+ 12:         try {
+ 13:             this.lockTreeMap.readLock().lockInterruptibly();
+ 14:             try {
+ 15:                 if (!msgTreeMap.isEmpty() && System.currentTimeMillis() - Long.parseLong(MessageAccessor.getConsumeStartTimeStamp(msgTreeMap.firstEntry().getValue())) > pushConsumer.getConsumeTimeout() * 60 * 1000) {
+ 16:                     msg = msgTreeMap.firstEntry().getValue();
+ 17:                 } else {
+ 18:                     break;
+ 19:                 }
+ 20:             } finally {
+ 21:                 this.lockTreeMap.readLock().unlock();
+ 22:             }
+ 23:         } catch (InterruptedException e) {
+ 24:             log.error("getExpiredMsg exception", e);
+ 25:         }
+ 26: 
+ 27:         try {
+ 28:             // 发回超时消息
+ 29:             pushConsumer.sendMessageBack(msg, 3);
+ 30:             log.info("send expire msg back. topic={}, msgId={}, storeHost={}, queueId={}, queueOffset={}", msg.getTopic(), msg.getMsgId(), msg.getStoreHost(), msg.getQueueId(), msg.getQueueOffset());
+ 31: 
+ 32:             // 判断此时消息是否依然是第一条，若是，则进行移除
+ 33:             try {
+ 34:                 this.lockTreeMap.writeLock().lockInterruptibly();
+ 35:                 try {
+ 36:                     if (!msgTreeMap.isEmpty() && msg.getQueueOffset() == msgTreeMap.firstKey()) {
+ 37:                         try {
+ 38:                             msgTreeMap.remove(msgTreeMap.firstKey());
+ 39:                         } catch (Exception e) {
+ 40:                             log.error("send expired msg exception", e);
+ 41:                         }
+ 42:                     }
+ 43:                 } finally {
+ 44:                     this.lockTreeMap.writeLock().unlock();
+ 45:                 }
+ 46:             } catch (InterruptedException e) {
+ 47:                 log.error("getExpiredMsg exception", e);
+ 48:             }
+ 49:         } catch (Exception e) {
+ 50:             log.error("send expired msg exception", e);
+ 51:         }
+ 52:     }
+ 53: }
+```
+
+* 说明 ：移除过期消息。
+* 第 2 至 5 行 ：顺序消费时，直接返回。
+* 第 7 至 9 行 ：循环移除消息。默认最大循环次数：16次。
+* 第 10 至 25 行 ：获取第一条消息。判断是否超时，若不超时，则结束循环。
+* 第 29 行 ：**发回超时消息到 `Broker` **。
+* 第 32 至 48 行 ：判断此时消息是否依然是第一条，若是，则进行移除。
 
 # 7、Consumer 发回消费失败消息
 

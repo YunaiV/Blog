@@ -20,7 +20,7 @@
 - [x] broker 收消息
 - [x] broker 发消息
 - [ ] consumer 收消息
-    - [ ] 多消费者
+    - [x] 多消费者
     - [ ] 重试消息
 - [ ] consumer 消息确认
 - [ ] consumer 负载均衡
