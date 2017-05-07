@@ -28,7 +28,7 @@
 - [x] broker store 消息存储
 - [ ] 顺序消息
 - [ ] 事务消息
-- [ ] 定时消息
+- [ ] 定时(延迟)消息
 - [ ] pub/sub模型
 - [ ] namesrv 主从
 - [ ] broker 主从 
