@@ -1,27 +1,4 @@
-- [1、概述](#)
-- [2、Consumer](#)
-- [3、PushConsumer 一览](#)
-- [4、PushConsumer 消费队列分配](#)
-	- [RebalanceService](#)
-	- [MQClientInstance#doRebalance(...)](#)
-	- [DefaultMQPushConsumerImpl#doRebalance(...)](#)
-	- [RebalanceImpl#doRebalance(...)](#)
-		- [RebalanceImpl#rebalanceByTopic(...)](#)
-		- [RebalanceImpl#removeUnnecessaryMessageQueue(...)](#)
-			- [RebalancePushImpl#removeUnnecessaryMessageQueue(...)](#)
-			- [[PullConsumer] RebalancePullImpl#removeUnnecessaryMessageQueue(...)](#)
-		- [AllocateMessageQueueStrategy](#)
-			- [AllocateMessageQueueAveragely](#)
-			- [AllocateMessageQueueByMachineRoom](#)
-			- [AllocateMessageQueueAveragelyByCircle](#)
-			- [AllocateMessageQueueByConfig](#)
-- [5、PushConsumer 消费进度读取](#)
-	- [RebalancePushImpl#computePullFromWhere(...)](#)
-	- [[PullConsumer] RebalancePullImpl#computePullFromWhere(...)](#)
-- [7、Consumer 调用[拉取消息]接口](#)
-- [8、Consumer 消费消息](#)
-- [9、Consumer 调用[发回消息]接口](#)
-- [10、Consumer 调用[更新消费进度]接口](#)
+
 
 # 1、概述
 
@@ -56,7 +33,76 @@ MQ 提供了两类消费者：
 * `ProcessQueue` ：消息处理队列。
 * `MQClientInstance` ：封装对 `Namesrv`，`Broker` 的 API调用，提供给 `Producer`、`Consumer` 使用。
 
-# 4、Consumer 订阅 TOTOTO
+# 4、PushConsumer 订阅
+
+## DefaultMQPushConsumerImpl#subscribe(...)
+
+```Java
+  1: public void subscribe(String topic, String subExpression) throws MQClientException {
+  2:     try {
+  3:         // 创建订阅数据
+  4:         SubscriptionData subscriptionData = FilterAPI.buildSubscriptionData(this.defaultMQPushConsumer.getConsumerGroup(), //
+  5:             topic, subExpression);
+  6:         this.rebalanceImpl.getSubscriptionInner().put(topic, subscriptionData);
+  7:         // 通过心跳同步Consumer信息到Broker
+  8:         if (this.mQClientFactory != null) {
+  9:             this.mQClientFactory.sendHeartbeatToAllBrokerWithLock();
+ 10:         }
+ 11:     } catch (Exception e) {
+ 12:         throw new MQClientException("subscription exception", e);
+ 13:     }
+ 14: }
+```
+
+* 说明 ：订阅 `Topic` 。
+* 第 3 至 6 行 ：创建订阅数据。详细解析见：[FilterAPI.buildSubscriptionData(...)](#filterapibuildsubscriptiondata)。
+* 第 7 至 10 行 ：通过心跳同步 `Consumer` 信息到 `Broker`。
+
+### FilterAPI.buildSubscriptionData(...)
+
+```Java
+  1: public static SubscriptionData buildSubscriptionData(final String consumerGroup, String topic,
+  2:     String subString) throws Exception {
+  3:     SubscriptionData subscriptionData = new SubscriptionData();
+  4:     subscriptionData.setTopic(topic);
+  5:     subscriptionData.setSubString(subString);
+  6:     // 处理订阅表达式
+  7:     if (null == subString || subString.equals(SubscriptionData.SUB_ALL) || subString.length() == 0) {
+  8:         subscriptionData.setSubString(SubscriptionData.SUB_ALL);
+  9:     } else {
+ 10:         String[] tags = subString.split("\\|\\|");
+ 11:         if (tags.length > 0) {
+ 12:             for (String tag : tags) {
+ 13:                 if (tag.length() > 0) {
+ 14:                     String trimString = tag.trim();
+ 15:                     if (trimString.length() > 0) {
+ 16:                         subscriptionData.getTagsSet().add(trimString);
+ 17:                         subscriptionData.getCodeSet().add(trimString.hashCode());
+ 18:                     }
+ 19:                 }
+ 20:             }
+ 21:         } else {
+ 22:             throw new Exception("subString split error");
+ 23:         }
+ 24:     }
+ 25: 
+ 26:     return subscriptionData;
+ 27: }
+```
+
+* 说明 ：根据 `Topic` 和 订阅表达式 创建订阅数据
+* subscriptionData.subVersion = System.currentTimeMillis()。
+
+## DefaultMQPushConsumer#registerMessageListener(...)
+
+```Java
+  1: public void registerMessageListener(MessageListenerConcurrently messageListener) {
+  2:     this.messageListener = messageListener;
+  3:     this.defaultMQPushConsumerImpl.registerMessageListener(messageListener);
+  4: }
+```
+
+* 说明 ：注册监听器。
 
 # 5、PushConsumer 消费队列分配
 
@@ -2037,7 +2083,7 @@ while (true) {
 * 第 29 行 ：**发回超时消息到 `Broker` **。
 * 第 32 至 48 行 ：判断此时消息是否依然是第一条，若是，则进行移除。
 
-# 7、Consumer 发回消费失败消息
+# 7、PushConsumer 发回消费失败消息
 
 ## DefaultMQPushConsumerImpl#sendMessageBack(...)
 
@@ -2079,51 +2125,356 @@ while (true) {
 ### MQClientAPIImpl#consumerSendMessageBack(...)
 
 ```Java
-    /**
-     * Consumer发回消息
-     * @param addr Broker地址
-     * @param msg 消息
-     * @param consumerGroup 消费分组
-     * @param delayLevel 延迟级别
-     * @param timeoutMillis 超时
-     * @param maxConsumeRetryTimes 消费最大重试次数
-     * @throws RemotingException 当远程调用发生异常时
-     * @throws MQBrokerException 当Broker发生异常时
-     * @throws InterruptedException 当线程中断时
-     */
-    public void consumerSendMessageBack(
-        final String addr,
-        final MessageExt msg,
-        final String consumerGroup,
-        final int delayLevel,
-        final long timeoutMillis,
-        final int maxConsumeRetryTimes
-    ) throws RemotingException, MQBrokerException, InterruptedException {
-        ConsumerSendMsgBackRequestHeader requestHeader = new ConsumerSendMsgBackRequestHeader();
-        RemotingCommand request = RemotingCommand.createRequestCommand(RequestCode.CONSUMER_SEND_MSG_BACK, requestHeader);
-
-        requestHeader.setGroup(consumerGroup);
-        requestHeader.setOriginTopic(msg.getTopic());
-        requestHeader.setOffset(msg.getCommitLogOffset());
-        requestHeader.setDelayLevel(delayLevel);
-        requestHeader.setOriginMsgId(msg.getMsgId());
-        requestHeader.setMaxReconsumeTimes(maxConsumeRetryTimes);
-
-        RemotingCommand response = this.remotingClient.invokeSync(MixAll.brokerVIPChannel(this.clientConfig.isVipChannelEnabled(), addr),
-            request, timeoutMillis);
-        assert response != null;
-        switch (response.getCode()) {
-            case ResponseCode.SUCCESS: {
-                return;
-            }
-            default:
-                break;
-        }
-
-        throw new MQBrokerException(response.getCode(), response.getRemark());
-    }
+  1: /**
+  2:  * Consumer发回消息
+  3:  * @param addr Broker地址
+  4:  * @param msg 消息
+  5:  * @param consumerGroup 消费分组
+  6:  * @param delayLevel 延迟级别
+  7:  * @param timeoutMillis 超时
+  8:  * @param maxConsumeRetryTimes 消费最大重试次数
+  9:  * @throws RemotingException 当远程调用发生异常时
+ 10:  * @throws MQBrokerException 当Broker发生异常时
+ 11:  * @throws InterruptedException 当线程中断时
+ 12:  */
+ 13: public void consumerSendMessageBack(
+ 14:     final String addr,
+ 15:     final MessageExt msg,
+ 16:     final String consumerGroup,
+ 17:     final int delayLevel,
+ 18:     final long timeoutMillis,
+ 19:     final int maxConsumeRetryTimes
+ 20: ) throws RemotingException, MQBrokerException, InterruptedException {
+ 21:     ConsumerSendMsgBackRequestHeader requestHeader = new ConsumerSendMsgBackRequestHeader();
+ 22:     RemotingCommand request = RemotingCommand.createRequestCommand(RequestCode.CONSUMER_SEND_MSG_BACK, requestHeader);
+ 23: 
+ 24:     requestHeader.setGroup(consumerGroup);
+ 25:     requestHeader.setOriginTopic(msg.getTopic());
+ 26:     requestHeader.setOffset(msg.getCommitLogOffset());
+ 27:     requestHeader.setDelayLevel(delayLevel);
+ 28:     requestHeader.setOriginMsgId(msg.getMsgId());
+ 29:     requestHeader.setMaxReconsumeTimes(maxConsumeRetryTimes);
+ 30: 
+ 31:     RemotingCommand response = this.remotingClient.invokeSync(MixAll.brokerVIPChannel(this.clientConfig.isVipChannelEnabled(), addr),
+ 32:         request, timeoutMillis);
+ 33:     assert response != null;
+ 34:     switch (response.getCode()) {
+ 35:         case ResponseCode.SUCCESS: {
+ 36:             return;
+ 37:         }
+ 38:         default:
+ 39:             break;
+ 40:     }
+ 41: 
+ 42:     throw new MQBrokerException(response.getCode(), response.getRemark());
+ 43: }
 ```
 
-# 8、Consumer 调用[更新消费进度]接口
+# 8、Consumer 消费进度
 
+## OffsetStore
+
+![OffsetStore类图.png](images/1005/OffsetStore类图.png)
+
+* `RemoteBrokerOffsetStore` ：`Consumer` **集群模式** 下，使用远程 `Broker` 消费进度。
+* `LocalFileOffsetStore` ：`Consumer` **广播模式**下，使用本地 `文件` 消费进度。
+
+### OffsetStore#load(...)
+
+#### LocalFileOffsetStore#load(...)
+
+```Java
+  1: @Override
+  2: public void load() throws MQClientException {
+  3:     // 从本地硬盘读取消费进度
+  4:     OffsetSerializeWrapper offsetSerializeWrapper = this.readLocalOffset();
+  5:     if (offsetSerializeWrapper != null && offsetSerializeWrapper.getOffsetTable() != null) {
+  6:         offsetTable.putAll(offsetSerializeWrapper.getOffsetTable());
+  7: 
+  8:         // 打印每个消费队列的消费进度
+  9:         for (MessageQueue mq : offsetSerializeWrapper.getOffsetTable().keySet()) {
+ 10:             AtomicLong offset = offsetSerializeWrapper.getOffsetTable().get(mq);
+ 11:             log.info("load consumer's offset, {} {} {}",
+ 12:                 this.groupName,
+ 13:                 mq,
+ 14:                 offset.get());
+ 15:         }
+ 16:     }
+ 17: }
+```
+
+* 说明 ：从本地文件加载消费进度到内存。
+
+##### OffsetSerializeWrapper
+
+```Java
+  1: public class OffsetSerializeWrapper extends RemotingSerializable {
+  2:     private ConcurrentHashMap<MessageQueue, AtomicLong> offsetTable =
+  3:             new ConcurrentHashMap<>();
+  4: 
+  5:     public ConcurrentHashMap<MessageQueue, AtomicLong> getOffsetTable() {
+  6:         return offsetTable;
+  7:     }
+  8: 
+  9:     public void setOffsetTable(ConcurrentHashMap<MessageQueue, AtomicLong> offsetTable) {
+ 10:         this.offsetTable = offsetTable;
+ 11:     }
+ 12: }
+```
+
+* 说明 ：本地 `Offset` 存储序列化。
+
+```Bash
+Yunai-MacdeMacBook-Pro-2:config yunai$ cat /Users/yunai/.rocketmq_offsets/192.168.17.0@DEFAULT/please_rename_unique_group_name_1/offsets.json
+{
+	"offsetTable":{{
+			"brokerName":"broker-a",
+			"queueId":3,
+			"topic":"TopicTest"
+		}:1470,{
+			"brokerName":"broker-a",
+			"queueId":2,
+			"topic":"TopicTest"
+		}:1471,{
+			"brokerName":"broker-a",
+			"queueId":1,
+			"topic":"TopicTest"
+		}:1470,{
+			"brokerName":"broker-a",
+			"queueId":0,
+			"topic":"TopicTest"
+		}:1470
+	}
+}
+```
+
+#### RemoteBrokerOffsetStore#load(...)
+
+```Java
+  1: @Override
+  2: public void load() {
+  3: }
+```
+
+* 说明 ：不进行加载，实际读取消费进度时，从 `Broker` 获取。
+
+### OffsetStore#readOffset(...)
+
+读取消费进度类型：
+
+* `READ_FROM_MEMORY` ：从内存读取。
+* `READ_FROM_STORE` ：从存储( `Broker` 或 `文件` )读取。
+* `MEMORY_FIRST_THEN_STORE` ：优先从内存读取，读取不到，从存储读取。
+
+#### LocalFileOffsetStore#readOffset(...)
+
+```Java
+  1: @Override
+  2: public long readOffset(final MessageQueue mq, final ReadOffsetType type) {
+  3:     if (mq != null) {
+  4:         switch (type) {
+  5:             case MEMORY_FIRST_THEN_STORE:
+  6:             case READ_FROM_MEMORY: {
+  7:                 AtomicLong offset = this.offsetTable.get(mq);
+  8:                 if (offset != null) {
+  9:                     return offset.get();
+ 10:                 } else if (ReadOffsetType.READ_FROM_MEMORY == type) {
+ 11:                     return -1;
+ 12:                 }
+ 13:             }
+ 14:             case READ_FROM_STORE: {
+ 15:                 OffsetSerializeWrapper offsetSerializeWrapper;
+ 16:                 try {
+ 17:                     offsetSerializeWrapper = this.readLocalOffset();
+ 18:                 } catch (MQClientException e) {
+ 19:                     return -1;
+ 20:                 }
+ 21:                 if (offsetSerializeWrapper != null && offsetSerializeWrapper.getOffsetTable() != null) {
+ 22:                     AtomicLong offset = offsetSerializeWrapper.getOffsetTable().get(mq);
+ 23:                     if (offset != null) {
+ 24:                         this.updateOffset(mq, offset.get(), false);
+ 25:                         return offset.get();
+ 26:                     }
+ 27:                 }
+ 28:             }
+ 29:             default:
+ 30:                 break;
+ 31:         }
+ 32:     }
+ 33: 
+ 34:     return -1;
+ 35: }
+```
+
+* 第 16 行 ：从 `文件` 读取消费进度。
+
+#### RemoteBrokerOffsetStore#readOffset(...)
+
+```Java
+  1: @Override
+  2: public long readOffset(final MessageQueue mq, final ReadOffsetType type) {
+  3:     if (mq != null) {
+  4:         switch (type) {
+  5:             case MEMORY_FIRST_THEN_STORE:
+  6:             case READ_FROM_MEMORY: {
+  7:                 AtomicLong offset = this.offsetTable.get(mq);
+  8:                 if (offset != null) {
+  9:                     return offset.get();
+ 10:                 } else if (ReadOffsetType.READ_FROM_MEMORY == type) {
+ 11:                     return -1;
+ 12:                 }
+ 13:             }
+ 14:             case READ_FROM_STORE: {
+ 15:                 try {
+ 16:                     long brokerOffset = this.fetchConsumeOffsetFromBroker(mq);
+ 17:                     AtomicLong offset = new AtomicLong(brokerOffset);
+ 18:                     this.updateOffset(mq, offset.get(), false);
+ 19:                     return brokerOffset;
+ 20:                 }
+ 21:                 // No offset in broker
+ 22:                 catch (MQBrokerException e) {
+ 23:                     return -1;
+ 24:                 }
+ 25:                 //Other exceptions
+ 26:                 catch (Exception e) {
+ 27:                     log.warn("fetchConsumeOffsetFromBroker exception, " + mq, e);
+ 28:                     return -2;
+ 29:                 }
+ 30:             }
+ 31:             default:
+ 32:                 break;
+ 33:         }
+ 34:     }
+ 35: 
+ 36:     return -1;
+ 37: }
+```
+
+* 第 16 行 ：从 `Broker` 读取消费进度。
+
+### OffsetStore#updateOffset(...)
+
+该方法 `RemoteBrokerOffsetStore` 与 `LocalFileOffsetStore` 实现相同。
+
+```Java
+  1: @Override
+  2: public void updateOffset(MessageQueue mq, long offset, boolean increaseOnly) {
+  3:     if (mq != null) {
+  4:         AtomicLong offsetOld = this.offsetTable.get(mq);
+  5:         if (null == offsetOld) {
+  6:             offsetOld = this.offsetTable.putIfAbsent(mq, new AtomicLong(offset));
+  7:         }
+  8: 
+  9:         if (null != offsetOld) {
+ 10:             if (increaseOnly) {
+ 11:                 MixAll.compareAndIncreaseOnly(offsetOld, offset);
+ 12:             } else {
+ 13:                 offsetOld.set(offset);
+ 14:             }
+ 15:         }
+ 16:     }
+ 17: }
+```
+
+### OffsetStore#persistAll(...)
+
+#### LocalFileOffsetStore#persistAll(...)
+
+```Java
+  1: @Override
+  2: public void persistAll(Set<MessageQueue> mqs) {
+  3:     if (null == mqs || mqs.isEmpty())
+  4:         return;
+  5: 
+  6:     OffsetSerializeWrapper offsetSerializeWrapper = new OffsetSerializeWrapper();
+  7:     for (Map.Entry<MessageQueue, AtomicLong> entry : this.offsetTable.entrySet()) {
+  8:         if (mqs.contains(entry.getKey())) {
+  9:             AtomicLong offset = entry.getValue();
+ 10:             offsetSerializeWrapper.getOffsetTable().put(entry.getKey(), offset);
+ 11:         }
+ 12:     }
+ 13: 
+ 14:     String jsonString = offsetSerializeWrapper.toJson(true);
+ 15:     if (jsonString != null) {
+ 16:         try {
+ 17:             MixAll.string2File(jsonString, this.storePath);
+ 18:         } catch (IOException e) {
+ 19:             log.error("persistAll consumer offset Exception, " + this.storePath, e);
+ 20:         }
+ 21:     }
+ 22: }
+```
+
+* 说明 ：持久化消费进度。**将消费进度写入文件**。
+
+#### RemoteBrokerOffsetStore#persistAll(...)
+
+```Java
+  1: @Override
+  2: public void persistAll(Set<MessageQueue> mqs) {
+  3:     if (null == mqs || mqs.isEmpty())
+  4:         return;
+  5: 
+  6:     // 持久化消息队列
+  7:     final HashSet<MessageQueue> unusedMQ = new HashSet<>();
+  8:     if (!mqs.isEmpty()) {
+  9:         for (Map.Entry<MessageQueue, AtomicLong> entry : this.offsetTable.entrySet()) {
+ 10:             MessageQueue mq = entry.getKey();
+ 11:             AtomicLong offset = entry.getValue();
+ 12:             if (offset != null) {
+ 13:                 if (mqs.contains(mq)) {
+ 14:                     try {
+ 15:                         this.updateConsumeOffsetToBroker(mq, offset.get());
+ 16:                         log.info("[persistAll] Group: {} ClientId: {} updateConsumeOffsetToBroker {} {}",
+ 17:                             this.groupName,
+ 18:                             this.mQClientFactory.getClientId(),
+ 19:                             mq,
+ 20:                             offset.get());
+ 21:                     } catch (Exception e) {
+ 22:                         log.error("updateConsumeOffsetToBroker exception, " + mq.toString(), e);
+ 23:                     }
+ 24:                 } else {
+ 25:                     unusedMQ.add(mq);
+ 26:                 }
+ 27:             }
+ 28:         }
+ 29:     }
+ 30: 
+ 31:     // 移除不适用的消息队列
+ 32:     if (!unusedMQ.isEmpty()) {
+ 33:         for (MessageQueue mq : unusedMQ) {
+ 34:             this.offsetTable.remove(mq);
+ 35:             log.info("remove unused mq, {}, {}", mq, this.groupName);
+ 36:         }
+ 37:     }
+ 38: }
+```
+
+* 说明 ：持久化指定消息队列数组的消费进度到 `Broker`，并移除非指定消息队列。
+
+#### MQClientInstance#persistAllConsumerOffset(...)
+
+```Java
+  1: private void startScheduledTask() {
+  2:     // 定时同步消费进度
+  3:     this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+  4: 
+  5:         @Override
+  6:         public void run() {
+  7:             try {
+  8:                 MQClientInstance.this.cleanOfflineBroker();
+  9:                 MQClientInstance.this.sendHeartbeatToAllBrokerWithLock();
+ 10:             } catch (Exception e) {
+ 11:                 log.error("ScheduledTask sendHeartbeatToAllBroker exception", e);
+ 12:             }
+ 13:         }
+ 14:     }, 1000, this.clientConfig.getHeartbeatBrokerInterval(), TimeUnit.MILLISECONDS);
+ 15: }
+```
+
+* 说明 ：定时进行持久化，默认周期：5000ms。
+* **重要说明 ：**
+    * **消费进度持久化不仅仅只有定时持久化，拉取消息、分配消费队列等等操作，都会进行消费进度持久化。** 
+    * **消费进度持久化不仅仅只有定时持久化，拉取消息、分配消费队列等等操作，都会进行消费进度持久化。** 
+    * **消费进度持久化不仅仅只有定时持久化，拉取消息、分配消费队列等等操作，都会进行消费进度持久化。** 
 
