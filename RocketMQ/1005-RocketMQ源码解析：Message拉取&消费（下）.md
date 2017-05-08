@@ -11,7 +11,7 @@
 	- [DefaultMQPushConsumerImpl#subscribe(...)](#)
 		- [FilterAPI.buildSubscriptionData(...)](#)
 	- [DefaultMQPushConsumer#registerMessageListener(...)](#)
-- [5、PushConsumer 消费队列分配](#)
+- [5、PushConsumer 消息队列分配](#)
 	- [RebalanceService](#)
 	- [MQClientInstance#doRebalance(...)](#)
 	- [DefaultMQPushConsumerImpl#doRebalance(...)](#)
@@ -85,9 +85,9 @@ MQ 提供了两类消费者：
     * 名字虽然是 `Push` 开头，实际在实现时，使用 `Pull` 方式实现。通过 `Pull` **不断不断不断**轮询 `Broker` 获取消息。当不存在新消息时，`Broker` 会**挂起请求**，直到有新消息产生，取消挂起，返回新消息。这样，基本和 `Broker` 主动 `Push` 做到**接近**的实时性（当然，还是有相应的实时性损失）。原理类似 **[长轮询( `Long-Polling` )](https://www.ibm.com/developerworks/cn/web/wa-lo-comet/)**。
 
 
-**本文主要讲解`PushConsumer`，部分讲解`PullConsumer`，跳过`顺序消费`。**
-**本文主要讲解`PushConsumer`，部分讲解`PullConsumer`，跳过`顺序消费`。**
-**本文主要讲解`PushConsumer`，部分讲解`PullConsumer`，跳过`顺序消费`。**
+**本文主要讲解`PushConsumer`，部分讲解`PullConsumer`，跳过`顺序消费`。**  
+**本文主要讲解`PushConsumer`，部分讲解`PullConsumer`，跳过`顺序消费`。**  
+**本文主要讲解`PushConsumer`，部分讲解`PullConsumer`，跳过`顺序消费`。**  
 
 # 3、PushConsumer 一览
 
@@ -95,10 +95,10 @@ MQ 提供了两类消费者：
 
 ![PushConsumer手绘图.png](images/1005/PushConsumer手绘图.png)
 
-* `RebalanceService`：负责分配消费队列，即分配当前 `Consumer` 可消费的队列。当有新的 `Consumer` 的加入或移除，都会进行消费队列重新负载均衡，分配消费队列。
-* `PullMessageService`：拉取消息线程服务，**不断不断不断**从 `Broker` 拉取消息，并提交消费任务到 `ConsumeMessageService`。
-* `ConsumeMessageService`：消费消息线程服务，**不断不断不断**消费消息，并处理消费结果。
-* `RemoteBrokerOffsetStore`：`Consumer` 消费进度管理，负责从 `Broker` 获取消费进度，更新消费进度到 `Broker`。
+* `RebalanceService`：均衡消息队列服务，负责分配当前 `Consumer` 可消费的消息队列( `MessageQueue` )。当有新的 `Consumer` 的加入或移除，都会重新分配消息队列。
+* `PullMessageService`：拉取消息服务，**不断不断不断**从 `Broker` 拉取消息，并提交消费任务到 `ConsumeMessageService`。
+* `ConsumeMessageService`：消费消息服务，**不断不断不断**消费消息，并处理消费结果。
+* `RemoteBrokerOffsetStore`：`Consumer` 消费进度管理，负责从 `Broker` 获取消费进度，同步消费进度到 `Broker`。
 * `ProcessQueue` ：消息处理队列。
 * `MQClientInstance` ：封装对 `Namesrv`，`Broker` 的 API调用，提供给 `Producer`、`Consumer` 使用。
 
@@ -171,9 +171,9 @@ MQ 提供了两类消费者：
   4: }
 ```
 
-* 说明 ：注册监听器。
+* 说明 ：注册消息监听器。
 
-# 5、PushConsumer 消费队列分配
+# 5、PushConsumer 消息队列分配
 
 ![RebalanceService&PushConsumer分配队列](images/1005/RebalanceService&PushConsumer分配队列.png)
 
@@ -218,13 +218,13 @@ MQ 提供了两类消费者：
  36: }
 ```
 
-* 说明 ：分配消费队列线程服务。
-* 第 26 行 ：调用 `MQClientInstance#doRebalance(...)` 分配消费队列。目前有三种情况情况下触发：
+* 说明 ：均衡消息队列服务，负责分配当前 `Consumer` 可消费的消息队列( `MessageQueue` )。
+* 第 26 行 ：调用 `MQClientInstance#doRebalance(...)` 分配消息队列。目前有三种情况情况下触发：
     * 如 `第 25 行` 等待超时，每 20s 调用一次。
     * `PushConsumer` 启动时，调用 `rebalanceService#wakeup(...)` 触发。
     * `Broker` 通知 `Consumer` 加入 或 移除时，`Consumer` 响应通知，调用 `rebalanceService#wakeup(...)` 触发。
 
- 详细解析见：[MQClientInstance#doRebalance(...)](mqclientinstancedorebalance)。
+ 详细解析见：[MQClientInstance#doRebalance(...)](#mqclientinstancedorebalance)。
 
 ## MQClientInstance#doRebalance(...)
 
@@ -243,7 +243,7 @@ MQ 提供了两类消费者：
  12: }
 ```
 
-* 说明 ：遍历当前 `Client` 包含的 `consumerTable`( `Consumer`集合 )，执行消费队列分配。
+* 说明 ：遍历当前 `Client` 包含的 `consumerTable`( `Consumer`集合 )，执行消息队列分配。
 * **疑问**：目前代码调试下来，`consumerTable` 只包含 `Consumer` 自己。😈有大大对这个疑问有解答的，烦请解答下。
 * 第 6 行 ：调用 `MQConsumerInner#doRebalance(...)` 进行队列分配。`DefaultMQPushConsumerImpl`、`DefaultMQPullConsumerImpl` 分别对该接口方法进行了实现。`DefaultMQPushConsumerImpl#doRebalance(...)` 详细解析见：[DefaultMQPushConsumerImpl#doRebalance(...)](defaultmqpushconsumerimpldorebalance)。
 
@@ -257,14 +257,14 @@ MQ 提供了两类消费者：
   5: }
 ```
 
-* 说明：执行消费队列分配。
-* 第 3 行 ：调用 `RebalanceImpl#doRebalance(...)` 进行队列分配。详细解析见：[RebalancePushImpl#doRebalance(...)](rebalancepushimpldorebalance)。
+* 说明：执行消息队列分配。
+* 第 3 行 ：调用 `RebalanceImpl#doRebalance(...)` 进行队列分配。详细解析见：[RebalancePushImpl#doRebalance(...)](#rebalancepushimpldorebalance)。
 
 ## RebalanceImpl#doRebalance(...)
 
 ```Java
   1: /**
-  2:  * 执行分配消费队列
+  2:  * 执行分配消息队列
   3:  *
   4:  * @param isOrder 是否顺序消息
   5:  */
@@ -305,10 +305,10 @@ MQ 提供了两类消费者：
  40: }
 ```
 
-* `#doRebalance(...)` 说明 ：执行分配消费队列。
-    * 第 7 至 20 行 ：循环订阅主题集合( `subscriptionInner` )，分配每一个 `Topic` 的消费队列。
-    * 第 22 行 ：移除未订阅的 `Topic` 的消费队列。
-* `#truncateMessageQueueNotMyTopic(...)` 说明 ：移除未订阅的消费队列。**当调用 `DefaultMQPushConsumer#unsubscribe(topic)` 时，只移除订阅主题集合( `subscriptionInner` )，对应消费队列移除在该方法。**
+* `#doRebalance(...)` 说明 ：执行分配消息队列。
+    * 第 7 至 20 行 ：循环订阅主题集合( `subscriptionInner` )，分配每一个 `Topic` 的消息队列。
+    * 第 22 行 ：移除未订阅的 `Topic` 的消息队列。
+* `#truncateMessageQueueNotMyTopic(...)` 说明 ：移除未订阅的消息队列。**当调用 `DefaultMQPushConsumer#unsubscribe(topic)` 时，只移除订阅主题集合( `subscriptionInner` )，对应消息队列移除在该方法。**
 
 ### RebalanceImpl#rebalanceByTopic(...)
 
@@ -347,7 +347,7 @@ MQ 提供了两类消费者：
  32:             }
  33: 
  34:             if (mqSet != null && cidAll != null) {
- 35:                 // 排序 消费队列 和 消费者数组。因为是在Client进行分配队列，排序后，各Client的顺序才能保持一致。
+ 35:                 // 排序 消息队列 和 消费者数组。因为是在Client进行分配队列，排序后，各Client的顺序才能保持一致。
  36:                 List<MessageQueue> mqAll = new ArrayList<>();
  37:                 mqAll.addAll(mqSet);
  38: 
@@ -356,7 +356,7 @@ MQ 提供了两类消费者：
  41: 
  42:                 AllocateMessageQueueStrategy strategy = this.allocateMessageQueueStrategy;
  43: 
- 44:                 // 根据 队列分配策略 分配消费队列
+ 44:                 // 根据 队列分配策略 分配消息队列
  45:                 List<MessageQueue> allocateResult;
  46:                 try {
  47:                     allocateResult = strategy.allocate(//
@@ -375,7 +375,7 @@ MQ 提供了两类消费者：
  60:                     allocateResultSet.addAll(allocateResult);
  61:                 }
  62: 
- 63:                 // 更新消费队列
+ 63:                 // 更新消息队列
  64:                 boolean changed = this.updateProcessQueueTableInRebalance(topic, allocateResultSet, isOrder);
  65:                 if (changed) {
  66:                     log.info(
@@ -479,22 +479,22 @@ MQ 提供了两类消费者：
 164: }
 ```
 
-* `#rebalanceByTopic(...)` 说明 ：分配 `Topic` 的消费队列。
-    * 第 3 至 19 行 ：广播模式( `BROADCASTING` ) 下，分配 `Topic` 对应的**所有**消费队列。   
-    * 第 20 至 74 行 ：集群模式( `CLUSTERING` ) 下，分配 `Topic` 对应的**部分**消费队列。
-        * 第 21 至 40 行 ：获取 `Topic` 对应的队列和消费者们，并对其进行排序。因为各 `Consumer` 是在本地分配消费队列，排序后才能保证各 `Consumer` 顺序一致。
-        *  第 42 至 61 行 ：根据 队列分配策略( `AllocateMessageQueueStrategy` ) 分配消费队列。详细解析见：[AllocateMessageQueueStrategy](#allocatemessagequeuestrategy)。
-        *  第 63 至 72 行 ：更新 `Topic` 对应的消费队列。
-* `#updateProcessQueueTableInRebalance(...)` 说明 ：当分配队列时，更新 `Topic` 对应的消费队列，并返回是否有变更。
-    * 第 93 至 126 行 ：移除不存在于 分配的消费队列( `mqSet` ) 的 消息处理队列( `processQueueTable` )。
-        * 第 103 行 ：移除不需要的消费队列。详细解析见：[RebalancePushImpl#removeUnnecessaryMessageQueue(...)](#rebalancepushimplremoveunnecessarymessagequeue)。
-        * 第 108 行 ：队列拉取超时，即 `当前时间 - 最后一次拉取消息时间 > 120s` ( 120s 可配置)，判定发生 **BUG**，过久未进行消息拉取，移除队列。移除后，下面**#新增队列逻辑#**可以重新加入新的该队列。
-    * 第 128 至 158 行 ：增加 分配的消费队列( `mqSet` ) 新增的消费队列。
+* `#rebalanceByTopic(...)` 说明 ：分配 `Topic` 的消息队列。
+    * 第 3 至 19 行 ：广播模式( `BROADCASTING` ) 下，分配 `Topic` 对应的**所有**消息队列。   
+    * 第 20 至 74 行 ：集群模式( `CLUSTERING` ) 下，分配 `Topic` 对应的**部分**消息队列。
+        * 第 21 至 40 行 ：获取 `Topic` 对应的消息队列和消费者们，并对其进行排序。因为各 `Consumer` 是在本地分配消息队列，排序后才能保证各 `Consumer` 顺序一致。
+        *  第 42 至 61 行 ：根据 队列分配策略( `AllocateMessageQueueStrategy` ) 分配消息队列。详细解析见：[AllocateMessageQueueStrategy](#allocatemessagequeuestrategy)。
+        *  第 63 至 72 行 ：更新 `Topic` 对应的消息队列。
+* `#updateProcessQueueTableInRebalance(...)` 说明 ：当分配队列时，更新 `Topic` 对应的消息队列，并返回是否有变更。
+    * 第 93 至 126 行 ：移除不存在于分配的消息队列( `mqSet` ) 的 消息处理队列( `processQueueTable` )。
+        * 第 103 行 ：移除不需要的消息队列。详细解析见：[RebalancePushImpl#removeUnnecessaryMessageQueue(...)](#rebalancepushimplremoveunnecessarymessagequeue)。
+        * 第 108 至 120 行 ：队列拉取超时，即 `当前时间 - 最后一次拉取消息时间 > 120s` ( 120s 可配置)，判定发生 **BUG**，过久未进行消息拉取，移除消息队列。移除后，下面**#新增队列逻辑#**可以重新加入新的该消息队列。
+    * 第 128 至 158 行 ：增加 分配的消息队列( `mqSet` ) 新增的消息队列。
         * 第 132 至 135 行 ：`顺序消费` 相关跳过，详细解析见：[《Message顺序发送与消费》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1007-RocketMQ源码解析：Message顺序发送与消费.md)。
-        * 第 137 行 ：移除队列的消费进度。
+        * 第 137 行 ：移除消息队列的消费进度。
         * 第 139 行 ：获取队列消费进度。详细解析见：[RebalancePushImpl#computePullFromWhere(...)](#rebalancepushimplcomputepullfromwhere)。
         * 第 140 至 156 行 ：**添加新消费处理队列，添加消费拉取消息请求**。
-    * 第 161 行 ：**发起新增的消费队列消息拉取请求**。详细解析见：TOTOTOTO
+    * 第 161 行 ：**发起新增的消息队列消息拉取请求**。详细解析见：[RebalancePushImpl#dispatchPullRequest(...)](#rebalancepushimpldispatchpullrequest)。
 
 ### RebalanceImpl#removeUnnecessaryMessageQueue(...)
 
@@ -532,7 +532,7 @@ MQ 提供了两类消费者：
  29: }
 ```
 
-* 说明 ：移除不需要的消费队列相关的信息，并返回是否移除成功。
+* 说明 ：移除不需要的消息队列相关的信息，并返回是否移除成功。
 * 第 2 至 4 行 ：**同步**队列的消费进度，并移除之。
 * 第 5 至 27 行 ：`顺序消费` 相关跳过，详细解析见：[《Message顺序发送与消费》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1007-RocketMQ源码解析：Message顺序发送与消费.md)。
 
@@ -546,7 +546,7 @@ MQ 提供了两类消费者：
   5: }
 ```
 
-* 说明 ：移除不需要的消费队列相关的信息，并返回移除成功。**和`RebalancePushImpl#removeUnnecessaryMessageQueue(...)`基本一致。**
+* 说明 ：移除不需要的消息队列相关的信息，并返回移除成功。**和`RebalancePushImpl#removeUnnecessaryMessageQueue(...)`基本一致。**
 
 ### RebalancePushImpl#dispatchPullRequest(...)
 
@@ -610,7 +610,7 @@ MQ 提供了两类消费者：
  30:             mqAll.size() <= cidAll.size() ? 1 : (mod > 0 && index < mod ? mqAll.size() / cidAll.size()
  31:                 + 1 : mqAll.size() / cidAll.size());
  32:         int startIndex = (mod > 0 && index < mod) ? index * averageSize : index * averageSize + mod; // 有余数的情况下，[0, mod) 平分余数，即每consumer多分配一个节点；第index开始，跳过前mod余数。
- 33:         int range = Math.min(averageSize, mqAll.size() - startIndex); // 分配队列数量。之所以要Math.min()的原因是，mqAll.size() <= cidAll.size()，部分consumer分配不到消费队列。
+ 33:         int range = Math.min(averageSize, mqAll.size() - startIndex); // 分配队列数量。之所以要Math.min()的原因是，mqAll.size() <= cidAll.size()，部分consumer分配不到消息队列。
  34:         for (int i = 0; i < range; i++) {
  35:             result.add(mqAll.get((startIndex + i) % mqAll.size()));
  36:         }
@@ -626,25 +626,25 @@ MQ 提供了两类消费者：
 
 * 说明 ：**平均**分配队列策略。
 * 第 7 至 25 行 ：参数校验。
-* 第 26 至 36 行 ：平均分配消费队列。
+* 第 26 至 36 行 ：平均分配消息队列。
     * 第 27 行 ：`index` ：当前 `Consumer` 在消费集群里是第几个。这里就是为什么需要对传入的 `cidAll` 参数必须进行排序的原因。如果不排序，`Consumer` 在本地计算出来的 `index` 无法一致，影响计算结果。
-    * 第 28 行 ：`mod` ：余数，即多少消费队列无法平均分配。
+    * 第 28 行 ：`mod` ：余数，即多少消息队列无法平均分配。
     * 第 29 至 31 行 ：`averageSize` ：代码可以简化成 `(mod > 0 && index < mod ? mqAll.size() / cidAll.size() + 1 : mqAll.size() / cidAll.size())`。
-        * `[ 0, mod )` ：`mqAll.size() / cidAll.size() + 1`。前面 `mod` 个 `Consumer` 平分余数，多获得 1 个消费队列。
+        * `[ 0, mod )` ：`mqAll.size() / cidAll.size() + 1`。前面 `mod` 个 `Consumer` 平分余数，多获得 1 个消息队列。
         * `[ mod, cidAll.size() )` ：`mqAll.size() / cidAll.size()`。
     * 第 32 行 ：`startIndex` ：`Consumer` 分配消息队列开始位置。
-    * 第 33 行 ：`range` ：分配队列数量。之所以要 `Math#min(...)` 的原因：当 `mqAll.size() <= cidAll.size()` 时，最后几个 `Consumer` 分配不到消费队列。
-    * 第 34 至 36 行 ：生成分配消费队列结果。
+    * 第 33 行 ：`range` ：分配队列数量。之所以要 `Math#min(...)` 的原因：当 `mqAll.size() <= cidAll.size()` 时，最后几个 `Consumer` 分配不到消息队列。
+    * 第 34 至 36 行 ：生成分配消息队列结果。
 * 举个例子：
 
-固定消费队列长度为**4**。
+固定消息队列长度为**4**。
 
 |   | Consumer * 2 *可以整除* | Consumer * 3 *不可整除* | Consumer * 5 *无法都分配* |
 | --- | --- | --- | --- |
-| 消费队列[0] | Consumer[0] | Consumer[0] | Consumer[0] |
-| 消费队列[1] | Consumer[0] | Consumer[0] | Consumer[1] |
-| 消费队列[2] | Consumer[1] | Consumer[1] | Consumer[2] |
-| 消费队列[3] | Consumer[1] | Consumer[2] | Consumer[3] |
+| 消息队列[0] | Consumer[0] | Consumer[0] | Consumer[0] |
+| 消息队列[1] | Consumer[0] | Consumer[0] | Consumer[1] |
+| 消息队列[2] | Consumer[1] | Consumer[1] | Consumer[2] |
+| 消息队列[3] | Consumer[1] | Consumer[2] | Consumer[3] |
 
 #### AllocateMessageQueueByMachineRoom
 
@@ -664,7 +664,7 @@ MQ 提供了两类消费者：
  13:         if (currentIndex < 0) {
  14:             return result;
  15:         }
- 16:         // 计算符合当前配置的消费者数组('consumeridcs')对应的消费队列
+ 16:         // 计算符合当前配置的消费者数组('consumeridcs')对应的消息队列
  17:         List<MessageQueue> premqAll = new ArrayList<MessageQueue>();
  18:         for (MessageQueue mq : mqAll) {
  19:             String[] temp = mq.getBrokerName().split("@");
@@ -701,11 +701,11 @@ MQ 提供了两类消费者：
  50: }
 ```
 
-* 说明 ：**平均**分配**可消费的** `Broker` 对应的消费队列。
+* 说明 ：**平均**分配**可消费的** `Broker` 对应的消息队列。
 * 第 7 至 15 行 ：参数校验。
-* 第 16 至 23 行 ：计算**可消费的** `Broker` 对应的消费队列。
-* 第 25 至 34 行 ：平均分配消费队列。该**平均分配**方式和 `AllocateMessageQueueAveragely` 略有不同，其是将多余的结尾部分分配给前 `rem` 个 `Consumer`。
-* 疑问：*比较疑惑使用该分配策略，`Consumer` 和 `Broker` 分配需要怎么配置*。😈等研究**主从**相关源码时，仔细考虑下。
+* 第 16 至 23 行 ：计算**可消费的** `Broker` 对应的消息队列。
+* 第 25 至 34 行 ：平均分配消息队列。该**平均分配**方式和 `AllocateMessageQueueAveragely` 略有不同，其是将多余的结尾部分分配给前 `rem` 个 `Consumer`。
+* 疑问：*使用该分配策略时，`Consumer` 和 `Broker` 分配需要怎么配置*。😈等研究**主从**相关源码时，仔细考虑下。
 
 #### AllocateMessageQueueAveragelyByCircle
 
@@ -753,7 +753,7 @@ MQ 提供了两类消费者：
  41: }
  ```
  
- * 说明 ：环状分配消费队列。
+ * 说明 ：环状分配消息队列。
 
 #### AllocateMessageQueueByConfig
 
@@ -782,8 +782,8 @@ MQ 提供了两类消费者：
  22: }
 ```
 
-* 说明 ：分配配置的消息队列。
-* 疑问 ：*疑惑该分配策略的使用场景。*
+* 说明 ：分配**配置的**消息队列。
+* 疑问 ：*该分配策略的使用场景。*
 
 # 5、PushConsumer 消费进度读取
 
@@ -864,7 +864,7 @@ MQ 提供了两类消费者：
  72: }
 ```
 
-* 说明 ：计算消费队列开始消费位置。
+* 说明 ：计算消息队列开始消费位置。
 * `PushConsumer` 读取消费进度有三种选项：
     * `CONSUME_FROM_LAST_OFFSET` ：第 6 至 29 行 ：一个新的消费集群第一次启动从**队列的最后位置**开始消费。**后续再启动接着上次消费的进度开始消费**。
     * `CONSUME_FROM_FIRST_OFFSET` ：第 30 至 40 行 ：一个新的消费集群第一次启动从队列的**最前位置**开始消费。**后续再启动接着上次消费的进度开始消费**。
@@ -873,7 +873,7 @@ MQ 提供了两类消费者：
 
 ## `[PullConsumer]` RebalancePullImpl#computePullFromWhere(...)
 
-TOTOTOTOTO
+暂时跳过。😈
 
 # 6、PushConsumer 拉取消息
 
@@ -992,7 +992,7 @@ TOTOTOTOTO
 108: }
 ```
 
-* 说明 ：拉取消息线程服务，不断不断不断从 `Broker` 拉取消息，并提交消费任务到 `ConsumeMessageService`。
+* 说明 ：拉取消息服务，不断不断不断从 `Broker` 拉取消息，并提交消费任务到 `ConsumeMessageService`。
 * `#executePullRequestLater(...)` ：第 26 至 40 行 ： 提交**延迟**拉取消息请求。
 * `#executePullRequestImmediately(...)` ：第 42 至 53 行 ：提交**立即**拉取消息请求。
 * `#executeTaskLater(...)` ：第 55 至 63 行 ：提交**延迟任务**。
@@ -1130,7 +1130,7 @@ TOTOTOTOTO
 126:                             }
 127:                         }
 128: 
-129:                         // 下次拉取消费队列位置小于上次拉取消息队列位置 或者 第一条消息的消费队列位置小于上次拉取消息队列位置，则判定为BUG，输出log
+129:                         // 下次拉取消息队列位置小于上次拉取消息队列位置 或者 第一条消息的消息队列位置小于上次拉取消息队列位置，则判定为BUG，输出log
 130:                         if (pullResult.getNextBeginOffset() < prevRequestOffset//
 131:                             || firstMsgOffset < prevRequestOffset) {
 132:                             log.warn(
@@ -1269,34 +1269,34 @@ TOTOTOTOTO
 * `#pullMessage(...)` 说明 ：拉取消息。
     * 第 3 至 6 行 ：消息处理队列已经终止，不进行消息拉取。
     * 第 9 行 ：设置消息处理队列最后拉取消息时间。
-    * 第 11 至 18 行 ：`Consumer` 未处于运行中状态，不进行消息拉取，*提交**延迟**拉取消息请求*。
-    * 第 20 至 25 行 ： `Consumer` 处于暂停中，不进行消息拉取，*提交**延迟**拉取消息请求*。
-    * 第 27 至 37 行 ：消息处理队列持有消息超过最大允许值（默认：1000），不进行消息拉取，*提交**延迟**拉取消息请求*。
-    * 第 39 至 49 行 ：`Consumer` 为**并发消费** 并且 消费队列持有消息跨度过大（消息跨度 = 持有消息最后一条和第一条的消息位置差，默认：2000），不进行消息拉取，*提交**延迟**拉取消息请求*。
+    * 第 11 至 18 行 ：`Consumer` 未处于运行中状态，不进行消息拉取，提交**延迟**拉取消息请求。
+    * 第 20 至 25 行 ： `Consumer` 处于暂停中，不进行消息拉取，提交**延迟**拉取消息请求。
+    * 第 27 至 37 行 ：消息处理队列持有消息超过最大允许值（默认：1000条），不进行消息拉取，提交**延迟**拉取消息请求。
+    * 第 39 至 49 行 ：`Consumer` 为**并发消费** 并且 消息队列持有消息跨度过大（消息跨度 = 持有消息最后一条和第一条的消息位置差，默认：2000），不进行消息拉取，提交**延迟**拉取消息请求。
     * 第 50 至 70 行 ：`顺序消费` 相关跳过，详细解析见：[《Message顺序发送与消费》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1007-RocketMQ源码解析：Message顺序发送与消费.md)。
-    * 第 72 至 78 行 ：`Topic` 对应的订阅信息不存在，不进行消息拉取，*提交**延迟**拉取消息请求*。
-    * 第 222 至 224 行 ：判断请求是否使用 `Consumer` 自己的订阅信息，而不使用 `Broker` 里的 `SubscriptionData`。详细解析见：[PullMessageProcessor#processRequest(...) 第 64 至 110 行代码](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1005-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E6%8B%89%E5%8F%96%26%E6%B6%88%E8%B4%B9%EF%BC%88%E4%B8%8A%EF%BC%89.md#pullmessageprocessorprocessrequest)。
+    * 第 72 至 78 行 ：`Topic` 对应的订阅信息不存在，不进行消息拉取，提交**延迟**拉取消息请求。
+    * 第 222 至 224 行 ：判断请求是否使用 `Consumer` **本地**的订阅信息( `SubscriptionData` )，而不使用 `Broker` 里的订阅信息。详细解析见：[PullMessageProcessor#processRequest(...) 第 64 至 110 行代码](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1005-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E6%8B%89%E5%8F%96%26%E6%B6%88%E8%B4%B9%EF%BC%88%E4%B8%8A%EF%BC%89.md#pullmessageprocessorprocessrequest)。
     * 第 226 行 ：是否开启过滤类过滤模式。详细解析见：[《Filtersrv》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1008-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AFiltersrv.md)。
     * 第 229 至 235 行 ：计算拉取消息请求系统标识。详细解析见：[PullMessageRequestHeader.sysFlag](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1005-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E6%8B%89%E5%8F%96%26%E6%B6%88%E8%B4%B9%EF%BC%88%E4%B8%8A%EF%BC%89.md#pullmessagerequestheader)。
     * 第 237 至 255 行 ：
         * 执行消息拉取**异步**请求。详细解析见：[PullAPIWrapper#pullKernelImpl(...)](#pullapiwrapperpullkernelimpl)。
-        * 当发起请求产生异常时，*提交**延迟**拉取消息请求*。对应 `Broker` 处理拉取消息逻辑见：[PullMessageProcessor#processRequest(...)](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1005-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E6%8B%89%E5%8F%96%26%E6%B6%88%E8%B4%B9%EF%BC%88%E4%B8%8A%EF%BC%89.md#pullmessageprocessorprocessrequest)。
+        * 当发起请求产生异常时，提交**延迟**拉取消息请求。对应 `Broker` 处理拉取消息逻辑见：[PullMessageProcessor#processRequest(...)](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1005-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E6%8B%89%E5%8F%96%26%E6%B6%88%E8%B4%B9%EF%BC%88%E4%B8%8A%EF%BC%89.md#pullmessageprocessorprocessrequest)。
 * `PullCallback` ：拉取消息回调：
    * 第 86 行 ：处理拉取结果。详细逻辑见：[PullAPIWrapper#processPullResult(...)](#pullapiwrapperprocesspullresult)。
    * 第 89 至 192 行 ：处理拉取状态结果：
         * 第 90 至 139 行 ：拉取到消息( `FOUND` ) ：
             * 第 91 至 93 行 ：设置下次拉取消息队列位置。
             * 第 95 至 97 行 ：统计。
-            * 第 101 至 102 行 ：拉取到消息的消息列表为空，*提交**立即**拉取消息请求*。为什么会存在拉取到消息，但是消息结果未空呢？原因见：[PullAPIWrapper#processPullResult(...)](#pullapiwrapperprocesspullresult)。
+            * 第 101 至 102 行 ：拉取到消息的消息列表为空，提交**立即**拉取消息请求。为什么会存在拉取到消息，但是消息结果未空呢？原因见：[PullAPIWrapper#processPullResult(...)](#pullapiwrapperprocesspullresult)。
             * 第 106 至 108 行 ：统计。
             * 第 111 行 ：提交拉取到的消息到消息处理队列。详细解析见：[ProcessQueue#putMessage(...)](#processqueueputmessage)。
             * 第 113 至 118 行 ：提交消费请求到 `ConsumeMessageService`。详细解析见：TOTOTO。
-            * 第 120 至 126 行 ：根据拉取频率( `pullInterval` )，*提交**立即或者延迟**拉取消息请求*。默认拉取频率为 0ms ，*提交**立即**拉取消息请求*。
-            * 第 129 至 137 行 ：下次拉取消费队列位置小于上次拉取消息队列位置 或者 第一条 消息的消费队列位置小于上次拉取消息队列位置，则判定为**BUG**，输出警告日志。
+            * 第 120 至 126 行 ：根据拉取频率( `pullInterval` )，提交**立即或者延迟**拉取消息请求。默认拉取频率为 0ms ，提交**立即**拉取消息请求。
+            * 第 129 至 137 行 ：下次拉取消息队列位置小于上次拉取消息队列位置 或者 第一条消息的消息队列位置小于上次拉取消息队列位置，则判定为**BUG**，输出警告日志。
        * 第 140 至 149 行 ：没有新消息( `NO_NEW_MSG` ) ：
             * 第 142 行 ： 设置下次拉取消息队列位置。
             * 第 145 行 ：更正消费进度。详细解析见：`#correctTagsOffset(...)`。
-            * 第 148 行 ：*提交**立即**拉取消息请求*。
+            * 第 148 行 ：提交**立即**拉取消息请求。
        * 第 150 至 159 行 ：有新消息但是不匹配( `NO_MATCHED_MSG` )。逻辑同 `NO_NEW_MSG` 。
        * 第 160 至 189 行 ：拉取请求的消息队列位置不合法 (`OFFSET_ILLEGAL`)。
             * 第 164 行 ：设置下次拉取消息队列位置。
@@ -1304,7 +1304,7 @@ TOTOTOTOTO
             * 第 169 至 188 行 ：提交延迟任务，进行队列移除。
                 * 第 175 至 178 行 ：更新消费进度，同步消费进度到 `Broker`。
                 * 第 181 行 ：移除消费处理队列。TOTOTO：为什么不立即移除。
-  * 第 196 至 204 行 ：发生异常，*提交**延迟**拉取消息请求*。
+  * 第 196 至 204 行 ：发生异常，提交**延迟**拉取消息请求。
 * `#correctTagsOffset(...)` ：更正消费进度。
     * 第 258 至 261 行 ： 当消费处理队列持有消息数量为 **0** 时，更新消费进度为拉取请求的拉取消息队列位置。
 
@@ -1318,11 +1318,11 @@ TOTOTOTOTO
   5:  * @param subExpression 订阅表达式
   6:  * @param subVersion 订阅版本号
   7:  * @param offset 拉取队列开始位置
-  8:  * @param maxNums 批量拉 取消息数量
-  9:  * @param sysFlag 拉取系统标识
+  8:  * @param maxNums 拉取消息数量
+  9:  * @param sysFlag 拉取请求系统标识
  10:  * @param commitOffset 提交消费进度
  11:  * @param brokerSuspendMaxTimeMillis broker挂起请求最大时间
- 12:  * @param timeoutMillis 请求broker超时时间
+ 12:  * @param timeoutMillis 请求broker超时时长
  13:  * @param communicationMode 通讯模式
  14:  * @param pullCallback 拉取回调
  15:  * @return 拉取消息结果。只有通讯模式为同步时，才返回结果，否则返回null。
@@ -1395,11 +1395,11 @@ TOTOTOTOTO
  82: }
 ```
 
-* 说明 ：拉取消息核心方法。*该方法参数较多，可以看下代码注释上每个参数的说明*😈。
+* 说明 ：拉取消息核心方法。**该方法参数较多，可以看下代码注释上每个参数的说明**😈。
 * 第 34 至 43 行 ：获取 `Broker` 信息(`Broker` 地址、是否为从节点)。
     * [#recalculatePullFromWhichNode(...)](#pullapiwrapperrecalculatepullfromwhichnode)
     * [#MQClientInstance#findBrokerAddressInSubscribe(...)](#mqclientinstancefindbrokeraddressinsubscribe)
-* 第 45 至 78 行 ：请求拉取消息。
+* 第 45 至 78 行 ：**请求拉取消息**。
 * 第 81 行 ：当 `Broker` 信息不存在，则抛出异常。
 
 #### PullAPIWrapper#recalculatePullFromWhichNode(...)
@@ -1566,10 +1566,10 @@ TOTOTOTOTO
 ```
 
 * 说明 ：处理拉取结果。
-    *  更新消息队列拉取消息Broker编号的映射。
-    *  解析消息，并根据订阅信息消息tagCode匹配合适消息。
+    *  更新消息队列拉取消息 `Broker` 编号的映射。
+    *  解析消息，并根据订阅信息消息 `tagCode `匹配合适消息。
 * 第 16 行 ：更新消息队列拉取消息 `Broker` 编号的映射。下次拉取消息时，如果未设置默认拉取的 `Broker` 编号，会使用更新后的 `Broker` 编号。
-* 第 18 至 55 行 ：解析消息，并根据订阅信息消息tagCode匹配合适消息。
+* 第 18 至 55 行 ：解析消息，并根据订阅信息消息 `tagCode` 匹配合适消息。
     * 第 20 至 22 行 ：解析消息。详细解析见：[《RocketMQ源码解析：Message基础》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1002-RocketMQ源码解析：Message基础.md) 。
     * 第 24 至 35 行 ：根据订阅信息`tagCode` 匹配消息。
     * 第 37 至 43 行 ：`Hook`。
@@ -1915,13 +1915,13 @@ while (true) {
 * 第 34 至 44 行 ：Hook。
 * 第 51 行 ：当消息为重试消息，设置 `Topic`为原始 `Topic`。例如：原始 `Topic` 为 `TopicTest`，重试时 `Topic` 为 `%RETRY%please_rename_unique_group_name_4`，经过该方法，`Topic` 设置回 `TopicTest`。
 * 第 53 至 58 行 ：设置开始消费时间。
-* 第 61 行 ：进行消费。详细解析见：TOTOTO
+* 第 61 行 ：**进行消费**。
 * 第 71 至 85 行 ：解析消费返回结果类型
-* 第 87 至 90 行 ：Hook。
+* 第 87 至 90 行 ：`Hook`。
 * 第 92 至 99 行 ：消费结果状态未空时，则设置消费结果状态为稍后消费。
-* 第 101 至 106 行 ：Hook。
+* 第 101 至 106 行 ：`Hook`。
 * 第 108 至 110 行 ：统计。
-* 第 112 至 117 行 ：处理消费结果。**如果消费处理队列被移除，恰好消息被消费，则可能导致消息重复消费，因此，消息消费要尽最大可能性实现幂等性。**详细解析见：[ConsumeMessageConcurrentlyService#processConsumeResult(...)](#consumemessageconcurrentlyserviceprocessconsumeresult)。
+* 第 112 至 117 行 ：处理消费结果。**如果消费处理队列被移除，恰好消息被消费，则可能导致消息重复消费，因此，消息消费要尽最大可能性实现幂等性**。详细解析见：[ConsumeMessageConcurrentlyService#processConsumeResult(...)](#consumemessageconcurrentlyserviceprocessconsumeresult)。
 
 ## ConsumeMessageConcurrentlyService#processConsumeResult(...)
 
@@ -2009,8 +2009,8 @@ while (true) {
         * 第 43 至 52 行 ：发回消费失败的消息到 `Broker`。详细解析见：[DefaultMQPushConsumerImpl#sendMessageBack(...)](#defaultmqpushconsumerimplsendmessageback)。
         * 第 54 至 59 行 ：发回 `Broker` 失败的消息，直接提交延迟重新消费。
         * **如果发回 `Broker` 成功，结果因为例如网络异常，导致 `Consumer`以为发回失败，判定消费发回失败，会导致消息重复消费，因此，消息消费要尽最大可能性实现幂等性。**
-* 第 65 至 69 行 ：移除**【消费成功】**和**【消费失败但发回 `Broker` 成功】**的消息，并更新最新消费进度。
-    * 为什么会有**【消费失败但发回 `Broker` 成功】**的消息？见**第 56 行**。
+* 第 65 至 69 行 ：移除**【消费成功】**和**【消费失败但发回`Broker`成功】**的消息，并更新最新消费进度。
+    * 为什么会有**【消费失败但发回`Broker`成功】**的消息？见**第 56 行**。
     * [ProcessQueue#removeMessage(...)](#processqueueremovemessage)
 
 ### ProcessQueue#removeMessage(...)
@@ -2149,7 +2149,7 @@ while (true) {
 * 第 2 至 5 行 ：顺序消费时，直接返回。
 * 第 7 至 9 行 ：循环移除消息。默认最大循环次数：16次。
 * 第 10 至 25 行 ：获取第一条消息。判断是否超时，若不超时，则结束循环。
-* 第 29 行 ：**发回超时消息到 `Broker` **。
+* 第 29 行 ：**发回超时消息到`Broker`**。
 * 第 32 至 48 行 ：判断此时消息是否依然是第一条，若是，则进行移除。
 
 # 7、PushConsumer 发回消费失败消息
@@ -2260,7 +2260,7 @@ while (true) {
   5:     if (offsetSerializeWrapper != null && offsetSerializeWrapper.getOffsetTable() != null) {
   6:         offsetTable.putAll(offsetSerializeWrapper.getOffsetTable());
   7: 
-  8:         // 打印每个消费队列的消费进度
+  8:         // 打印每个消息队列的消费进度
   9:         for (MessageQueue mq : offsetSerializeWrapper.getOffsetTable().keySet()) {
  10:             AtomicLong offset = offsetSerializeWrapper.getOffsetTable().get(mq);
  11:             log.info("load consumer's offset, {} {} {}",
@@ -2543,7 +2543,13 @@ Yunai-MacdeMacBook-Pro-2:config yunai$ cat /Users/yunai/.rocketmq_offsets/192.16
 
 * 说明 ：定时进行持久化，默认周期：5000ms。
 * **重要说明 ：**
-    * **消费进度持久化不仅仅只有定时持久化，拉取消息、分配消费队列等等操作，都会进行消费进度持久化。** 
-    * **消费进度持久化不仅仅只有定时持久化，拉取消息、分配消费队列等等操作，都会进行消费进度持久化。** 
-    * **消费进度持久化不仅仅只有定时持久化，拉取消息、分配消费队列等等操作，都会进行消费进度持久化。** 
+    * **消费进度持久化不仅仅只有定时持久化，拉取消息、分配消息队列等等操作，都会进行消费进度持久化。** 
+    * **消费进度持久化不仅仅只有定时持久化，拉取消息、分配消息队列等等操作，都会进行消费进度持久化。** 
+    * **消费进度持久化不仅仅只有定时持久化，拉取消息、分配消息队列等等操作，都会进行消费进度持久化。** 
+
+# 9、结尾
+
+😈可能是本系列最长的一篇文章，如有表达错误和不清晰，请多多见谅。  
+感谢对本系列的阅读、收藏、点赞、分享，特别是翻到结尾。😜真的有丢丢长。
+
 
