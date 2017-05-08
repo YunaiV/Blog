@@ -4,6 +4,8 @@
 
 -------
 
+**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+
 - [1、概述](#)
 - [2、Consumer](#)
 - [3、PushConsumer 一览](#)
@@ -65,7 +67,7 @@
 			- [LocalFileOffsetStore#persistAll(...)](#)
 			- [RemoteBrokerOffsetStore#persistAll(...)](#)
 			- [MQClientInstance#persistAllConsumerOffset(...)](#)
-
+- [9、结尾](#)
 
 -------
 
@@ -79,11 +81,10 @@
 
 MQ 提供了两类消费者：
 
-* PullConsumer：TODO
 * PushConsumer：
     * 在大多数场景下使用。
     * 名字虽然是 `Push` 开头，实际在实现时，使用 `Pull` 方式实现。通过 `Pull` **不断不断不断**轮询 `Broker` 获取消息。当不存在新消息时，`Broker` 会**挂起请求**，直到有新消息产生，取消挂起，返回新消息。这样，基本和 `Broker` 主动 `Push` 做到**接近**的实时性（当然，还是有相应的实时性损失）。原理类似 **[长轮询( `Long-Polling` )](https://www.ibm.com/developerworks/cn/web/wa-lo-comet/)**。
-
+* PullConsumer
 
 **本文主要讲解`PushConsumer`，部分讲解`PullConsumer`，跳过`顺序消费`。**  
 **本文主要讲解`PushConsumer`，部分讲解`PullConsumer`，跳过`顺序消费`。**  
@@ -1290,7 +1291,7 @@ MQ 提供了两类消费者：
             * 第 101 至 102 行 ：拉取到消息的消息列表为空，提交**立即**拉取消息请求。为什么会存在拉取到消息，但是消息结果未空呢？原因见：[PullAPIWrapper#processPullResult(...)](#pullapiwrapperprocesspullresult)。
             * 第 106 至 108 行 ：统计。
             * 第 111 行 ：提交拉取到的消息到消息处理队列。详细解析见：[ProcessQueue#putMessage(...)](#processqueueputmessage)。
-            * 第 113 至 118 行 ：提交消费请求到 `ConsumeMessageService`。详细解析见：TOTOTO。
+            * 第 113 至 118 行 ：提交消费请求到 `ConsumeMessageService`。详细解析见：[ConsumeMessageConcurrentlyService](#consumemessageconcurrentlyservice)。
             * 第 120 至 126 行 ：根据拉取频率( `pullInterval` )，提交**立即或者延迟**拉取消息请求。默认拉取频率为 0ms ，提交**立即**拉取消息请求。
             * 第 129 至 137 行 ：下次拉取消息队列位置小于上次拉取消息队列位置 或者 第一条消息的消息队列位置小于上次拉取消息队列位置，则判定为**BUG**，输出警告日志。
        * 第 140 至 149 行 ：没有新消息( `NO_NEW_MSG` ) ：
@@ -1303,7 +1304,8 @@ MQ 提供了两类消费者：
             * 第 167 行 ：设置消息处理队列为 `dropped`。
             * 第 169 至 188 行 ：提交延迟任务，进行队列移除。
                 * 第 175 至 178 行 ：更新消费进度，同步消费进度到 `Broker`。
-                * 第 181 行 ：移除消费处理队列。TOTOTO：为什么不立即移除。
+                * 第 181 行 ：移除消费处理队列。
+                    * 疑问：为什么不立即移除？？？ 
   * 第 196 至 204 行 ：发生异常，提交**延迟**拉取消息请求。
 * `#correctTagsOffset(...)` ：更正消费进度。
     * 第 258 至 261 行 ： 当消费处理队列持有消息数量为 **0** 时，更新消费进度为拉取请求的拉取消息队列位置。
