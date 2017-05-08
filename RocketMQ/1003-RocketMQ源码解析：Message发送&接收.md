@@ -1,3 +1,26 @@
+>  原文地址：[RocketMQ源码解析：Message发送&接收](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1003-RocketMQ源码解析：Message发送&接收.md)  
+> `RocketMQ` **带注释**地址 ：[YunaiV/incubator-rocketmq](https://github.com/YunaiV/incubator-rocketmq)  
+> **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub。**  
+
+-------
+
+- [1、概述](#)
+- [2、Producer 发送消息](#)
+	- [DefaultMQProducer#send(Message)](#)
+	- [DefaultMQProducerImpl#sendDefaultImpl()](#)
+		- [DefaultMQProducerImpl#tryToFindTopicPublishInfo()](#)
+		- [MQFaultStrategy](#)
+			- [MQFaultStrategy](#)
+			- [LatencyFaultTolerance](#)
+			- [LatencyFaultToleranceImpl](#)
+			- [FaultItem](#)
+		- [DefaultMQProducerImpl#sendKernelImpl()](#)
+- [3、Broker 接收消息](#)
+	- [SendMessageProcessor#sendMessage](#)
+		- [AbstractSendMessageProcessor#msgCheck](#)
+	- [DefaultMessageStore#putMessage](#)
+- [4、某种结尾](#)
+
 # 1、概述
 
 1. `Producer` 发送消息。主要是**同步**发送消息源码，涉及到 异步/Oneway发送消息，事务消息会跳过。
