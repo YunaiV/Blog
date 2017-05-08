@@ -4,7 +4,28 @@
 
 -------
 
-
+- [1、概述](#)
+- [2、ConsumeQueue 结构](#)
+- [3、ConsumeQueue 存储](#)
+	- [ReputMessageService](#)
+		- [DefaultMessageStore#doDispatch(...)](#)
+		- [ConsumeQueue#putMessagePositionInfoWrapper(...)](#)
+	- [FlushConsumeQueueService](#)
+- [4、Broker 提供[拉取消息]接口](#)
+	- [PullMessageRequestHeader](#)
+	- [PullMessageProcessor#processRequest(...)](#)
+	- [MessageStore#getMessage(...)](#)
+	- [DefaultMessageFilter#isMessageMatched(...)](#)
+	- [PullRequestHoldService](#)
+	- [PullMessageProcessor#executeRequestWhenWakeup(...)](#)
+- [5、Broker 提供[更新消费进度]接口](#)
+	- [BrokerController#initialize(...)](#)
+	- [ConfigManager](#)
+		- [MixAll#string2File(...)](#)
+	- [ConsumerOffsetManager](#)
+- [6、Broker 提供[发回消息]接口](#)
+	- [SendMessageProcessor#consumerSendMsgBack(...)](#)
+- [7、结尾](#)
 
 # 1、概述
 
