@@ -2041,6 +2041,89 @@ while (true) {
 
 ## DefaultMQPushConsumerImpl#sendMessageBack(...)
 
+```Java
+  1: public void sendMessageBack(MessageExt msg, int delayLevel, final String brokerName)
+  2:     throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
+  3:     try {
+  4:         // Consumer发回消息
+  5:         String brokerAddr = (null != brokerName) ? this.mQClientFactory.findBrokerAddressInPublish(brokerName)
+  6:             : RemotingHelper.parseSocketAddressAddr(msg.getStoreHost());
+  7:         this.mQClientFactory.getMQClientAPIImpl().consumerSendMessageBack(brokerAddr, msg,
+  8:             this.defaultMQPushConsumer.getConsumerGroup(), delayLevel, 5000, getMaxReconsumeTimes());
+  9:     } catch (Exception e) { // TODO 疑问：什么情况下会发生异常
+ 10:         // 异常时，使用Client内置Producer发回消息
+ 11:         log.error("sendMessageBack Exception, " + this.defaultMQPushConsumer.getConsumerGroup(), e);
+ 12: 
+ 13:         Message newMsg = new Message(MixAll.getRetryTopic(this.defaultMQPushConsumer.getConsumerGroup()), msg.getBody());
+ 14: 
+ 15:         String originMsgId = MessageAccessor.getOriginMessageId(msg);
+ 16:         MessageAccessor.setOriginMessageId(newMsg, UtilAll.isBlank(originMsgId) ? msg.getMsgId() : originMsgId);
+ 17: 
+ 18:         newMsg.setFlag(msg.getFlag());
+ 19:         MessageAccessor.setProperties(newMsg, msg.getProperties());
+ 20:         MessageAccessor.putProperty(newMsg, MessageConst.PROPERTY_RETRY_TOPIC, msg.getTopic());
+ 21:         MessageAccessor.setReconsumeTime(newMsg, String.valueOf(msg.getReconsumeTimes() + 1));
+ 22:         MessageAccessor.setMaxReconsumeTimes(newMsg, String.valueOf(getMaxReconsumeTimes()));
+ 23:         newMsg.setDelayTimeLevel(3 + msg.getReconsumeTimes());
+ 24: 
+ 25:         this.mQClientFactory.getDefaultMQProducer().send(newMsg);
+ 26:     }
+ 27: }
+```
+
+* 说明 ：发回消息。
+* 第 4 至 8 行 ：`Consumer` 发回消息。详细解析见：[MQClientAPIImpl#consumerSendMessageBack(...)](#mqclientapiimplconsumersendmessageback)。
+* 第 10 至 25 行 ：发生异常时，`Consumer` 内置默认 `Producer` 发送消息。
+    * 😈疑问：什么样的情况下会发生异常呢？
+
+### MQClientAPIImpl#consumerSendMessageBack(...)
+
+```Java
+    /**
+     * Consumer发回消息
+     * @param addr Broker地址
+     * @param msg 消息
+     * @param consumerGroup 消费分组
+     * @param delayLevel 延迟级别
+     * @param timeoutMillis 超时
+     * @param maxConsumeRetryTimes 消费最大重试次数
+     * @throws RemotingException 当远程调用发生异常时
+     * @throws MQBrokerException 当Broker发生异常时
+     * @throws InterruptedException 当线程中断时
+     */
+    public void consumerSendMessageBack(
+        final String addr,
+        final MessageExt msg,
+        final String consumerGroup,
+        final int delayLevel,
+        final long timeoutMillis,
+        final int maxConsumeRetryTimes
+    ) throws RemotingException, MQBrokerException, InterruptedException {
+        ConsumerSendMsgBackRequestHeader requestHeader = new ConsumerSendMsgBackRequestHeader();
+        RemotingCommand request = RemotingCommand.createRequestCommand(RequestCode.CONSUMER_SEND_MSG_BACK, requestHeader);
+
+        requestHeader.setGroup(consumerGroup);
+        requestHeader.setOriginTopic(msg.getTopic());
+        requestHeader.setOffset(msg.getCommitLogOffset());
+        requestHeader.setDelayLevel(delayLevel);
+        requestHeader.setOriginMsgId(msg.getMsgId());
+        requestHeader.setMaxReconsumeTimes(maxConsumeRetryTimes);
+
+        RemotingCommand response = this.remotingClient.invokeSync(MixAll.brokerVIPChannel(this.clientConfig.isVipChannelEnabled(), addr),
+            request, timeoutMillis);
+        assert response != null;
+        switch (response.getCode()) {
+            case ResponseCode.SUCCESS: {
+                return;
+            }
+            default:
+                break;
+        }
+
+        throw new MQBrokerException(response.getCode(), response.getRemark());
+    }
+```
+
 # 8、Consumer 调用[更新消费进度]接口
 
 
