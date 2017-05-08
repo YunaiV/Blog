@@ -4,8 +4,6 @@
 
 -------
 
-**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
-
 - [1、概述](#)
 - [2、Consumer](#)
 - [3、PushConsumer 一览](#)

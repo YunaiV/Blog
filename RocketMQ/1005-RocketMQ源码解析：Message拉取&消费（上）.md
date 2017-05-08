@@ -1,3 +1,11 @@
+>  原文地址：[RocketMQ源码解析：Message拉取&消费（上）](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1005-RocketMQ源码解析：Message拉取&消费（上）.md)  
+> `RocketMQ` **带注释**地址 ：[YunaiV/incubator-rocketmq](https://github.com/YunaiV/incubator-rocketmq)  
+> **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub。**  
+
+-------
+
+
+
 # 1、概述
 
 本章主要解析 **消费** 逻辑涉及到的源码。
@@ -1233,7 +1241,8 @@ total 11720
 * 第 61 行 ：根据 消费队列位置(`offset`) 获取 对应的`MappedFile`。
 * 第 72 至 128 行 ：**循环**获取 `消息位置信息`。
     * 第 74 至 76 行 ：读取每一个 `消息位置信息`。
-    * 第 79 至 83 行 ：当 `offsetPy` 小于 `nextPhyFileStartOffset` 时，意味着对应的 `Message` 已经移除，所以直接continue，直到可读取的 `Message`。
+    * 第 79 至 83 行 ：当 `offsetPy` 小于 `nextPhyFileStartOffset` 时，意味着对
+应的 `Message` 已经移除，所以直接continue，直到可读取的 `Message`。
     * 第 84 至 90 行 ：判断是否已经获得足够的消息。
         * `#checkInDiskByCommitOffset(...)` ：第 214 至 224 行。
         * `#isTheBatchFull(...)` ：第 226 至 264 行。
