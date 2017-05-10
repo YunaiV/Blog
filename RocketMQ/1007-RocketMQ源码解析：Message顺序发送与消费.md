@@ -1,3 +1,5 @@
+
+
 # 1. 概述
 
 **建议**前置阅读内容：
@@ -475,8 +477,301 @@
 
 考虑到 `ROLLBACK` 、`COMMIT` 暂时只使用在 `MySQL binlog` 场景，官方将这两状态标记为 `@Deprecated`。当然，相应的实现逻辑依然保留。
 
-在**并发消费**场景时，如果消费失败，`Consumer` 会将消费失败消息发回到 `Broker` 重试队列，跳过当前消息，等待下次消费。 
+在**并发消费**场景时，如果消费失败，`Consumer` 会将消费失败消息发回到 `Broker` 重试队列，跳过当前消息，等待下次消费。
+
 但是在**完全严格顺序消费**消费时，这样做显然不行。也因此，消费失败的消息，会挂起队列一会会，稍后继续消费。 
+
 不过消费失败的消息一直失败，也不可能一直消费。当超过消费重试上限时，`Consumer` 会将消费失败消息发回到 `Broker` 死信队列。
+
+让我们来看看代码：
+
+```Java
+  1: // ⬇️⬇️⬇️【ConsumeMessageOrderlyService.java】
+  2: /**
+  3:  * 处理消费结果，并返回是否继续消费
+  4:  *
+  5:  * @param msgs 消息
+  6:  * @param status 消费结果状态
+  7:  * @param context 消费Context
+  8:  * @param consumeRequest 消费请求
+  9:  * @return 是否继续消费
+ 10:  */
+ 11: public boolean processConsumeResult(//
+ 12:     final List<MessageExt> msgs, //
+ 13:     final ConsumeOrderlyStatus status, //
+ 14:     final ConsumeOrderlyContext context, //
+ 15:     final ConsumeRequest consumeRequest//
+ 16: ) {
+ 17:     boolean continueConsume = true;
+ 18:     long commitOffset = -1L;
+ 19:     if (context.isAutoCommit()) {
+ 20:         switch (status) {
+ 21:             case COMMIT:
+ 22:             case ROLLBACK:
+ 23:                 log.warn("the message queue consume result is illegal, we think you want to ack these message {}", consumeRequest.getMessageQueue());
+ 24:             case SUCCESS:
+ 25:                 // 提交消息已消费成功到消息处理队列
+ 26:                 commitOffset = consumeRequest.getProcessQueue().commit();
+ 27:                 // 统计
+ 28:                 this.getConsumerStatsManager().incConsumeOKTPS(consumerGroup, consumeRequest.getMessageQueue().getTopic(), msgs.size());
+ 29:                 break;
+ 30:             case SUSPEND_CURRENT_QUEUE_A_MOMENT:
+ 31:                 // 统计
+ 32:                 this.getConsumerStatsManager().incConsumeFailedTPS(consumerGroup, consumeRequest.getMessageQueue().getTopic(), msgs.size());
+ 33:                 if (checkReconsumeTimes(msgs)) { // 计算是否暂时挂起（暂停）消费N毫秒，默认：10ms
+ 34:                     // 设置消息重新消费
+ 35:                     consumeRequest.getProcessQueue().makeMessageToCosumeAgain(msgs);
+ 36:                     // 提交延迟消费请求
+ 37:                     this.submitConsumeRequestLater(//
+ 38:                         consumeRequest.getProcessQueue(), //
+ 39:                         consumeRequest.getMessageQueue(), //
+ 40:                         context.getSuspendCurrentQueueTimeMillis());
+ 41:                     continueConsume = false;
+ 42:                 } else {
+ 43:                     commitOffset = consumeRequest.getProcessQueue().commit();
+ 44:                 }
+ 45:                 break;
+ 46:             default:
+ 47:                 break;
+ 48:         }
+ 49:     } else {
+ 50:         switch (status) {
+ 51:             case SUCCESS:
+ 52:                 this.getConsumerStatsManager().incConsumeOKTPS(consumerGroup, consumeRequest.getMessageQueue().getTopic(), msgs.size());
+ 53:                 break;
+ 54:             case COMMIT:
+ 55:                 // 提交消息已消费成功到消息处理队列
+ 56:                 commitOffset = consumeRequest.getProcessQueue().commit();
+ 57:                 break;
+ 58:             case ROLLBACK:
+ 59:                 // 设置消息重新消费
+ 60:                 consumeRequest.getProcessQueue().rollback();
+ 61:                 this.submitConsumeRequestLater(//
+ 62:                     consumeRequest.getProcessQueue(), //
+ 63:                     consumeRequest.getMessageQueue(), //
+ 64:                     context.getSuspendCurrentQueueTimeMillis());
+ 65:                 continueConsume = false;
+ 66:                 break;
+ 67:             case SUSPEND_CURRENT_QUEUE_A_MOMENT: // 计算是否暂时挂起（暂停）消费N毫秒，默认：10ms
+ 68:                 this.getConsumerStatsManager().incConsumeFailedTPS(consumerGroup, consumeRequest.getMessageQueue().getTopic(), msgs.size());
+ 69:                 if (checkReconsumeTimes(msgs)) {
+ 70:                     // 设置消息重新消费
+ 71:                     consumeRequest.getProcessQueue().makeMessageToCosumeAgain(msgs);
+ 72:                     // 提交延迟消费请求
+ 73:                     this.submitConsumeRequestLater(//
+ 74:                         consumeRequest.getProcessQueue(), //
+ 75:                         consumeRequest.getMessageQueue(), //
+ 76:                         context.getSuspendCurrentQueueTimeMillis());
+ 77:                     continueConsume = false;
+ 78:                 }
+ 79:                 break;
+ 80:             default:
+ 81:                 break;
+ 82:         }
+ 83:     }
+ 84: 
+ 85:     // 消息处理队列未dropped，提交有效消费进度
+ 86:     if (commitOffset >= 0 && !consumeRequest.getProcessQueue().isDropped()) {
+ 87:         this.defaultMQPushConsumerImpl.getOffsetStore().updateOffset(consumeRequest.getMessageQueue(), commitOffset, false);
+ 88:     }
+ 89: 
+ 90:     return continueConsume;
+ 91: }
+ 92: 
+ 93: private int getMaxReconsumeTimes() {
+ 94:     // default reconsume times: Integer.MAX_VALUE
+ 95:     if (this.defaultMQPushConsumer.getMaxReconsumeTimes() == -1) {
+ 96:         return Integer.MAX_VALUE;
+ 97:     } else {
+ 98:         return this.defaultMQPushConsumer.getMaxReconsumeTimes();
+ 99:     }
+100: }
+101: 
+102: /**
+103:  * 计算是否要暂停消费
+104:  * 不暂停条件：存在消息都超过最大消费次数并且都发回broker成功
+105:  *
+106:  * @param msgs 消息
+107:  * @return 是否要暂停
+108:  */
+109: private boolean checkReconsumeTimes(List<MessageExt> msgs) {
+110:     boolean suspend = false;
+111:     if (msgs != null && !msgs.isEmpty()) {
+112:         for (MessageExt msg : msgs) {
+113:             if (msg.getReconsumeTimes() >= getMaxReconsumeTimes()) {
+114:                 MessageAccessor.setReconsumeTime(msg, String.valueOf(msg.getReconsumeTimes()));
+115:                 if (!sendMessageBack(msg)) { // 发回失败，中断
+116:                     suspend = true;
+117:                     msg.setReconsumeTimes(msg.getReconsumeTimes() + 1);
+118:                 }
+119:             } else {
+120:                 suspend = true;
+121:                 msg.setReconsumeTimes(msg.getReconsumeTimes() + 1);
+122:             }
+123:         }
+124:     }
+125:     return suspend;
+126: }
+127: 
+128: /**
+129:  * 发回消息。
+130:  * 消息发回broker后，对应的消息队列是死信队列。
+131:  *
+132:  * @param msg 消息
+133:  * @return 是否发送成功
+134:  */
+135: public boolean sendMessageBack(final MessageExt msg) {
+136:     try {
+137:         // max reconsume times exceeded then send to dead letter queue.
+138:         Message newMsg = new Message(MixAll.getRetryTopic(this.defaultMQPushConsumer.getConsumerGroup()), msg.getBody());
+139:         String originMsgId = MessageAccessor.getOriginMessageId(msg);
+140:         MessageAccessor.setOriginMessageId(newMsg, UtilAll.isBlank(originMsgId) ? msg.getMsgId() : originMsgId);
+141:         newMsg.setFlag(msg.getFlag());
+142:         MessageAccessor.setProperties(newMsg, msg.getProperties());
+143:         MessageAccessor.putProperty(newMsg, MessageConst.PROPERTY_RETRY_TOPIC, msg.getTopic());
+144:         MessageAccessor.setReconsumeTime(newMsg, String.valueOf(msg.getReconsumeTimes()));
+145:         MessageAccessor.setMaxReconsumeTimes(newMsg, String.valueOf(getMaxReconsumeTimes()));
+146:         newMsg.setDelayTimeLevel(3 + msg.getReconsumeTimes());
+147: 
+148:         this.defaultMQPushConsumer.getDefaultMQPushConsumerImpl().getmQClientFactory().getDefaultMQProducer().send(newMsg);
+149:         return true;
+150:     } catch (Exception e) {
+151:         log.error("sendMessageBack exception, group: " + this.consumerGroup + " msg: " + msg.toString(), e);
+152:     }
+153: 
+154:     return false;
+155: }
+```
+
+* ⬆️⬆️⬆️
+* 第 21 至 29 行 ：消费成功。在自动提交进度( `AutoCommit` )的情况下，`COMMIT`、`ROLLBACK`、`SUCCESS` 逻辑**已经统一**。
+* 第 30 至 45 行 ：消费失败。当消息重试次数超过上限（默认 ：16次）时，将消息发送到 `Broker` 死信队列，跳过这些消息。此时，消息队列无需挂起，继续消费后面的消息。
+* 第 85 至 88 行 ：提交消费进度。
+
+### 3.13 消息处理队列核心方法
+
+😈涉及到的四个核心方法的源码：
+
+```Java
+  1: // ⬇️⬇️⬇️【ProcessQueue.java】
+  2: /**
+  3:  * 消息映射
+  4:  * key：消息队列位置
+  5:  */
+  6: private final TreeMap<Long, MessageExt> msgTreeMap = new TreeMap<>();    /**
+  7:  * 消息映射临时存储（消费中的消息）
+  8:  */
+  9: private final TreeMap<Long, MessageExt> msgTreeMapTemp = new TreeMap<>();
+ 10: 
+ 11: /**
+ 12:  * 回滚消费中的消息
+ 13:  * 逻辑类似于{@link #makeMessageToCosumeAgain(List)}
+ 14:  */
+ 15: public void rollback() {
+ 16:     try {
+ 17:         this.lockTreeMap.writeLock().lockInterruptibly();
+ 18:         try {
+ 19:             this.msgTreeMap.putAll(this.msgTreeMapTemp);
+ 20:             this.msgTreeMapTemp.clear();
+ 21:         } finally {
+ 22:             this.lockTreeMap.writeLock().unlock();
+ 23:         }
+ 24:     } catch (InterruptedException e) {
+ 25:         log.error("rollback exception", e);
+ 26:     }
+ 27: }
+ 28: 
+ 29: /**
+ 30:  * 提交消费中的消息已消费成功，返回消费进度
+ 31:  *
+ 32:  * @return 消费进度
+ 33:  */
+ 34: public long commit() {
+ 35:     try {
+ 36:         this.lockTreeMap.writeLock().lockInterruptibly();
+ 37:         try {
+ 38:             // 消费进度
+ 39:             Long offset = this.msgTreeMapTemp.lastKey();
+ 40: 
+ 41:             //
+ 42:             msgCount.addAndGet(this.msgTreeMapTemp.size() * (-1));
+ 43: 
+ 44:             //
+ 45:             this.msgTreeMapTemp.clear();
+ 46: 
+ 47:             // 返回消费进度
+ 48:             if (offset != null) {
+ 49:                 return offset + 1;
+ 50:             }
+ 51:         } finally {
+ 52:             this.lockTreeMap.writeLock().unlock();
+ 53:         }
+ 54:     } catch (InterruptedException e) {
+ 55:         log.error("commit exception", e);
+ 56:     }
+ 57: 
+ 58:     return -1;
+ 59: }
+ 60: 
+ 61: /**
+ 62:  * 指定消息重新消费
+ 63:  * 逻辑类似于{@link #rollback()}
+ 64:  *
+ 65:  * @param msgs 消息
+ 66:  */
+ 67: public void makeMessageToCosumeAgain(List<MessageExt> msgs) {
+ 68:     try {
+ 69:         this.lockTreeMap.writeLock().lockInterruptibly();
+ 70:         try {
+ 71:             for (MessageExt msg : msgs) {
+ 72:                 this.msgTreeMapTemp.remove(msg.getQueueOffset());
+ 73:                 this.msgTreeMap.put(msg.getQueueOffset(), msg);
+ 74:             }
+ 75:         } finally {
+ 76:             this.lockTreeMap.writeLock().unlock();
+ 77:         }
+ 78:     } catch (InterruptedException e) {
+ 79:         log.error("makeMessageToCosumeAgain exception", e);
+ 80:     }
+ 81: }
+ 82: 
+ 83: /**
+ 84:  * 获得持有消息前N条
+ 85:  *
+ 86:  * @param batchSize 条数
+ 87:  * @return 消息
+ 88:  */
+ 89: public List<MessageExt> takeMessags(final int batchSize) {
+ 90:     List<MessageExt> result = new ArrayList<>(batchSize);
+ 91:     final long now = System.currentTimeMillis();
+ 92:     try {
+ 93:         this.lockTreeMap.writeLock().lockInterruptibly();
+ 94:         this.lastConsumeTimestamp = now;
+ 95:         try {
+ 96:             if (!this.msgTreeMap.isEmpty()) {
+ 97:                 for (int i = 0; i < batchSize; i++) {
+ 98:                     Map.Entry<Long, MessageExt> entry = this.msgTreeMap.pollFirstEntry();
+ 99:                     if (entry != null) {
+100:                         result.add(entry.getValue());
+101:                         msgTreeMapTemp.put(entry.getKey(), entry.getValue());
+102:                     } else {
+103:                         break;
+104:                     }
+105:                 }
+106:             }
+107: 
+108:             if (result.isEmpty()) {
+109:                 consuming = false;
+110:             }
+111:         } finally {
+112:             this.lockTreeMap.writeLock().unlock();
+113:         }
+114:     } catch (InterruptedException e) {
+115:         log.error("take Messages exception", e);
+116:     }
+117: 
+118:     return result;
+119: }
+```
 
 
