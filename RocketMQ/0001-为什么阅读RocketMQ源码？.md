@@ -29,7 +29,7 @@
 - [ ] 顺序消息
 - [ ] 事务消息
 - [ ] 定时(延迟)消息
-- [ ] pub/sub模型
+- [x] pub/sub模型
 - [ ] namesrv 主从
 - [ ] broker 主从 
 - [ ] filtersrv 过滤消息
