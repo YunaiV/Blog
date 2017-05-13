@@ -868,93 +868,62 @@ total 10485760
 和 `FlushRealTimeService` 类似，性能更好。
 
 ```Java
-  1: class FlushRealTimeService extends FlushCommitLogService {
-  2:     /**
-  3:      * 最后flush时间戳
-  4:      */
-  5:     private long lastFlushTimestamp = 0;
-  6:     /**
-  7:      * print计时器。
-  8:      * 满足print次数时，调用{@link #printFlushProgress()}
-  9:      */
- 10:     private long printTimes = 0;
- 11: 
- 12:     public void run() {
- 13:         CommitLog.log.info(this.getServiceName() + " service started");
- 14: 
- 15:         while (!this.isStopped()) {
- 16:             boolean flushCommitLogTimed = CommitLog.this.defaultMessageStore.getMessageStoreConfig().isFlushCommitLogTimed();
- 17:             int interval = CommitLog.this.defaultMessageStore.getMessageStoreConfig().getFlushIntervalCommitLog();
- 18:             int flushPhysicQueueLeastPages = CommitLog.this.defaultMessageStore.getMessageStoreConfig().getFlushCommitLogLeastPages();
- 19:             int flushPhysicQueueThoroughInterval = CommitLog.this.defaultMessageStore.getMessageStoreConfig().getFlushCommitLogThoroughInterval();
+  1: class CommitRealTimeService extends FlushCommitLogService {
+  2: 
+  3:     /**
+  4:      * 最后 commit 时间戳
+  5:      */
+  6:     private long lastCommitTimestamp = 0;
+  7: 
+  8:     @Override
+  9:     public String getServiceName() {
+ 10:         return CommitRealTimeService.class.getSimpleName();
+ 11:     }
+ 12: 
+ 13:     @Override
+ 14:     public void run() {
+ 15:         CommitLog.log.info(this.getServiceName() + " service started");
+ 16:         while (!this.isStopped()) {
+ 17:             int interval = CommitLog.this.defaultMessageStore.getMessageStoreConfig().getCommitIntervalCommitLog();
+ 18:             int commitDataLeastPages = CommitLog.this.defaultMessageStore.getMessageStoreConfig().getCommitCommitLogLeastPages();
+ 19:             int commitDataThoroughInterval = CommitLog.this.defaultMessageStore.getMessageStoreConfig().getCommitCommitLogThoroughInterval();
  20: 
- 21:             // Print flush progress
- 22:             // 当时间满足flushPhysicQueueThoroughInterval时，即使写入的数量不足flushPhysicQueueLeastPages，也进行flush
- 23:             boolean printFlushProgress = false;
- 24:             long currentTimeMillis = System.currentTimeMillis();
- 25:             if (currentTimeMillis >= (this.lastFlushTimestamp + flushPhysicQueueThoroughInterval)) {
- 26:                 this.lastFlushTimestamp = currentTimeMillis;
- 27:                 flushPhysicQueueLeastPages = 0;
- 28:                 printFlushProgress = (printTimes++ % 10) == 0;
- 29:             }
- 30: 
- 31:             try {
- 32:                 // 等待执行
- 33:                 if (flushCommitLogTimed) {
- 34:                     Thread.sleep(interval);
- 35:                 } else {
- 36:                     this.waitForRunning(interval);
- 37:                 }
- 38: 
- 39:                 if (printFlushProgress) {
- 40:                     this.printFlushProgress();
- 41:                 }
- 42: 
- 43:                 // flush commitLog
- 44:                 long begin = System.currentTimeMillis();
- 45:                 CommitLog.this.mappedFileQueue.flush(flushPhysicQueueLeastPages);
- 46:                 long storeTimestamp = CommitLog.this.mappedFileQueue.getStoreTimestamp();
- 47:                 if (storeTimestamp > 0) {
- 48:                     CommitLog.this.defaultMessageStore.getStoreCheckpoint().setPhysicMsgTimestamp(storeTimestamp);
- 49:                 }
- 50:                 long past = System.currentTimeMillis() - begin;
- 51:                 if (past > 500) {
- 52:                     log.info("Flush data to disk costs {} ms", past);
- 53:                 }
- 54:             } catch (Throwable e) {
- 55:                 CommitLog.log.warn(this.getServiceName() + " service has exception. ", e);
- 56:                 this.printFlushProgress();
- 57:             }
- 58:         }
- 59: 
- 60:         // Normal shutdown, to ensure that all the flush before exit
- 61:         boolean result = false;
- 62:         for (int i = 0; i < RETRY_TIMES_OVER && !result; i++) {
- 63:             result = CommitLog.this.mappedFileQueue.flush(0);
- 64:             CommitLog.log.info(this.getServiceName() + " service shutdown, retry " + (i + 1) + " times " + (result ? "OK" : "Not OK"));
- 65:         }
- 66: 
- 67:         this.printFlushProgress();
- 68: 
- 69:         CommitLog.log.info(this.getServiceName() + " service end");
- 70:     }
- 71: 
- 72:     @Override
- 73:     public String getServiceName() {
- 74:         return FlushRealTimeService.class.getSimpleName();
- 75:     }
- 76: 
- 77:     private void printFlushProgress() {
- 78:         // CommitLog.log.info("how much disk fall behind memory, "
- 79:         // + CommitLog.this.mappedFileQueue.howMuchFallBehind());
- 80:     }
- 81: 
- 82:     @Override
- 83:     @SuppressWarnings("SpellCheckingInspection")
- 84:     public long getJointime() {
- 85:         return 1000 * 60 * 5;
- 86:     }
- 87: }
+ 21:             // 当时间满足commitDataThoroughInterval时，即使写入的数量不足commitDataLeastPages，也进行flush
+ 22:             long begin = System.currentTimeMillis();
+ 23:             if (begin >= (this.lastCommitTimestamp + commitDataThoroughInterval)) {
+ 24:                 this.lastCommitTimestamp = begin;
+ 25:                 commitDataLeastPages = 0;
+ 26:             }
+ 27: 
+ 28:             try {
+ 29:                 // commit
+ 30:                 boolean result = CommitLog.this.mappedFileQueue.commit(commitDataLeastPages);
+ 31:                 long end = System.currentTimeMillis();
+ 32:                 if (!result) { // TODO 疑问：未写入成功，为啥要唤醒flushCommitLogService
+ 33:                     this.lastCommitTimestamp = end; // result = false means some data committed.
+ 34:                     //now wake up flush thread.
+ 35:                     flushCommitLogService.wakeup();
+ 36:                 }
+ 37: 
+ 38:                 if (end - begin > 500) {
+ 39:                     log.info("Commit data to file costs {} ms", end - begin);
+ 40:                 }
+ 41: 
+ 42:                 // 等待执行
+ 43:                 this.waitForRunning(interval);
+ 44:             } catch (Throwable e) {
+ 45:                 CommitLog.log.error(this.getServiceName() + " service has exception. ", e);
+ 46:             }
+ 47:         }
+ 48: 
+ 49:         boolean result = false;
+ 50:         for (int i = 0; i < RETRY_TIMES_OVER && !result; i++) {
+ 51:             result = CommitLog.this.mappedFileQueue.commit(0);
+ 52:             CommitLog.log.info(this.getServiceName() + " service shutdown, retry " + (i + 1) + " times " + (result ? "OK" : "Not OK"));
+ 53:         }
+ 54:         CommitLog.log.info(this.getServiceName() + " service end");
+ 55:     }
+ 56: }
 ```
 
 ### GroupCommitService
