@@ -26,7 +26,7 @@
 - [ ] consumer 负载均衡
 - [x] broker 队列模型
 - [x] broker store 消息存储
-- [ ] 顺序消息
+- [x] 顺序消息
 - [ ] 事务消息
 - [ ] 定时(延迟)消息
 - [x] pub/sub模型
