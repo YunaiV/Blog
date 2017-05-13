@@ -4,7 +4,7 @@
 
 # 2. Namesrv 高可用
 
-**启动多个 `Namesrv` 实现高可用。**
+**启动多个 `Namesrv` 实现高可用。**  
 相较于 `Zookeeper`、`Consul`、`Etcd` 等，`Namesrv` 是一个**轻量级**的注册中心。
 
 ## 2.1 Broker 注册到 Namesrv
@@ -102,9 +102,9 @@
 
 # 3. Broker 高可用
 
-**启动多个 `Broker集群` 实现高可用。**
-**`Broker集群` = `Master节点`x1 + `Slave节点`xN。**
-类似 `MySQL`，`Master节点` 提供**读写**服务，`Slave节点` 只提供**读**服务。
+**启动多个 `Broker集群` 实现高可用。**  
+**`Broker集群` = `Master节点`x1 + `Slave节点`xN。**  
+类似 `MySQL`，`Master节点` 提供**读写**服务，`Slave节点` 只提供**读**服务。  
 
 ## 3.1 Broker 主从
 
