@@ -113,10 +113,37 @@
 
 集群内，`Master`节点 有**两种**类型：`Master_Sync`、`Master_Async`：前者在 `Producer` 发送消息时，等待 `Slave`节点 存储完毕后再返回发送结果，而后者不需要等待。
 
-再看具体实现代码之前，我们来看看 `Master`/`Slave`节点 包含的组件：
+-------
+
+### 3.1.1 组件
+
+再看具体实现代码之前，我们来看看 `Master`/`Slave`节点 包含的组件：  
 ![HA组件图.png](images/1009/HA组件图.png)
 
+* `Master`节点
+    * `AcceptSocketService` ：接收 `Slave`节点 连接。
+    * `HAConnection`
+        * `ReadSocketService` ：**读**来自 `Slave`节点 的数据。 
+        * `WriteSocketService` ：**写**到往 `Slave`节点 的数据。
+* `Slave`节点
+    * `HAClient` ：对 `Master`节点 连接、读写数据。
 
+### 3.1.2 通信协议
+
+`Master`节点 与 `Slave`节点 **通信协议**很简单，只有如下两条。
+
+| 对象 | 用途 | 第几位 | 字段 | 数据类型 | 字节数 | 说明
+| :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| Slave=>Master | 上报CommitLog最大物理位置 |  |  |  |  |  |
+|  | | 0 | maxPhyOffset  |  Long | 8 | CommitLog最大物理位置 |
+| Master=>Slave | 传递CommitLog内容 |  |  |  |  |  |
+| | | 0 | fromPhyOffset | Long | 8 | CommitLog开始物理位置 | 
+| | | 1 | size | Int | 4 | 同步CommitLog内容长度 | 
+| | | 2 | body | Bytes | size | 同步CommitLog内容 | 
+
+### 3.1.3 Slave
+
+### 3.1.4 Master
 
 ## 3.2 Producer 发送消息
 
