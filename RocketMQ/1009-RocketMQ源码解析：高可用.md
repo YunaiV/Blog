@@ -5,11 +5,11 @@
 # 2. Namesrv 高可用
 
 **启动多个 `Namesrv` 实现高可用。**  
-相较于 `Zookeeper`、`Consul`、`Etcd` 等，`Namesrv` 是一个**轻量级**的注册中心。
+相较于 `Zookeeper`、`Consul`、`Etcd` 等，`Namesrv` 是一个**超轻量级**的注册中心，提供**命名服务**。
 
 ## 2.1 Broker 注册到 Namesrv
 
-* 📌 **多个 `Namesrv` 之间，不进行任何通信与数据同步。通过 `Broker` 循环注册多个 `Namesrv`。**
+* 📌 **多个 `Namesrv` 之间，没有任何关系（不存在类似 `Zookeeper` 的 `Leader`/`Follower` 等角色），不进行通信与数据同步。通过 `Broker` 循环注册多个 `Namesrv`。**
 
 ```Java
   1: // ⬇️⬇️⬇️【NettyRemotingClient.java】
@@ -108,7 +108,19 @@
 
 ## 3.1 Broker 主从
 
+* **每个集群，`Slave`节点 从 `Master`节点 不断拉取 `CommitLog`。**
+* **集群 与 集群 之间没有任何关系，不进行通信与数据同步。**
+
+集群内，`Master`节点 有**两种**类型：`Master_Sync`、`Master_Async`：前者在 `Producer` 发送消息时，等待 `Slave`节点 存储完毕后再返回发送结果，而后者不需要等待。
+
+再看具体实现代码之前，我们来看看 `Master`/`Slave`节点 包含的组件：
+![HA组件图.png](images/1009/HA组件图.png)
+
+
+
 ## 3.2 Producer 发送消息
 
 ## 3.3 Consumer 消费消息
+
+// TODO 从节点消费
 
