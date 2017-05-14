@@ -110,6 +110,7 @@
 
 * **每个分组，`Master`节点 不断发送新的 `CommitLog` 给 `Slave`节点。 `Slave`节点 不断上报本地的 `CommitLog` 已经同步到的位置给 `Master`节点。**
 * **`Broker分组` 与 `Broker分组` 之间没有任何关系，不进行通信与数据同步。**
+* **消费进度 目前不支持 `Master`/`Slave` 同步。**
 
 集群内，`Master`节点 有**两种**类型：`Master_SYNC`、`Master_ASYNC`：前者在 `Producer` 发送消息时，等待 `Slave`节点 存储完毕后再返回发送结果，而后者不需要等待。
 
@@ -635,7 +636,7 @@
 
 ## 3.2 Producer 发送消息
 
-* **`Producer` 发送消息时，会对 `Broker`集群 的队列进行选择。**
+* **`Producer` 发送消息时，会对 `Broker`集群 的所有队列进行选择。**
 
 核心代码如下：
 
@@ -691,8 +692,10 @@
 
 ## 3.3 Consumer 消费消息
 
+* **`Consumer` 消费消息时，会对 `Broker`集群 的所有队列进行选择。**
 
 # 4. 总结
 
+![HA总结.jpeg](images/1009/HA总结.jpeg)
 
 
