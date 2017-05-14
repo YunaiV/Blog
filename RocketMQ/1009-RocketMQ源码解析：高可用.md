@@ -686,6 +686,7 @@
  44: }
 ```
 
+如下是调试 `#sendDefaultImpl(...)` 时 `TopicPublishInfo` 的结果，`Producer` 获得到了 `broker-a`,`broker-b` 两个 `Broker`分组 的消息队列：
 ![Producer.TopicPublishInfo.调试.png](images/1009/Producer.TopicPublishInfo.调试.png)
 
 ## 3.3 Consumer 消费消息
