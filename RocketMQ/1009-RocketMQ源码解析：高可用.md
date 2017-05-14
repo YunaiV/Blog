@@ -145,6 +145,10 @@
 
 ![HAClient顺序图](images/1009/HAClient顺序图.png)
 
+-------
+
+* **`Slave` 主循环，实现了**不断不断不断**从 `Master` 读取 `CommitLog` 内容。**
+
 ```Java
   1: // ⬇️⬇️⬇️【HAClient.java】
   2: public void run() {
@@ -195,12 +199,163 @@
  47:     log.info(this.getServiceName() + " service end");
  48: }
 ```
-* ⬆️⬆️⬆️
-* 说明 ：`Slave` 主循环，实现了**不断不断不断**从 `Master` 读取 `CommitLog` 内容。
+
 * 第 8 至 14 行 ：**固定间隔（默认5s）**向 `Master` 上报 `Slave` 本地 `CommitLog` 最大物理位置。该操作有两个作用：（1）`Slave` 向 `Master` 拉取 `CommitLog` 内容请求；（2）心跳。
 * 第 16 至 22 行 ：处理 `Master` 发来 `Slave` 的 `CommitLog` 内容。
 
+-------
+
+* **我们来看看 `#dispatchReadRequest(...)` 与 `#reportSlaveMaxOffset(...)` 是怎么实现的。**
+
+```Java
+  1: // 【HAClient.java】
+  2: /**
+  3:  * 读取Master写入的CommitLog数据，并返回是异常
+  4:  * 如果读取到数据，写入CommitLog
+  5:  * 异常原因：
+  6:  *   1. Master的push来的数据offset 不等于 Slave的CommitLog数据最大offset
+  7:  *   2. 上报到Master进度失败
+  8:  *
+  9:  * @return 是否异常
+ 10:  */
+ 11: private boolean dispatchReadRequest() {
+ 12:     final int msgHeaderSize = 8 + 4; // phyoffset + size
+ 13:     int readSocketPos = this.byteBufferRead.position();
+ 14: 
+ 15:     while (true) {
+ 16:         // 读取到请求
+ 17:         int diff = this.byteBufferRead.position() - this.dispatchPostion;
+ 18:         if (diff >= msgHeaderSize) {
+ 19:             // 读取masterPhyOffset、bodySize。使用dispatchPostion的原因是：处理数据“粘包”导致数据读取不完整。
+ 20:             long masterPhyOffset = this.byteBufferRead.getLong(this.dispatchPostion);
+ 21:             int bodySize = this.byteBufferRead.getInt(this.dispatchPostion + 8);
+ 22:             // 校验 Master的push来的数据offset 是否和 Slave的CommitLog数据最大offset 是否相同。
+ 23:             long slavePhyOffset = HAService.this.defaultMessageStore.getMaxPhyOffset();
+ 24:             if (slavePhyOffset != 0) {
+ 25:                 if (slavePhyOffset != masterPhyOffset) {
+ 26:                     log.error("master pushed offset not equal the max phy offset in slave, SLAVE: "
+ 27:                         + slavePhyOffset + " MASTER: " + masterPhyOffset);
+ 28:                     return false;
+ 29:                 }
+ 30:             }
+ 31:             // 读取到消息
+ 32:             if (diff >= (msgHeaderSize + bodySize)) {
+ 33:                 // 写入CommitLog
+ 34:                 byte[] bodyData = new byte[bodySize];
+ 35:                 this.byteBufferRead.position(this.dispatchPostion + msgHeaderSize);
+ 36:                 this.byteBufferRead.get(bodyData);
+ 37:                 HAService.this.defaultMessageStore.appendToCommitLog(masterPhyOffset, bodyData);
+ 38:                 // 设置处理到的位置
+ 39:                 this.byteBufferRead.position(readSocketPos);
+ 40:                 this.dispatchPostion += msgHeaderSize + bodySize;
+ 41:                 // 上报到Master进度
+ 42:                 if (!reportSlaveMaxOffsetPlus()) {
+ 43:                     return false;
+ 44:                 }
+ 45:                 // 继续循环
+ 46:                 continue;
+ 47:             }
+ 48:         }
+ 49: 
+ 50:         // 空间写满，重新分配空间
+ 51:         if (!this.byteBufferRead.hasRemaining()) {
+ 52:             this.reallocateByteBuffer();
+ 53:         }
+ 54: 
+ 55:         break;
+ 56:     }
+ 57: 
+ 58:     return true;
+ 59: }
+ 60: 
+ 61: /**
+ 62:  * 上报进度
+ 63:  *
+ 64:  * @param maxOffset 进度
+ 65:  * @return 是否上报成功
+ 66:  */
+ 67: private boolean reportSlaveMaxOffset(final long maxOffset) {
+ 68:     this.reportOffset.position(0);
+ 69:     this.reportOffset.limit(8);
+ 70:     this.reportOffset.putLong(maxOffset);
+ 71:     this.reportOffset.position(0);
+ 72:     this.reportOffset.limit(8);
+ 73: 
+ 74:     for (int i = 0; i < 3 && this.reportOffset.hasRemaining(); i++) {
+ 75:         try {
+ 76:             this.socketChannel.write(this.reportOffset);
+ 77:         } catch (IOException e) {
+ 78:             log.error(this.getServiceName()
+ 79:                 + "reportSlaveMaxOffset this.socketChannel.write exception", e);
+ 80:             return false;
+ 81:         }
+ 82:     }
+ 83: 
+ 84:     return !this.reportOffset.hasRemaining();
+ 85: }
+```
+
 ### 3.1.4 Master
+
+* **`ReadSocketService` 逻辑同 `HAClient#processReadEvent(...)` 基本相同，我们直接看代码。**
+
+```Java
+  1: // ⬇️⬇️⬇️【ReadSocketService.java】
+  2: private boolean processReadEvent() {
+  3:     int readSizeZeroTimes = 0;
+  4: 
+  5:     // 清空byteBufferRead
+  6:     if (!this.byteBufferRead.hasRemaining()) {
+  7:         this.byteBufferRead.flip();
+  8:         this.processPostion = 0;
+  9:     }
+ 10: 
+ 11:     while (this.byteBufferRead.hasRemaining()) {
+ 12:         try {
+ 13:             int readSize = this.socketChannel.read(this.byteBufferRead);
+ 14:             if (readSize > 0) {
+ 15:                 readSizeZeroTimes = 0;
+ 16: 
+ 17:                 // 设置最后读取时间
+ 18:                 this.lastReadTimestamp = HAConnection.this.haService.getDefaultMessageStore().getSystemClock().now();
+ 19: 
+ 20:                 if ((this.byteBufferRead.position() - this.processPostion) >= 8) {
+ 21:                     // 读取Slave 请求来的CommitLog的最大位置
+ 22:                     int pos = this.byteBufferRead.position() - (this.byteBufferRead.position() % 8);
+ 23:                     long readOffset = this.byteBufferRead.getLong(pos - 8);
+ 24:                     this.processPostion = pos;
+ 25: 
+ 26:                     // 设置Slave CommitLog的最大位置
+ 27:                     HAConnection.this.slaveAckOffset = readOffset;
+ 28: 
+ 29:                     // 设置Slave 第一次请求的位置
+ 30:                     if (HAConnection.this.slaveRequestOffset < 0) {
+ 31:                         HAConnection.this.slaveRequestOffset = readOffset;
+ 32:                         log.info("slave[" + HAConnection.this.clientAddr + "] request offset " + readOffset);
+ 33:                     }
+ 34: 
+ 35:                     // 通知目前Slave进度。主要用于Master节点为同步类型的。
+ 36:                     HAConnection.this.haService.notifyTransferSome(HAConnection.this.slaveAckOffset);
+ 37:                 }
+ 38:             } else if (readSize == 0) {
+ 39:                 if (++readSizeZeroTimes >= 3) {
+ 40:                     break;
+ 41:                 }
+ 42:             } else {
+ 43:                 log.error("read socket[" + HAConnection.this.clientAddr + "] < 0");
+ 44:                 return false;
+ 45:             }
+ 46:         } catch (IOException e) {
+ 47:             log.error("processReadEvent exception", e);
+ 48:             return false;
+ 49:         }
+ 50:     }
+ 51: 
+ 52:     return true;
+ 53: }
+```
+
+* 
 
 ## 3.2 Producer 发送消息
 

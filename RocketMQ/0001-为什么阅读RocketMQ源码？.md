@@ -22,15 +22,15 @@
 - [ ] consumer 收消息
     - [x] 多消费者
     - [ ] 重试消息
-- [ ] consumer 消息确认
-- [ ] consumer 负载均衡
+- [x] consumer 消息确认
+- [x] consumer 负载均衡
 - [x] broker 队列模型
 - [x] broker store 消息存储
 - [x] 顺序消息
 - [ ] 事务消息
 - [ ] 定时(延迟)消息
 - [x] pub/sub模型
-- [ ] namesrv 主从
+- [ ] namesrv 集群
 - [ ] broker 主从 
 - [ ] filtersrv 过滤消息
 - [ ] remoting 调用（server、client）
