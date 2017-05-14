@@ -167,7 +167,7 @@
 ### 3.1.2 组件
 
 再看具体实现代码之前，我们来看看 `Master`/`Slave`节点 包含的组件：  
-![HA组件图.png](images/1009/HA组件图.png)
+![HA组件图.png](https://raw.githubusercontent.com/YunaiV/Blog/master/RocketMQ/images/1009/HA组件图.png)
 
 * `Master`节点
     * `AcceptSocketService` ：接收 `Slave`节点 连接。
@@ -187,12 +187,12 @@
 |  | | 0 | maxPhyOffset  |  Long | 8 | CommitLog最大物理位置 |
 | Master=>Slave | 传输新的 `CommitLog` 数据 |  |  |  |  |  |
 | | | 0 | fromPhyOffset | Long | 8 | CommitLog开始物理位置 | 
-| | | 1 | size | Int | 4 | 同步CommitLog内容长度 | 
-| | | 2 | body | Bytes | size | 同步CommitLog内容 | 
+| | | 1 | size | Int | 4 | 传输CommitLog数据长度 | 
+| | | 2 | body | Bytes | size | 传输CommitLog数据 | 
 
 ### 3.1.4 Slave
 
-![HAClient顺序图](images/1009/HAClient顺序图.png)
+![HAClient顺序图](https://raw.githubusercontent.com/YunaiV/Blog/master/RocketMQ/images/1009/HAClient顺序图.png)
 
 -------
 
@@ -408,7 +408,7 @@
 
 * **`WriteSocketService` 计算 `Slave`开始同步的位置后，不断向 `Slave` 传输新的 `CommitLog`数据。**
 
-![HA.WriteSocketService流程图](images/1009/HA.WriteSocketService流程图.png)
+![HA.WriteSocketService流程图](https://raw.githubusercontent.com/YunaiV/Blog/master/RocketMQ/images/1009/HA.WriteSocketService流程图.png)
 
 ```Java
   1: // ⬇️⬇️⬇️【WriteSocketService.java】
@@ -465,7 +465,7 @@
  52:                     continue;
  53:             }
  54: 
- 55:             // 选择新的CommitLog内容进行传输
+ 55:             // 选择新的CommitLog数据进行传输
  56:             SelectMappedBufferResult selectResult =
  57:                 HAConnection.this.haService.getDefaultMessageStore().getCommitLogData(this.nextTransferFromWhere);
  58:             if (selectResult != null) {
@@ -708,7 +708,7 @@
 ```
 
 如下是调试 `#sendDefaultImpl(...)` 时 `TopicPublishInfo` 的结果，`Producer` 获得到了 `broker-a`,`broker-b` 两个 `Broker`分组 的消息队列：
-![Producer.TopicPublishInfo.调试.png](images/1009/Producer.TopicPublishInfo.调试.png)
+![Producer.TopicPublishInfo.调试.png](https://raw.githubusercontent.com/YunaiV/Blog/master/RocketMQ/images/1009/Producer.TopicPublishInfo.调试.png)
 
 ## 3.3 Consumer 消费消息
 
@@ -716,6 +716,6 @@
 
 # 4. 总结
 
-![HA总结.jpeg](images/1009/HA总结.jpeg)
+![HA总结.jpeg](https://raw.githubusercontent.com/YunaiV/Blog/master/RocketMQ/images/1009/HA总结.jpeg)
 
 
