@@ -143,6 +143,63 @@
 
 ### 3.1.3 Slave
 
+![HAClient顺序图](images/1009/HAClient顺序图.png)
+
+```Java
+  1: // ⬇️⬇️⬇️【HAClient.java】
+  2: public void run() {
+  3:     log.info(this.getServiceName() + " service started");
+  4: 
+  5:     while (!this.isStopped()) {
+  6:         try {
+  7:             if (this.connectMaster()) {
+  8:                 // 若到满足上报间隔，上报到Master进度
+  9:                 if (this.isTimeToReportOffset()) {
+ 10:                     boolean result = this.reportSlaveMaxOffset(this.currentReportedOffset);
+ 11:                     if (!result) {
+ 12:                         this.closeMaster();
+ 13:                     }
+ 14:                 }
+ 15: 
+ 16:                 this.selector.select(1000);
+ 17: 
+ 18:                 // 处理读取事件
+ 19:                 boolean ok = this.processReadEvent();
+ 20:                 if (!ok) {
+ 21:                     this.closeMaster();
+ 22:                 }
+ 23: 
+ 24:                 // 若进度有变化，上报到Master进度
+ 25:                 if (!reportSlaveMaxOffsetPlus()) {
+ 26:                     continue;
+ 27:                 }
+ 28: 
+ 29:                 // Master过久未返回数据，关闭连接
+ 30:                 long interval = HAService.this.getDefaultMessageStore().getSystemClock().now() - this.lastWriteTimestamp;
+ 31:                 if (interval > HAService.this.getDefaultMessageStore().getMessageStoreConfig()
+ 32:                     .getHaHousekeepingInterval()) {
+ 33:                     log.warn("HAClient, housekeeping, found this connection[" + this.masterAddress
+ 34:                         + "] expired, " + interval);
+ 35:                     this.closeMaster();
+ 36:                     log.warn("HAClient, master not response some time, so close connection");
+ 37:                 }
+ 38:             } else {
+ 39:                 this.waitForRunning(1000 * 5);
+ 40:             }
+ 41:         } catch (Exception e) {
+ 42:             log.warn(this.getServiceName() + " service has exception. ", e);
+ 43:             this.waitForRunning(1000 * 5);
+ 44:         }
+ 45:     }
+ 46: 
+ 47:     log.info(this.getServiceName() + " service end");
+ 48: }
+```
+* ⬆️⬆️⬆️
+* 说明 ：`Slave` 主循环，实现了**不断不断不断**从 `Master` 读取 `CommitLog` 内容。
+* 第 8 至 14 行 ：**固定间隔（默认5s）**向 `Master` 上报 `Slave` 本地 `CommitLog` 最大物理位置。该操作有两个作用：（1）`Slave` 向 `Master` 拉取 `CommitLog` 内容请求；（2）心跳。
+* 第 16 至 22 行 ：处理 `Master` 发来 `Slave` 的 `CommitLog` 内容。
+
 ### 3.1.4 Master
 
 ## 3.2 Producer 发送消息
