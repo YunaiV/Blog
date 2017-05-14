@@ -30,8 +30,8 @@
 - [ ] 事务消息
 - [ ] 定时(延迟)消息
 - [x] pub/sub模型
-- [ ] namesrv 集群
-- [ ] broker 主从 
+- [x] namesrv 集群
+- [x] broker 主从 
 - [ ] filtersrv 过滤消息
 - [ ] remoting 调用（server、client）
 - [ ] 跨机房

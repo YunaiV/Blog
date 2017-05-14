@@ -1,3 +1,23 @@
+>  原文地址：[RocketMQ源码解析：高可用](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1009-RocketMQ源码解析：高可用.md)  
+> `RocketMQ` **带注释**地址 ：[YunaiV/incubator-rocketmq](https://github.com/YunaiV/incubator-rocketmq)  
+> **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub。**  
+
+- [1. 概述](#)
+- [2. Namesrv 高可用](#)
+	- [2.1 Broker 注册到 Namesrv](#)
+	- [2.2 Producer、Consumer 访问 Namesrv](#)
+- [3. Broker 高可用](#)
+	- [3.2 Broker 主从](#)
+		- [3.1.1 配置](#)
+		- [3.1.2 组件](#)
+		- [3.1.3 通信协议](#)
+		- [3.1.4 Slave](#)
+		- [3.1.5 Master](#)
+		- [3.1.6 Master_SYNC](#)
+	- [3.2 Producer 发送消息](#)
+	- [3.3 Consumer 消费消息](#)
+- [4. 总结](#)
+
 # 1. 概述
 
 本文主要解析 `Namesrv`、`Broker` 如何实现高可用，`Producer`、`Consumer` 怎么与它们通信保证高可用。
