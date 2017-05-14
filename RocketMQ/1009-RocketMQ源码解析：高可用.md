@@ -12,7 +12,7 @@
 * 📌 **多个 `Namesrv` 之间，没有任何关系（不存在类似 `Zookeeper` 的 `Leader`/`Follower` 等角色），不进行通信与数据同步。通过 `Broker` 循环注册多个 `Namesrv`。**
 
 ```Java
-  1: // ⬇️⬇️⬇️【NettyRemotingClient.java】
+  1: // ⬇️⬇️⬇️【BrokerOuterAPI.java】
   2: public RegisterBrokerResult registerBrokerAll(
   3:     final String clusterName,
   4:     final String brokerAddr,
@@ -102,20 +102,48 @@
 
 # 3. Broker 高可用
 
-**启动多个 `Broker集群` 实现高可用。**  
-**`Broker集群` = `Master节点`x1 + `Slave节点`xN。**  
+**启动多个 `Broker分组` 形成 `集群` 实现高可用。**  
+**`Broker分组` = `Master节点`x1 + `Slave节点`xN。**  
 类似 `MySQL`，`Master节点` 提供**读写**服务，`Slave节点` 只提供**读**服务。  
 
-## 3.1 Broker 主从
+## 3.2 Broker 主从
 
-* **每个集群，`Slave`节点 从 `Master`节点 不断拉取 `CommitLog`。**
-* **集群 与 集群 之间没有任何关系，不进行通信与数据同步。**
+* **每个分组，`Master`节点 不断发送新的 `CommitLog` 给 `Slave`节点。 `Slave`节点 不断上报本地的 `CommitLog` 已经同步到的位置给 `Master`节点。**
+* **`Broker分组` 与 `Broker分组` 之间没有任何关系，不进行通信与数据同步。**
 
-集群内，`Master`节点 有**两种**类型：`Master_Sync`、`Master_Async`：前者在 `Producer` 发送消息时，等待 `Slave`节点 存储完毕后再返回发送结果，而后者不需要等待。
+集群内，`Master`节点 有**两种**类型：`Master_SYNC`、`Master_ASYNC`：前者在 `Producer` 发送消息时，等待 `Slave`节点 存储完毕后再返回发送结果，而后者不需要等待。
 
--------
 
-### 3.1.1 组件
+### 3.1.1 配置
+
+目前官方提供三套配置：
+
+* **2m-2s-async**
+
+| brokerClusterName| brokerName | brokerRole | brokerId |
+| --- | --- | --- | --- |
+| DefaultCluster | broker-a | ASYNC_MASTER | 0 |
+| DefaultCluster | broker-a | SLAVE | 1 |
+| DefaultCluster | broker-b | ASYNC_MASTER | 0 |
+| DefaultCluster | broker-b | SLAVE | 1 |
+
+* **2m-2s-sync**
+
+| brokerClusterName| brokerName | brokerRole | brokerId |
+| ---| --- | --- | --- |
+| DefaultCluster | broker-a | SYNC_MASTER | 0 |
+| DefaultCluster | broker-a | SLAVE | 1 |
+| DefaultCluster | broker-b | SYNC_MASTER | 0 |
+| DefaultCluster | broker-b | SLAVE | 1 |
+
+* **2m-noslave**
+
+| brokerClusterName| brokerName | brokerRole | brokerId |
+| ---| --- | --- | --- |
+| DefaultCluster | broker-a | ASYNC_MASTER | 0 |
+| DefaultCluster | broker-b | ASYNC_MASTER | 0 |
+
+### 3.1.2 组件
 
 再看具体实现代码之前，我们来看看 `Master`/`Slave`节点 包含的组件：  
 ![HA组件图.png](images/1009/HA组件图.png)
@@ -128,26 +156,26 @@
 * `Slave`节点
     * `HAClient` ：对 `Master`节点 连接、读写数据。
 
-### 3.1.2 通信协议
+### 3.1.3 通信协议
 
 `Master`节点 与 `Slave`节点 **通信协议**很简单，只有如下两条。
 
 | 对象 | 用途 | 第几位 | 字段 | 数据类型 | 字节数 | 说明
 | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
-| Slave=>Master | 上报CommitLog最大物理位置 |  |  |  |  |  |
+| Slave=>Master | 上报CommitLog**已经**同步到的**物理**位置 |  |  |  |  |  |
 |  | | 0 | maxPhyOffset  |  Long | 8 | CommitLog最大物理位置 |
-| Master=>Slave | 传递CommitLog内容 |  |  |  |  |  |
+| Master=>Slave | 传输新的 `CommitLog` 数据 |  |  |  |  |  |
 | | | 0 | fromPhyOffset | Long | 8 | CommitLog开始物理位置 | 
 | | | 1 | size | Int | 4 | 同步CommitLog内容长度 | 
 | | | 2 | body | Bytes | size | 同步CommitLog内容 | 
 
-### 3.1.3 Slave
+### 3.1.4 Slave
 
 ![HAClient顺序图](images/1009/HAClient顺序图.png)
 
 -------
 
-* **`Slave` 主循环，实现了**不断不断不断**从 `Master` 读取 `CommitLog` 内容。**
+* **`Slave` 主循环，实现了**不断不断不断**从 `Master` 传输 `CommitLog` 数据，上传 `Master` 自己本地的 `CommitLog` 已经同步物理位置。**
 
 ```Java
   1: // ⬇️⬇️⬇️【HAClient.java】
@@ -200,8 +228,8 @@
  48: }
 ```
 
-* 第 8 至 14 行 ：**固定间隔（默认5s）**向 `Master` 上报 `Slave` 本地 `CommitLog` 最大物理位置。该操作有两个作用：（1）`Slave` 向 `Master` 拉取 `CommitLog` 内容请求；（2）心跳。
-* 第 16 至 22 行 ：处理 `Master` 发来 `Slave` 的 `CommitLog` 内容。
+* 第 8 至 14 行 ：**固定间隔（默认5s）**向 `Master` 上报 `Slave` 本地 `CommitLog` 已经同步到的物理位置。该操作还有**心跳**的作用。
+* 第 16 至 22 行 ：处理 `Master` 传输 `Slave` 的 `CommitLog` 数据。
 
 -------
 
@@ -210,10 +238,10 @@
 ```Java
   1: // 【HAClient.java】
   2: /**
-  3:  * 读取Master写入的CommitLog数据，并返回是异常
+  3:  * 读取Master传输的CommitLog数据，并返回是异常
   4:  * 如果读取到数据，写入CommitLog
   5:  * 异常原因：
-  6:  *   1. Master的push来的数据offset 不等于 Slave的CommitLog数据最大offset
+  6:  *   1. Master传输来的数据offset 不等于 Slave的CommitLog数据最大offset
   7:  *   2. 上报到Master进度失败
   8:  *
   9:  * @return 是否异常
@@ -229,7 +257,7 @@
  19:             // 读取masterPhyOffset、bodySize。使用dispatchPostion的原因是：处理数据“粘包”导致数据读取不完整。
  20:             long masterPhyOffset = this.byteBufferRead.getLong(this.dispatchPostion);
  21:             int bodySize = this.byteBufferRead.getInt(this.dispatchPostion + 8);
- 22:             // 校验 Master的push来的数据offset 是否和 Slave的CommitLog数据最大offset 是否相同。
+ 22:             // 校验 Master传输来的数据offset 是否和 Slave的CommitLog数据最大offset 是否相同。
  23:             long slavePhyOffset = HAService.this.defaultMessageStore.getMaxPhyOffset();
  24:             if (slavePhyOffset != 0) {
  25:                 if (slavePhyOffset != masterPhyOffset) {
@@ -295,7 +323,7 @@
  85: }
 ```
 
-### 3.1.4 Master
+### 3.1.5 Master
 
 * **`ReadSocketService` 逻辑同 `HAClient#processReadEvent(...)` 基本相同，我们直接看代码。**
 
@@ -355,11 +383,315 @@
  53: }
 ```
 
-* 
+-------
+
+* **`WriteSocketService` 计算 `Slave`开始同步的位置后，不断向 `Slave` 传输新的 `CommitLog`数据。**
+
+![HA.WriteSocketService流程图](images/1009/HA.WriteSocketService流程图.png)
+
+```Java
+  1: // ⬇️⬇️⬇️【WriteSocketService.java】
+  2: @Override
+  3: public void run() {
+  4:     HAConnection.log.info(this.getServiceName() + " service started");
+  5: 
+  6:     while (!this.isStopped()) {
+  7:         try {
+  8:             this.selector.select(1000);
+  9: 
+ 10:             // 未获得Slave读取进度请求，sleep等待。
+ 11:             if (-1 == HAConnection.this.slaveRequestOffset) {
+ 12:                 Thread.sleep(10);
+ 13:                 continue;
+ 14:             }
+ 15: 
+ 16:             // 计算初始化nextTransferFromWhere
+ 17:             if (-1 == this.nextTransferFromWhere) {
+ 18:                 if (0 == HAConnection.this.slaveRequestOffset) {
+ 19:                     long masterOffset = HAConnection.this.haService.getDefaultMessageStore().getCommitLog().getMaxOffset();
+ 20:                     masterOffset = masterOffset - (masterOffset % HAConnection.this.haService.getDefaultMessageStore().getMessageStoreConfig().getMapedFileSizeCommitLog());
+ 21:                     if (masterOffset < 0) {
+ 22:                         masterOffset = 0;
+ 23:                     }
+ 24: 
+ 25:                     this.nextTransferFromWhere = masterOffset;
+ 26:                 } else {
+ 27:                     this.nextTransferFromWhere = HAConnection.this.slaveRequestOffset;
+ 28:                 }
+ 29: 
+ 30:                 log.info("master transfer data from " + this.nextTransferFromWhere + " to slave[" + HAConnection.this.clientAddr
+ 31:                     + "], and slave request " + HAConnection.this.slaveRequestOffset);
+ 32:             }
+ 33: 
+ 34:             if (this.lastWriteOver) {
+ 35:                 long interval = HAConnection.this.haService.getDefaultMessageStore().getSystemClock().now() - this.lastWriteTimestamp;
+ 36:                 if (interval > HAConnection.this.haService.getDefaultMessageStore().getMessageStoreConfig().getHaSendHeartbeatInterval()) { // 心跳
+ 37: 
+ 38:                     // Build Header
+ 39:                     this.byteBufferHeader.position(0);
+ 40:                     this.byteBufferHeader.limit(headerSize);
+ 41:                     this.byteBufferHeader.putLong(this.nextTransferFromWhere);
+ 42:                     this.byteBufferHeader.putInt(0);
+ 43:                     this.byteBufferHeader.flip();
+ 44: 
+ 45:                     this.lastWriteOver = this.transferData();
+ 46:                     if (!this.lastWriteOver)
+ 47:                         continue;
+ 48:                 }
+ 49:             } else { // 未传输完成，继续传输
+ 50:                 this.lastWriteOver = this.transferData();
+ 51:                 if (!this.lastWriteOver)
+ 52:                     continue;
+ 53:             }
+ 54: 
+ 55:             // 选择新的CommitLog内容进行传输
+ 56:             SelectMappedBufferResult selectResult =
+ 57:                 HAConnection.this.haService.getDefaultMessageStore().getCommitLogData(this.nextTransferFromWhere);
+ 58:             if (selectResult != null) {
+ 59:                 int size = selectResult.getSize();
+ 60:                 if (size > HAConnection.this.haService.getDefaultMessageStore().getMessageStoreConfig().getHaTransferBatchSize()) {
+ 61:                     size = HAConnection.this.haService.getDefaultMessageStore().getMessageStoreConfig().getHaTransferBatchSize();
+ 62:                 }
+ 63: 
+ 64:                 long thisOffset = this.nextTransferFromWhere;
+ 65:                 this.nextTransferFromWhere += size;
+ 66: 
+ 67:                 selectResult.getByteBuffer().limit(size);
+ 68:                 this.selectMappedBufferResult = selectResult;
+ 69: 
+ 70:                 // Build Header
+ 71:                 this.byteBufferHeader.position(0);
+ 72:                 this.byteBufferHeader.limit(headerSize);
+ 73:                 this.byteBufferHeader.putLong(thisOffset);
+ 74:                 this.byteBufferHeader.putInt(size);
+ 75:                 this.byteBufferHeader.flip();
+ 76: 
+ 77:                 this.lastWriteOver = this.transferData();
+ 78:             } else { // 没新的消息，挂起等待
+ 79:                 HAConnection.this.haService.getWaitNotifyObject().allWaitForRunning(100);
+ 80:             }
+ 81:         } catch (Exception e) {
+ 82: 
+ 83:             HAConnection.log.error(this.getServiceName() + " service has exception.", e);
+ 84:             break;
+ 85:         }
+ 86:     }
+ 87: 
+ 88:     // 断开连接 & 暂停写线程 & 暂停读线程 & 释放CommitLog
+ 89:     if (this.selectMappedBufferResult != null) {
+ 90:         this.selectMappedBufferResult.release();
+ 91:     }
+ 92: 
+ 93:     this.makeStop();
+ 94: 
+ 95:     readSocketService.makeStop();
+ 96: 
+ 97:     haService.removeConnection(HAConnection.this);
+ 98: 
+ 99:     SelectionKey sk = this.socketChannel.keyFor(this.selector);
+100:     if (sk != null) {
+101:         sk.cancel();
+102:     }
+103: 
+104:     try {
+105:         this.selector.close();
+106:         this.socketChannel.close();
+107:     } catch (IOException e) {
+108:         HAConnection.log.error("", e);
+109:     }
+110: 
+111:     HAConnection.log.info(this.getServiceName() + " service end");
+112: }
+113: 
+114: /**
+115:  * 传输数据
+116:  */
+117: private boolean transferData() throws Exception {
+118:     int writeSizeZeroTimes = 0;
+119:     // Write Header
+120:     while (this.byteBufferHeader.hasRemaining()) {
+121:         int writeSize = this.socketChannel.write(this.byteBufferHeader);
+122:         if (writeSize > 0) {
+123:             writeSizeZeroTimes = 0;
+124:             this.lastWriteTimestamp = HAConnection.this.haService.getDefaultMessageStore().getSystemClock().now();
+125:         } else if (writeSize == 0) {
+126:             if (++writeSizeZeroTimes >= 3) {
+127:                 break;
+128:             }
+129:         } else {
+130:             throw new Exception("ha master write header error < 0");
+131:         }
+132:     }
+133: 
+134:     if (null == this.selectMappedBufferResult) {
+135:         return !this.byteBufferHeader.hasRemaining();
+136:     }
+137: 
+138:     writeSizeZeroTimes = 0;
+139: 
+140:     // Write Body
+141:     if (!this.byteBufferHeader.hasRemaining()) {
+142:         while (this.selectMappedBufferResult.getByteBuffer().hasRemaining()) {
+143:             int writeSize = this.socketChannel.write(this.selectMappedBufferResult.getByteBuffer());
+144:             if (writeSize > 0) {
+145:                 writeSizeZeroTimes = 0;
+146:                 this.lastWriteTimestamp = HAConnection.this.haService.getDefaultMessageStore().getSystemClock().now();
+147:             } else if (writeSize == 0) {
+148:                 if (++writeSizeZeroTimes >= 3) {
+149:                     break;
+150:                 }
+151:             } else {
+152:                 throw new Exception("ha master write body error < 0");
+153:             }
+154:         }
+155:     }
+156: 
+157:     boolean result = !this.byteBufferHeader.hasRemaining() && !this.selectMappedBufferResult.getByteBuffer().hasRemaining();
+158: 
+159:     if (!this.selectMappedBufferResult.getByteBuffer().hasRemaining()) {
+160:         this.selectMappedBufferResult.release();
+161:         this.selectMappedBufferResult = null;
+162:     }
+163: 
+164:     return result;
+165: }
+```
+
+### 3.1.6 Master_SYNC
+
+* **`Producer` 发送消息时，`Master_SYNC`节点 会等待 `Slave`节点 存储完毕后再返回发送结果。**
+
+核心代码如下：
+
+```Java
+  1: // ⬇️⬇️⬇️【CommitLog.java】
+  2: public PutMessageResult putMessage(final MessageExtBrokerInner msg) {
+  3:     // ....省略处理发送代码 
+  4:     // Synchronous write double 如果是同步Master，同步到从节点
+  5:     if (BrokerRole.SYNC_MASTER == this.defaultMessageStore.getMessageStoreConfig().getBrokerRole()) {
+  6:         HAService service = this.defaultMessageStore.getHaService();
+  7:         if (msg.isWaitStoreMsgOK()) {
+  8:             // Determine whether to wait
+  9:             if (service.isSlaveOK(result.getWroteOffset() + result.getWroteBytes())) {
+ 10:                 if (null == request) {
+ 11:                     request = new GroupCommitRequest(result.getWroteOffset() + result.getWroteBytes());
+ 12:                 }
+ 13:                 service.putRequest(request);
+ 14: 
+ 15:                 // 唤醒WriteSocketService
+ 16:                 service.getWaitNotifyObject().wakeupAll();
+ 17: 
+ 18:                 boolean flushOK = request.waitForFlush(this.defaultMessageStore.getMessageStoreConfig().getSyncFlushTimeout());
+ 19:                 if (!flushOK) {
+ 20:                     log.error("do sync transfer other node, wait return, but failed, topic: " + msg.getTopic() + " tags: "
+ 21:                         + msg.getTags() + " client address: " + msg.getBornHostString());
+ 22:                     putMessageResult.setPutMessageStatus(PutMessageStatus.FLUSH_SLAVE_TIMEOUT);
+ 23:                 }
+ 24:             }
+ 25:             // Slave problem
+ 26:             else {
+ 27:                 // Tell the producer, slave not available
+ 28:                 putMessageResult.setPutMessageStatus(PutMessageStatus.SLAVE_NOT_AVAILABLE);
+ 29:             }
+ 30:         }
+ 31:     }
+ 32: 
+ 33:     return putMessageResult;
+ 34: }
+```
+
+* 第 16 行 ：唤醒 `WriteSocketService`。
+    * 唤醒后，`WriteSocketService` 挂起等待新消息结束，`Master` 传输 `Slave` 新的 `CommitLog` 数据。
+    * `Slave` 收到数据后，**立即**上报最新的 `CommitLog` 同步进度到 `Master`。`ReadSocketService` 唤醒**第 18 行**：`request#waitForFlush(...)`。
+
+我们来看下 `GroupTransferService` 的核心逻辑代码：
+
+```Java
+  1: // ⬇️⬇️⬇️【GroupTransferService.java】
+  2: private void doWaitTransfer() {
+  3:     synchronized (this.requestsRead) {
+  4:         if (!this.requestsRead.isEmpty()) {
+  5:             for (CommitLog.GroupCommitRequest req : this.requestsRead) {
+  6:                 // 等待Slave上传进度
+  7:                 boolean transferOK = HAService.this.push2SlaveMaxOffset.get() >= req.getNextOffset();
+  8:                 for (int i = 0; !transferOK && i < 5; i++) {
+  9:                     this.notifyTransferObject.waitForRunning(1000); // 唤醒
+ 10:                     transferOK = HAService.this.push2SlaveMaxOffset.get() >= req.getNextOffset();
+ 11:                 }
+ 12: 
+ 13:                 if (!transferOK) {
+ 14:                     log.warn("transfer messsage to slave timeout, " + req.getNextOffset());
+ 15:                 }
+ 16: 
+ 17:                 // 唤醒请求，并设置是否Slave同步成功
+ 18:                 req.wakeupCustomer(transferOK);
+ 19:             }
+ 20: 
+ 21:             this.requestsRead.clear();
+ 22:         }
+ 23:     }
+ 24: }
+```
 
 ## 3.2 Producer 发送消息
 
+* **`Producer` 发送消息时，会对 `Broker`集群 的队列进行选择。**
+
+核心代码如下：
+
+```Java
+  1: // ⬇️⬇️⬇️【DefaultMQProducerImpl.java】
+  2: private SendResult sendDefaultImpl(//
+  3:     Message msg, //
+  4:     final CommunicationMode communicationMode, //
+  5:     final SendCallback sendCallback, //
+  6:     final long timeout//
+  7: ) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {
+  8:     // .... 省略：处理【校验逻辑】
+  9:     // 获取 Topic路由信息
+ 10:     TopicPublishInfo topicPublishInfo = this.tryToFindTopicPublishInfo(msg.getTopic());
+ 11:     if (topicPublishInfo != null && topicPublishInfo.ok()) {
+ 12:         MessageQueue mq = null; // 最后选择消息要发送到的队列
+ 13:         Exception exception = null;
+ 14:         SendResult sendResult = null; // 最后一次发送结果
+ 15:         int timesTotal = communicationMode == CommunicationMode.SYNC ? 1 + this.defaultMQProducer.getRetryTimesWhenSendFailed() : 1; // 同步多次调用
+ 16:         int times = 0; // 第几次发送
+ 17:         String[] brokersSent = new String[timesTotal]; // 存储每次发送消息选择的broker名
+ 18:         // 循环调用发送消息，直到成功
+ 19:         for (; times < timesTotal; times++) {
+ 20:             String lastBrokerName = null == mq ? null : mq.getBrokerName();
+ 21:             MessageQueue tmpmq = this.selectOneMessageQueue(topicPublishInfo, lastBrokerName); // 选择消息要发送到的队列
+ 22:             if (tmpmq != null) {
+ 23:                 mq = tmpmq;
+ 24:                 brokersSent[times] = mq.getBrokerName();
+ 25:                 try {
+ 26:                     beginTimestampPrev = System.currentTimeMillis();
+ 27:                     // 调用发送消息核心方法
+ 28:                     sendResult = this.sendKernelImpl(msg, mq, communicationMode, sendCallback, topicPublishInfo, timeout);
+ 29:                     endTimestamp = System.currentTimeMillis();
+ 30:                     // 更新Broker可用性信息
+ 31:                     this.updateFaultItem(mq.getBrokerName(), endTimestamp - beginTimestampPrev, false);
+ 32:                     // .... 省略：处理【发送返回结果】
+ 33:                     }
+ 34:                 } catch (e) { // .... 省略：处理【异常】
+ 35:                     
+ 36:                 }
+ 37:             } else {
+ 38:                 break;
+ 39:             }
+ 40:         }
+ 41:         // .... 省略：处理【发送返回结果】
+ 42:     }
+ 43:     // .... 省略：处理【找不到消息路由】
+ 44: }
+```
+
+![Producer.TopicPublishInfo.调试.png](images/1009/Producer.TopicPublishInfo.调试.png)
+
 ## 3.3 Consumer 消费消息
 
-// TODO 从节点消费
+
+# 4. 总结
+
+
 
