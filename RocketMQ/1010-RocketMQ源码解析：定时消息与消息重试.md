@@ -1,10 +1,17 @@
->  原文地址：[RocketMQ源码解析：Message顺序发送与消费](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1007-RocketMQ源码解析：Message顺序发送与消费.md)  
+>  原文地址：[RocketMQ源码解析：定时消息与消息重试](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1010-RocketMQ源码解析：定时消息与消息重试.md)  
 > `RocketMQ` **带注释**地址 ：[YunaiV/incubator-rocketmq](https://github.com/YunaiV/incubator-rocketmq)  
 > **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub。**  
 
 -------
 
-
+- [1. 概述](#)
+- [2. 定时消息](#)
+	- [2.1 延迟级别](#)
+	- [2.2 Producer 发送定时消息](#)
+	- [2.3 Broker 存储定时消息](#)
+	- [2.4 Broker 发送定时消息](#)
+	- [2.5 Broker 持久化定时发送进度](#)
+- [3. 消息重试](#)
 
 # 1. 概述
 
@@ -13,15 +20,16 @@
 * [《Message发送&接收》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1003-RocketMQ源码解析：Message发送&接收.md)
 * [《Message拉取&消费（下）》](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1005-RocketMQ源码解析：Message拉取&消费（下）.md)
 
-😈为什么把**定时消息**与**消息重试**放在一起？你猜。👻你猜我猜不猜。
+😈 为什么把**定时消息**与**消息重试**放在一起？你猜。  
+👻 你猜我猜不猜。
 
 # 2. 定时消息
 
-> **定时消息**是指消息发到 Broker 后，不能立刻被 Consumer 消费，要到特定的时间点或者等待特定的时间后才能 被消费。
+> **定时消息**是指消息发到 Broker 后，不能立刻被 Consumer 消费，要到特定的时间点或者等待特定的时间后才能被消费。
 
 下图是**定时消息**的处理逻辑图：
 
-![定时消息逻辑图.png](images/1010/定时消息逻辑图.png)
+![定时消息逻辑图.png](https://raw.githubusercontent.com/YunaiV/Blog/master/RocketMQ/images/1010/定时消息逻辑图.png)
 
 ## 2.1 延迟级别
 
@@ -107,8 +115,8 @@ msg.setDelayTimeLevel(level);
 
 ## 2.3 Broker 存储定时消息
 
-* 🦅存储消息时，延迟消息进入 `Topic` 为 `SCHEDULE_TOPIC_XXXX`。
-* 🦅延迟级别 与 消息队列编号 做**固定映射：QueueId = DelayLevel - 1**。
+* 🦅 存储消息时，延迟消息进入 `Topic` 为 `SCHEDULE_TOPIC_XXXX`。
+* 🦅 延迟级别 与 消息队列编号 做**固定映射：QueueId = DelayLevel - 1**。
 
 核心代码如下：
 
@@ -167,7 +175,7 @@ msg.setDelayTimeLevel(level);
 
 -------
 
-* 🦅生成 `ConsumeQueue` 时，每条消息的 `tagsCode` 使用【消息计划消费时间】。这样，`ScheduleMessageService` 在轮询 `ConsumeQueue` 时，可以使用 `tagsCode` 进行过滤。
+* 🦅 生成 `ConsumeQueue` 时，每条消息的 `tagsCode` 使用【消息计划消费时间】。这样，`ScheduleMessageService` 在轮询 `ConsumeQueue` 时，可以使用 `tagsCode` 进行过滤。
 
 核心代码如下：
 
@@ -254,7 +262,7 @@ msg.setDelayTimeLevel(level);
 
 下图是发送定时消息的处理逻辑图：
 
-![定时消息定时逻辑](images/1010/定时消息定时逻辑.png)
+![定时消息定时逻辑](https://raw.githubusercontent.com/YunaiV/Blog/master/RocketMQ/images/1010/定时消息定时逻辑.png)
 
 实现代码如下：
 

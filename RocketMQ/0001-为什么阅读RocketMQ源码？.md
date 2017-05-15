@@ -21,14 +21,14 @@
 - [x] broker 发消息
 - [ ] consumer 收消息
     - [x] 多消费者
-    - [ ] 重试消息
+    - [x] 重试消息
 - [x] consumer 消息确认
 - [x] consumer 负载均衡
 - [x] broker 队列模型
 - [x] broker store 消息存储
 - [x] 顺序消息
 - [ ] 事务消息
-- [ ] 定时(延迟)消息
+- [x] 定时(延迟)消息
 - [x] pub/sub模型
 - [x] namesrv 集群
 - [x] broker 主从 
