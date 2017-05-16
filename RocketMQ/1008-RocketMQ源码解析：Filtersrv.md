@@ -6,8 +6,14 @@
 
 - [1. 概述](#)
 - [2. Filtersrv 注册到 Broker](#)
-- [3. 上传过滤类](#)
+- [3. 过滤类](#)
+	- [3.1 Consumer 订阅时设置 过滤类代码](#)
+	- [3.2 Consumer 上传 过滤类代码](#)
+	- [3.3 Filter 编译 过滤类代码](#)
 - [4. 过滤消息](#)
+	- [4.1 Consumer 从 Filtersrv 拉取消息](#)
+	- [4.2 Filtersrv 从 Broker 拉取消息](#)
+- [5. Filtersrv 高可用](#)
 
 # 1. 概述
 

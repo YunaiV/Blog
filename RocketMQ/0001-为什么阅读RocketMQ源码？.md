@@ -32,7 +32,7 @@
 - [x] pub/sub模型
 - [x] namesrv 集群
 - [x] broker 主从 
-- [ ] filtersrv 过滤消息
+- [x] filtersrv 过滤消息
 - [ ] remoting 调用（server、client）
 - [ ] 跨机房
 - [ ] Hook 机制
