@@ -19,7 +19,7 @@
 
 `Filtersrv` ，负责**自定义规则**过滤 `Consumer` 从 `Broker` 拉取的消息。
 
-![Filtersrv.png](images/1008/Filtersrv.png)
+![Filtersrv.png](https://raw.githubusercontent.com/YunaiV/Blog/master/RocketMQ/images/1008/Filtersrv.png)
 
 为什么 `Broker` 不提供过滤消息的功能呢？我们来看看官方的说法：
 
@@ -87,7 +87,7 @@
 
 # 3. 过滤类 
 
-![Filtersrv过滤类](images/1008/Filtersrv过滤类.png)
+![Filtersrv过滤类](https://raw.githubusercontent.com/YunaiV/Blog/master/RocketMQ/images/1008/Filtersrv过滤类.png)
 
 ## 3.1 Consumer 订阅时设置 过滤类代码
 
@@ -227,7 +227,7 @@
 
 # 4. 过滤消息
 
-![Filtersrv.png](images/1008/Filtersrv.png)
+![Filtersrv.png](https://raw.githubusercontent.com/YunaiV/Blog/master/RocketMQ/images/1008/Filtersrv.png)
 
 ## 4.1 Consumer 从 Filtersrv 拉取消息
 
@@ -441,6 +441,6 @@
 
 # 5. Filtersrv 高可用
 
-![Filtersrv过可用](images/1008/Filtersrv过可用.png)
+![Filtersrv过可用](https://raw.githubusercontent.com/YunaiV/Blog/master/RocketMQ/images/1008/Filtersrv过可用.png)
 
 
