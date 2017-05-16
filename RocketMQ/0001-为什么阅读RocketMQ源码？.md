@@ -19,7 +19,7 @@
 - [x] producer 发消息
 - [x] broker 收消息
 - [x] broker 发消息
-- [ ] consumer 收消息
+- [x] consumer 收消息
     - [x] 多消费者
     - [x] 重试消息
 - [x] consumer 消息确认
