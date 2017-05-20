@@ -274,6 +274,10 @@
 
 ### 3.1.1 官方V3.1.4：基于文件系统
 
+
+
+RocketMQ 这种实现事务方式，没有通过 KV 存储做，而是通过 Offset 方式，存在一个显著缺陷，即通过 Offset 更改数据，会令系统的脏页过多，需要特别关注。
+
 ### 3.1.2 官方V4.0.0：基于数据库
 
 ### 3.1.3 非官方V3.5.8：基于数据库
@@ -287,7 +291,120 @@
 * 核心代码如下：
 
 ```Java
+  1: // ⬇️⬇️⬇️【DefaultMQProducerImpl.java】
+  2: /**
+  3:  * 检查【事务状态】状态
+  4:  *
+  5:  * @param addr broker地址
+  6:  * @param msg 消息
+  7:  * @param header 请求
+  8:  */
+  9: @Override
+ 10: public void checkTransactionState(final String addr, final MessageExt msg, final CheckTransactionStateRequestHeader header) {
+ 11:     Runnable request = new Runnable() {
+ 12:         private final String brokerAddr = addr;
+ 13:         private final MessageExt message = msg;
+ 14:         private final CheckTransactionStateRequestHeader checkRequestHeader = header;
+ 15:         private final String group = DefaultMQProducerImpl.this.defaultMQProducer.getProducerGroup();
+ 16: 
+ 17:         @Override
+ 18:         public void run() {
+ 19:             TransactionCheckListener transactionCheckListener = DefaultMQProducerImpl.this.checkListener();
+ 20:             if (transactionCheckListener != null) {
+ 21:                 // 获取事务执行状态
+ 22:                 LocalTransactionState localTransactionState = LocalTransactionState.UNKNOW;
+ 23:                 Throwable exception = null;
+ 24:                 try {
+ 25:                     localTransactionState = transactionCheckListener.checkLocalTransactionState(message);
+ 26:                 } catch (Throwable e) {
+ 27:                     log.error("Broker call checkTransactionState, but checkLocalTransactionState exception", e);
+ 28:                     exception = e;
+ 29:                 }
+ 30: 
+ 31:                 // 处理事务结果，提交消息 COMMIT / ROLLBACK
+ 32:                 this.processTransactionState(//
+ 33:                     localTransactionState, //
+ 34:                     group, //
+ 35:                     exception);
+ 36:             } else {
+ 37:                 log.warn("checkTransactionState, pick transactionCheckListener by group[{}] failed", group);
+ 38:             }
+ 39:         }
+ 40: 
+ 41:         /**
+ 42:          * 处理事务结果，提交消息 COMMIT / ROLLBACK
+ 43:          *
+ 44:          * @param localTransactionState 【本地事务】状态
+ 45:          * @param producerGroup producerGroup
+ 46:          * @param exception 检查【本地事务】状态发生的异常
+ 47:          */
+ 48:         private void processTransactionState(//
+ 49:             final LocalTransactionState localTransactionState, //
+ 50:             final String producerGroup, //
+ 51:             final Throwable exception) {
+ 52:             final EndTransactionRequestHeader thisHeader = new EndTransactionRequestHeader();
+ 53:             thisHeader.setCommitLogOffset(checkRequestHeader.getCommitLogOffset());
+ 54:             thisHeader.setProducerGroup(producerGroup);
+ 55:             thisHeader.setTranStateTableOffset(checkRequestHeader.getTranStateTableOffset());
+ 56:             thisHeader.setFromTransactionCheck(true);
+ 57: 
+ 58:             // 设置消息编号
+ 59:             String uniqueKey = message.getProperties().get(MessageConst.PROPERTY_UNIQ_CLIENT_MESSAGE_ID_KEYIDX);
+ 60:             if (uniqueKey == null) {
+ 61:                 uniqueKey = message.getMsgId();
+ 62:             }
+ 63:             thisHeader.setMsgId(uniqueKey);
+ 64: 
+ 65:             thisHeader.setTransactionId(checkRequestHeader.getTransactionId());
+ 66:             switch (localTransactionState) {
+ 67:                 case COMMIT_MESSAGE:
+ 68:                     thisHeader.setCommitOrRollback(MessageSysFlag.TRANSACTION_COMMIT_TYPE);
+ 69:                     break;
+ 70:                 case ROLLBACK_MESSAGE:
+ 71:                     thisHeader.setCommitOrRollback(MessageSysFlag.TRANSACTION_ROLLBACK_TYPE);
+ 72:                     log.warn("when broker check, client rollback this transaction, {}", thisHeader);
+ 73:                     break;
+ 74:                 case UNKNOW:
+ 75:                     thisHeader.setCommitOrRollback(MessageSysFlag.TRANSACTION_NOT_TYPE);
+ 76:                     log.warn("when broker check, client does not know this transaction state, {}", thisHeader);
+ 77:                     break;
+ 78:                 default:
+ 79:                     break;
+ 80:             }
+ 81: 
+ 82:             String remark = null;
+ 83:             if (exception != null) {
+ 84:                 remark = "checkLocalTransactionState Exception: " + RemotingHelper.exceptionSimpleDesc(exception);
+ 85:             }
+ 86: 
+ 87:             try {
+ 88:                 // 提交消息 COMMIT / ROLLBACK
+ 89:                 DefaultMQProducerImpl.this.mQClientFactory.getMQClientAPIImpl().endTransactionOneway(brokerAddr, thisHeader, remark,
+ 90:                     3000);
+ 91:             } catch (Exception e) {
+ 92:                 log.error("endTransactionOneway exception", e);
+ 93:             }
+ 94:         }
+ 95:     };
+ 96: 
+ 97:     // 提交执行
+ 98:     this.checkExecutor.submit(request);
+ 99: }
+100: 
+101: // ⬇️⬇️⬇️【DefaultMQProducerImpl.java】
+102: /**
+103:  * 【事务消息回查】检查监听器
+104:  */
+105: public interface TransactionCheckListener {
+106: 
+107:     /**
+108:      * 获取（检查）【本地事务】状态
+109:      *
+110:      * @param msg 消息
+111:      * @return 事务状态
+112:      */
+113:     LocalTransactionState checkLocalTransactionState(final MessageExt msg);
+114: 
+115: }
 ```
-
-RocketMQ 这种实现事务方式，没有通过 KV 存储做，而是通过 Offset 方式，存在一个显著缺陷，即通过 Offset 更改数据，会令系统的脏页过多，需要特别关注。
 
