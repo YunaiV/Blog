@@ -274,6 +274,22 @@
 
 ### 3.1.1 官方V3.1.4：基于文件系统
 
+相较于普通消息，【事务消息】多依赖如下三个组件：
+
+* **TransactionStateService** ：事务状态服务，负责对【事务消息】进行管理，包括存储与更新事务消息状态、回查事务消息状态等等。
+* **TranStateTable** ：【事务消息】状态存储。基于 `MappedFileQueue` 实现，默认存储路径为 `~/store/transaction/statetable`，每条事务状态存储结构如下：
+
+| 第几位 | 字段 | 说明 | 数据类型 | 字节数 |
+| :-- | :-- | :-- | :-- | :-- |
+| 1 | offset | CommitLog 物理存储位置 | Long | 8 |
+| 2 | size | 消息长度 | Int | 4 |
+| 3 | timestamp | 消息存储时间，单位：秒 | Int | 4 |
+| 4 | producerGroupHash | producerGroup 求 HashCode | Int | 4 |
+| 5 | state | 事务状态 | Int | 4 |
+
+* **TranRedoLog** ：`TranStateTable` 重放日志，每次**写**操作 `TranStateTable` 记录重放日志。当 `Broker` 异常关闭时，使用 `TranRedoLog` 恢复 `TranStateTable`。基于 `ConsumeQueue` 实现，`Topic` 为 `TRANSACTION_REDOLOG_TOPIC_XXXX`，默认存储路径为 `~/store/transaction/redolog`。
+
+
 
 
 RocketMQ 这种实现事务方式，没有通过 KV 存储做，而是通过 Offset 方式，存在一个显著缺陷，即通过 Offset 更改数据，会令系统的脏页过多，需要特别关注。
