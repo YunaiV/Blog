@@ -289,9 +289,15 @@
 
 * **TranRedoLog** ：`TranStateTable` 重放日志，每次**写**操作 `TranStateTable` 记录重放日志。当 `Broker` 异常关闭时，使用 `TranRedoLog` 恢复 `TranStateTable`。基于 `ConsumeQueue` 实现，`Topic` 为 `TRANSACTION_REDOLOG_TOPIC_XXXX`，默认存储路径为 `~/store/transaction/redolog`。
 
-#### 3.1.1.1 存储消息
+-------
 
-* 存储**【half消息】**到 `CommitLog` 时，消息队列位置（`queueOffset`）使用 `TranStateTable` 最大物理位置（可写入物理位置）。这样，消息可以索引到自己对应的 `TranStateTable` 的位置。
+简单手绘逻辑图如下😈：
+
+![Broker_V3.1.4_基于文件系统](images/1011/Broker_V3.1.4_基于文件系统.jpeg)
+
+#### 3.1.1.1 存储消息到 CommitLog
+
+* 存储【half消息】到 `CommitLog` 时，消息队列位置（`queueOffset`）使用 `TranStateTable` 最大物理位置（可写入物理位置）。这样，消息可以索引到自己对应的 `TranStateTable` 的位置。
 
 核心代码如下：
 
@@ -478,7 +484,7 @@
 
 #### 3.1.1.3 【事务消息】回查
 
-* `TranStateTable` 每个 `MappedFile` 都对应一个 `Timer`。`Timer` 固定周期（默认：60s）遍历 `MappedFile`，查找【half消息】，向 `Producer` 发起【事务消息】回查请求。【事务消息】回查结果的逻辑不在此处进行，在 
+* `TranStateTable` 每个 `MappedFile` 都对应一个 `Timer`。`Timer` 固定周期（默认：60s）遍历 `MappedFile`，查找【half消息】，向 `Producer` 发起【事务消息】回查请求。【事务消息】回查结果的逻辑不在此处进行，在 [`CommitLog` dispatch](#3112-写事务消息状态存储transtatetable)时执行。
 
 实现代码如下：
 
@@ -620,8 +626,165 @@
 
 #### 3.1.1.4 初始化【事务消息】状态存储（TranStateTable）
 
+* 根据最后 Broker 关闭是否正常，会有不同的初始化方式。
 
-RocketMQ 这种实现事务方式，没有通过 KV 存储做，而是通过 Offset 方式，存在一个显著缺陷，即通过 Offset 更改数据，会令系统的脏页过多，需要特别关注。
+核心代码如下：
+
+```Java
+  1: // ⬇️⬇️⬇️【TransactionStateService.java】
+  2: /**
+  3:  * 初始化 TranRedoLog
+  4:  * @param lastExitOK 是否正常退出
+  5:  */
+  6: public void recoverStateTable(final boolean lastExitOK) {
+  7:     if (lastExitOK) {
+  8:         this.recoverStateTableNormal();
+  9:     } else {
+ 10:         // 第一步，删除State Table
+ 11:         this.tranStateTable.destroy();
+ 12:         // 第二步，通过RedoLog全量恢复StateTable
+ 13:         this.recreateStateTable();
+ 14:     }
+ 15: }
+ 16: 
+ 17: /**
+ 18:  * 扫描 TranRedoLog 重建 StateTable
+ 19:  */
+ 20: private void recreateStateTable() {
+ 21:     this.tranStateTable = new MapedFileQueue(StorePathConfigHelper.getTranStateTableStorePath(defaultMessageStore
+ 22:                 .getMessageStoreConfig().getStorePathRootDir()), defaultMessageStore
+ 23:                 .getMessageStoreConfig().getTranStateTableMapedFileSize(), null);
+ 24: 
+ 25:     final TreeSet<Long> preparedItemSet = new TreeSet<Long>();
+ 26: 
+ 27:     // 第一步，从头扫描RedoLog
+ 28:     final long minOffset = this.tranRedoLog.getMinOffsetInQuque();
+ 29:     long processOffset = minOffset;
+ 30:     while (true) {
+ 31:         SelectMapedBufferResult bufferConsumeQueue = this.tranRedoLog.getIndexBuffer(processOffset);
+ 32:         if (bufferConsumeQueue != null) {
+ 33:             try {
+ 34:                 long i = 0;
+ 35:                 for (; i < bufferConsumeQueue.getSize(); i += ConsumeQueue.CQStoreUnitSize) {
+ 36:                     long offsetMsg = bufferConsumeQueue.getByteBuffer().getLong();
+ 37:                     int sizeMsg = bufferConsumeQueue.getByteBuffer().getInt();
+ 38:                     long tagsCode = bufferConsumeQueue.getByteBuffer().getLong();
+ 39: 
+ 40:                     if (TransactionStateService.PreparedMessageTagsCode == tagsCode) { // Prepared
+ 41:                         preparedItemSet.add(offsetMsg);
+ 42:                     } else { // Commit/Rollback
+ 43:                         preparedItemSet.remove(tagsCode);
+ 44:                     }
+ 45:                 }
+ 46: 
+ 47:                 processOffset += i;
+ 48:             } finally { // 必须释放资源
+ 49:                 bufferConsumeQueue.release();
+ 50:             }
+ 51:         } else {
+ 52:             break;
+ 53:         }
+ 54:     }
+ 55:     log.info("scan transaction redolog over, End offset: {},  Prepared Transaction Count: {}", processOffset, preparedItemSet.size());
+ 56: 
+ 57:     // 第二步，重建StateTable
+ 58:     Iterator<Long> it = preparedItemSet.iterator();
+ 59:     while (it.hasNext()) {
+ 60:         Long offset = it.next();
+ 61:         MessageExt msgExt = this.defaultMessageStore.lookMessageByOffset(offset);
+ 62:         if (msgExt != null) {
+ 63:             this.appendPreparedTransaction(msgExt.getCommitLogOffset(), msgExt.getStoreSize(),
+ 64:                 (int) (msgExt.getStoreTimestamp() / 1000),
+ 65:                 msgExt.getProperty(MessageConst.PROPERTY_PRODUCER_GROUP).hashCode());
+ 66:             this.tranStateTableOffset.incrementAndGet();
+ 67:         }
+ 68:     }
+ 69: }
+ 70: 
+ 71: /**
+ 72:  * 加载（解析）TranStateTable 的 MappedFile
+ 73:  * 1. 清理多余 MappedFile，设置最后一个 MappedFile的写入位置(position
+ 74:  * 2. 设置 TanStateTable 最大物理位置（可写入位置）
+ 75:  */
+ 76: private void recoverStateTableNormal() {
+ 77:     final List<MapedFile> mapedFiles = this.tranStateTable.getMapedFiles();
+ 78:     if (!mapedFiles.isEmpty()) {
+ 79:         // 从倒数第三个文件开始恢复
+ 80:         int index = mapedFiles.size() - 3;
+ 81:         if (index < 0) {
+ 82:             index = 0;
+ 83:         }
+ 84: 
+ 85:         int mapedFileSizeLogics = this.tranStateTable.getMapedFileSize();
+ 86:         MapedFile mapedFile = mapedFiles.get(index);
+ 87:         ByteBuffer byteBuffer = mapedFile.sliceByteBuffer();
+ 88:         long processOffset = mapedFile.getFileFromOffset();
+ 89:         long mapedFileOffset = 0;
+ 90:         while (true) {
+ 91:             for (int i = 0; i < mapedFileSizeLogics; i += TSStoreUnitSize) {
+ 92: 
+ 93:                 final long clOffset_read = byteBuffer.getLong();
+ 94:                 final int size_read = byteBuffer.getInt();
+ 95:                 final int timestamp_read = byteBuffer.getInt();
+ 96:                 final int groupHashCode_read = byteBuffer.getInt();
+ 97:                 final int state_read = byteBuffer.getInt();
+ 98: 
+ 99:                 boolean stateOK = false;
+100:                 switch (state_read) {
+101:                 case MessageSysFlag.TransactionPreparedType:
+102:                 case MessageSysFlag.TransactionCommitType:
+103:                 case MessageSysFlag.TransactionRollbackType:
+104:                     stateOK = true;
+105:                     break;
+106:                 default:
+107:                     break;
+108:                 }
+109: 
+110:                 // 说明当前存储单元有效
+111:                 if (clOffset_read >= 0 && size_read > 0 && stateOK) {
+112:                     mapedFileOffset = i + TSStoreUnitSize;
+113:                 } else {
+114:                     log.info("recover current transaction state table file over,  " + mapedFile.getFileName() + " "
+115:                             + clOffset_read + " " + size_read + " " + timestamp_read);
+116:                     break;
+117:                 }
+118:             }
+119: 
+120:             // 走到文件末尾，切换至下一个文件
+121:             if (mapedFileOffset == mapedFileSizeLogics) {
+122:                 index++;
+123:                 if (index >= mapedFiles.size()) { // 循环while结束
+124:                     log.info("recover last transaction state table file over, last maped file " + mapedFile.getFileName());
+125:                     break;
+126:                 } else { // 切换下一个文件
+127:                     mapedFile = mapedFiles.get(index);
+128:                     byteBuffer = mapedFile.sliceByteBuffer();
+129:                     processOffset = mapedFile.getFileFromOffset();
+130:                     mapedFileOffset = 0;
+131:                     log.info("recover next transaction state table file, " + mapedFile.getFileName());
+132:                 }
+133:             } else {
+134:                 log.info("recover current transaction state table queue over " + mapedFile.getFileName() + " " + (processOffset + mapedFileOffset));
+135:                 break;
+136:             }
+137:         }
+138: 
+139:         // 清理多余 MappedFile，设置最后一个 MappedFile的写入位置(position
+140:         processOffset += mapedFileOffset;
+141:         this.tranStateTable.truncateDirtyFiles(processOffset);
+142: 
+143:         // 设置 TanStateTable 最大物理位置（可写入位置）
+144:         this.tranStateTableOffset.set(this.tranStateTable.getMaxOffset() / TSStoreUnitSize);
+145:         log.info("recover normal over, transaction state table max offset: {}", this.tranStateTableOffset.get());
+146:     }
+147: }
+```
+
+#### 3.1.1.5 补充
+
+* 为什么 V3.1.5 开始，使用 数据库 实现【事务状态】的存储？如下是来自官方文档的说明，可能是一部分原因：
+
+> RocketMQ 这种实现事务方式，没有通过 KV 存储做，而是通过 Offset 方式，存在一个显著缺陷，即通过 Offset 更改数据，会令系统的脏页过多，需要特别关注。
 
 ### 3.1.2 官方V4.0.0：基于数据库
 
