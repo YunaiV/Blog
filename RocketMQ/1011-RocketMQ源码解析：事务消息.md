@@ -32,7 +32,7 @@
 
 * 活动图如下（结合 `核心代码` 理解）：
 
-![Producer发送事务消息](images/1011/Producer发送事务消息.png)
+![Producer发送事务消息](https://raw.githubusercontent.com/YunaiV/Blog/master/RocketMQ/images/1011/Producer发送事务消息.png)
 
 * 实现代码如下：
 
@@ -316,7 +316,7 @@
 
 简单手绘逻辑图如下😈：
 
-![Broker_V3.1.4_基于文件系统](images/1011/Broker_V3.1.4_基于文件系统.jpeg)
+![Broker_V3.1.4_基于文件系统](https://raw.githubusercontent.com/YunaiV/Blog/master/RocketMQ/images/1011/Broker_V3.1.4_基于文件系统.jpeg)
 
 #### 3.1.1.1 存储消息到 CommitLog
 
@@ -833,13 +833,13 @@
 
 简单手绘逻辑图如下😈：
 
-![Broker_V4.0.0_基于数据库](images/1011/Broker_V4.0.0_基于数据库.jpeg)
+![Broker_V4.0.0_基于数据库](https://raw.githubusercontent.com/YunaiV/Blog/master/RocketMQ/images/1011/Broker_V4.0.0_基于数据库.jpeg)
 
 ## 3.2 Producer 接收【事务消息回查】
 
 * 顺序图如下：
 
-![Producer接收【事务消息回查】](images/1011/Producer接收【事务消息回查】.png)
+![Producer接收【事务消息回查】](https://raw.githubusercontent.com/YunaiV/Blog/master/RocketMQ/images/1011/Producer接收【事务消息回查】.png)
 
 * 核心代码如下：
 
