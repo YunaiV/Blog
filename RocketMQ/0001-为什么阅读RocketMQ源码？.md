@@ -39,3 +39,4 @@
 - [ ] Tool-Admin
 - [ ] Tool-Command
 - [ ] Tool-Monitor
+- [ ] broker 主备切换

@@ -12,7 +12,7 @@
 
 ![Producer发送事务消息](images/1011/Producer发送事务消息.png)
 
-* 核心代码如下：
+* 实现代码如下：
 
 ```Java
   1: // ⬇️⬇️⬇️【DefaultMQProducerImpl.java】
@@ -152,7 +152,7 @@
 
 ## 2.2 Broker 处理结束事务请求
 
-* 查询请求的消息，进行**提交 / 回滚**。核心代码如下：
+* 查询请求的消息，进行**提交 / 回滚**。实现代码如下：
 
 ```Java
   1: // ⬇️⬇️⬇️【EndTransactionProcessor.java】
@@ -266,13 +266,14 @@
 | --- | --- |
 | 官方V3.0.4 ~ V3.1.4 | 基于 文件系统 实现 |
 | 官方V3.1.5 ~ V4.0.0 | 基于 数据库 实现，未开源 |
-| 非官方V3.5.8 | 基于 数据库 实现 |
 
-我们来看看三种情况下是怎么实现的。
+我们来看看两种情况下是怎么实现的。
 
 ## 3.1 Broker 发起【事务消息回查】
 
 ### 3.1.1 官方V3.1.4：基于文件系统
+
+> 仓库地址：https://github.com/YunaiV/rocketmq-3.1.9/tree/release_3.1.4
 
 相较于普通消息，【事务消息】多依赖如下三个组件：
 
@@ -788,7 +789,27 @@
 
 ### 3.1.2 官方V4.0.0：基于数据库
 
-### 3.1.3 非官方V3.5.8：基于数据库
+> 仓库地址：https://github.com/apache/incubator-rocketmq
+
+官方V4.0.0 暂时未**完全**开源【事务消息回查】功能，So 我们需要进行一些猜想，可能不一定正确😈。我们来对比【官方V3.1.4：基于文件】的实现。
+
+* TransactionRecord ：记录每条【事务消息】。类似 `TranStateTable`。
+
+| TranStateTable | TransactionRecord |  |
+| --- | --- | --- |
+| offset | offset |  |
+| producerGroupHash | producerGroup |  |
+| size | 无 | 非必须字段：【事务消息】回查时，使用 offset 读取 CommitLog 获得。 |
+| timestamp | 无 | 非必须字段：【事务消息】回查时，使用 offset 读取 CommitLog 获得。 |
+| state | 无 | 非必须字段： 事务开始，增加记录；事务结束，删除记录。|
+
+另外，数据库本身保证了数据存储的可靠性，无需 `TranRedoLog`。
+
+-------
+
+简单手绘逻辑图如下😈：
+
+![Broker_V4.0.0_基于数据库](images/1011/Broker_V4.0.0_基于数据库.jpeg)
 
 ## 3.2 Producer 接收【事务消息回查】
 
