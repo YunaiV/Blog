@@ -289,7 +289,336 @@
 
 * **TranRedoLog** ：`TranStateTable` 重放日志，每次**写**操作 `TranStateTable` 记录重放日志。当 `Broker` 异常关闭时，使用 `TranRedoLog` 恢复 `TranStateTable`。基于 `ConsumeQueue` 实现，`Topic` 为 `TRANSACTION_REDOLOG_TOPIC_XXXX`，默认存储路径为 `~/store/transaction/redolog`。
 
+#### 3.1.1.1 存储消息
 
+* 存储**【half消息】**到 `CommitLog` 时，消息队列位置（`queueOffset`）使用 `TranStateTable` 最大物理位置（可写入物理位置）。这样，消息可以索引到自己对应的 `TranStateTable` 的位置。
+
+核心代码如下：
+
+```Java
+  1: // ⬇️⬇️⬇️【DefaultAppendMessageCallback.java】
+  2: class DefaultAppendMessageCallback implements AppendMessageCallback {
+  3:     public AppendMessageResult doAppend(final long fileFromOffset, final ByteBuffer byteBuffer,  final int maxBlank, final Object msg) {
+  4:         // ...省略代码
+  5: 
+  6:         // 事务消息需要特殊处理 
+  7:         final int tranType = MessageSysFlag.getTransactionValue(msgInner.getSysFlag());
+  8:         switch (tranType) {
+  9:         case MessageSysFlag.TransactionPreparedType: // 消息队列位置（queueOffset）使用 TranStateTable 最大物理位置（可写入物理位置） 
+ 10:             queueOffset = CommitLog.this.defaultMessageStore.getTransactionStateService().getTranStateTableOffset().get();
+ 11:             break;
+ 12:         case MessageSysFlag.TransactionRollbackType:
+ 13:             queueOffset = msgInner.getQueueOffset();
+ 14:             break;
+ 15:         case MessageSysFlag.TransactionNotType:
+ 16:         case MessageSysFlag.TransactionCommitType:
+ 17:         default:
+ 18:             break;
+ 19:         }
+ 20: 
+ 21:         // ...省略代码
+ 22: 
+ 23:         switch (tranType) {
+ 24:         case MessageSysFlag.TransactionPreparedType:
+ 25:             // 更新 TranStateTable 最大物理位置（可写入物理位置） 
+ 26:             CommitLog.this.defaultMessageStore.getTransactionStateService().getTranStateTableOffset().incrementAndGet();
+ 27:             break;
+ 28:         case MessageSysFlag.TransactionRollbackType:
+ 29:             break;
+ 30:         case MessageSysFlag.TransactionNotType:
+ 31:         case MessageSysFlag.TransactionCommitType:
+ 32:             // 更新下一次的ConsumeQueue信息
+ 33:             CommitLog.this.topicQueueTable.put(key, ++queueOffset);
+ 34:             break;
+ 35:         default:
+ 36:             break;
+ 37:         }
+ 38: 
+ 39:         // 返回结果
+ 40:         return result;
+ 41:     }
+ 42: }
+```
+
+#### 3.1.1.2 写【事务消息】状态存储（TranStateTable）
+
+* 处理【Half消息】时，新增【事务消息】状态存储（`TranStateTable`）。
+* 处理【事务Commit / Rollback消息】时，更新 【事务消息】状态存储（`TranStateTable`） COMMIT / ROLLBACK。
+* 每次**写**操作【事务消息】状态存储（`TranStateTable`），记录重放日志（`TranRedoLog`）。
+
+核心代码如下：
+
+```Java
+  1: // ⬇️⬇️⬇️【DispatchMessageService.java】
+  2: private void doDispatch() {
+  3:     if (!this.requestsRead.isEmpty()) {
+  4:         for (DispatchRequest req : this.requestsRead) {
+  5: 
+  6:             // ...省略代码
+  7: 
+  8:             // 2、写【事务消息】状态存储（TranStateTable）
+  9:             if (req.getProducerGroup() != null) {
+ 10:                 switch (tranType) {
+ 11:                 case MessageSysFlag.TransactionNotType:
+ 12:                     break;
+ 13:                 case MessageSysFlag.TransactionPreparedType:
+ 14:                     // 新增 【事务消息】状态存储（TranStateTable）
+ 15:                     DefaultMessageStore.this.getTransactionStateService().appendPreparedTransaction(
+ 16:                         req.getCommitLogOffset(), req.getMsgSize(), (int) (req.getStoreTimestamp() / 1000), req.getProducerGroup().hashCode());
+ 17:                     break;
+ 18:                 case MessageSysFlag.TransactionCommitType:
+ 19:                 case MessageSysFlag.TransactionRollbackType:
+ 20:                     // 更新 【事务消息】状态存储（TranStateTable） COMMIT / ROLLBACK
+ 21:                     DefaultMessageStore.this.getTransactionStateService().updateTransactionState(
+ 22:                         req.getTranStateTableOffset(), req.getPreparedTransactionOffset(), req.getProducerGroup().hashCode(), tranType);
+ 23:                     break;
+ 24:                 }
+ 25:             }
+ 26:             // 3、记录 TranRedoLog
+ 27:             switch (tranType) {
+ 28:             case MessageSysFlag.TransactionNotType:
+ 29:                 break;
+ 30:             case MessageSysFlag.TransactionPreparedType:
+ 31:                 // 记录 TranRedoLog
+ 32:                 DefaultMessageStore.this.getTransactionStateService().getTranRedoLog().putMessagePostionInfoWrapper(
+ 33:                         req.getCommitLogOffset(), req.getMsgSize(), TransactionStateService.PreparedMessageTagsCode,
+ 34:                         req.getStoreTimestamp(), 0L);
+ 35:                 break;
+ 36:             case MessageSysFlag.TransactionCommitType:
+ 37:             case MessageSysFlag.TransactionRollbackType:
+ 38:                 // 记录 TranRedoLog
+ 39:                 DefaultMessageStore.this.getTransactionStateService().getTranRedoLog().putMessagePostionInfoWrapper(
+ 40:                         req.getCommitLogOffset(), req.getMsgSize(), req.getPreparedTransactionOffset(),
+ 41:                         req.getStoreTimestamp(), 0L);
+ 42:                 break;
+ 43:             }
+ 44:         }
+ 45: 
+ 46:         // ...省略代码
+ 47:     }
+ 48: }
+ 49: // ⬇️⬇️⬇️【TransactionStateService.java】
+ 50: /**
+ 51:  * 新增事务状态
+ 52:  *
+ 53:  * @param clOffset commitLog 物理位置
+ 54:  * @param size 消息长度
+ 55:  * @param timestamp 消息存储时间
+ 56:  * @param groupHashCode groupHashCode
+ 57:  * @return 是否成功
+ 58:  */
+ 59: public boolean appendPreparedTransaction(//
+ 60:         final long clOffset,//
+ 61:         final int size,//
+ 62:         final int timestamp,//
+ 63:         final int groupHashCode//
+ 64: ) {
+ 65:     MapedFile mapedFile = this.tranStateTable.getLastMapedFile();
+ 66:     if (null == mapedFile) {
+ 67:         log.error("appendPreparedTransaction: create mapedfile error.");
+ 68:         return false;
+ 69:     }
+ 70: 
+ 71:     // 首次创建，加入定时任务中
+ 72:     if (0 == mapedFile.getWrotePostion()) {
+ 73:         this.addTimerTask(mapedFile);
+ 74:     }
+ 75: 
+ 76:     this.byteBufferAppend.position(0);
+ 77:     this.byteBufferAppend.limit(TSStoreUnitSize);
+ 78: 
+ 79:     // Commit Log Offset
+ 80:     this.byteBufferAppend.putLong(clOffset);
+ 81:     // Message Size
+ 82:     this.byteBufferAppend.putInt(size);
+ 83:     // Timestamp
+ 84:     this.byteBufferAppend.putInt(timestamp);
+ 85:     // Producer Group Hashcode
+ 86:     this.byteBufferAppend.putInt(groupHashCode);
+ 87:     // Transaction State
+ 88:     this.byteBufferAppend.putInt(MessageSysFlag.TransactionPreparedType);
+ 89: 
+ 90:     return mapedFile.appendMessage(this.byteBufferAppend.array());
+ 91: }
+ 92: 
+ 93: /**
+ 94:  * 更新事务状态
+ 95:  *
+ 96:  * @param tsOffset tranStateTable 物理位置
+ 97:  * @param clOffset commitLog 物理位置
+ 98:  * @param groupHashCode groupHashCode
+ 99:  * @param state 事务状态
+100:  * @return 是否成功
+101:  */
+102: public boolean updateTransactionState(
+103:         final long tsOffset,
+104:         final long clOffset,
+105:         final int groupHashCode,
+106:         final int state) {
+107:     SelectMapedBufferResult selectMapedBufferResult = this.findTransactionBuffer(tsOffset);
+108:     if (selectMapedBufferResult != null) {
+109:         try {
+110: 
+111:             // ....省略代码：校验是否能够更新
+112: 
+113:             // 更新事务状态
+114:             selectMapedBufferResult.getByteBuffer().putInt(TS_STATE_POS, state);
+115:         }
+116:         catch (Exception e) {
+117:             log.error("updateTransactionState exception", e);
+118:         }
+119:         finally {
+120:             selectMapedBufferResult.release();
+121:         }
+122:     }
+123: 
+124:     return false;
+125: }
+```
+
+#### 3.1.1.3 【事务消息】回查
+
+* `TranStateTable` 每个 `MappedFile` 都对应一个 `Timer`。`Timer` 固定周期（默认：60s）遍历 `MappedFile`，查找【half消息】，向 `Producer` 发起【事务消息】回查请求。【事务消息】回查结果的逻辑不在此处进行，在 
+
+实现代码如下：
+
+```Java
+  1: // 【TransactionStateService.java】
+  2: /**
+  3:  * 初始化定时任务
+  4:  */
+  5: private void initTimerTask() {
+  6:     //
+  7:     final List<MapedFile> mapedFiles = this.tranStateTable.getMapedFiles();
+  8:     for (MapedFile mf : mapedFiles) {
+  9:         this.addTimerTask(mf);
+ 10:     }
+ 11: }
+ 12: 
+ 13: /**
+ 14:  * 每个文件初始化定时任务
+ 15:  * @param mf 文件
+ 16:  */
+ 17: private void addTimerTask(final MapedFile mf) {
+ 18:     this.timer.scheduleAtFixedRate(new TimerTask() {
+ 19:         private final MapedFile mapedFile = mf;
+ 20:         private final TransactionCheckExecuter transactionCheckExecuter = TransactionStateService.this.defaultMessageStore.getTransactionCheckExecuter();
+ 21:         private final long checkTransactionMessageAtleastInterval = TransactionStateService.this.defaultMessageStore.getMessageStoreConfig()
+ 22:                     .getCheckTransactionMessageAtleastInterval();
+ 23:         private final boolean slave = TransactionStateService.this.defaultMessageStore.getMessageStoreConfig().getBrokerRole() == BrokerRole.SLAVE;
+ 24: 
+ 25:         @Override
+ 26:         public void run() {
+ 27:             // Slave不需要回查事务状态
+ 28:             if (slave) {
+ 29:                 return;
+ 30:             }
+ 31:             // Check功能是否开启
+ 32:             if (!TransactionStateService.this.defaultMessageStore.getMessageStoreConfig()
+ 33:                 .isCheckTransactionMessageEnable()) {
+ 34:                 return;
+ 35:             }
+ 36: 
+ 37:             try {
+ 38:                 SelectMapedBufferResult selectMapedBufferResult = mapedFile.selectMapedBuffer(0);
+ 39:                 if (selectMapedBufferResult != null) {
+ 40:                     long preparedMessageCountInThisMapedFile = 0; // 回查的【half消息】数量
+ 41:                     int i = 0;
+ 42:                     try {
+ 43:                         // 循环每条【事务消息】状态，对【half消息】进行回查
+ 44:                         for (; i < selectMapedBufferResult.getSize(); i += TSStoreUnitSize) {
+ 45:                             selectMapedBufferResult.getByteBuffer().position(i);
+ 46: 
+ 47:                             // Commit Log Offset
+ 48:                             long clOffset = selectMapedBufferResult.getByteBuffer().getLong();
+ 49:                             // Message Size
+ 50:                             int msgSize = selectMapedBufferResult.getByteBuffer().getInt();
+ 51:                             // Timestamp
+ 52:                             int timestamp = selectMapedBufferResult.getByteBuffer().getInt();
+ 53:                             // Producer Group Hashcode
+ 54:                             int groupHashCode = selectMapedBufferResult.getByteBuffer().getInt();
+ 55:                             // Transaction State
+ 56:                             int tranType = selectMapedBufferResult.getByteBuffer().getInt();
+ 57: 
+ 58:                             // 已经提交或者回滚的消息跳过
+ 59:                             if (tranType != MessageSysFlag.TransactionPreparedType) {
+ 60:                                 continue;
+ 61:                             }
+ 62: 
+ 63:                             // 遇到时间不符合最小轮询间隔，终止
+ 64:                             long timestampLong = timestamp * 1000;
+ 65:                             long diff = System.currentTimeMillis() - timestampLong;
+ 66:                             if (diff < checkTransactionMessageAtleastInterval) {
+ 67:                                 break;
+ 68:                             }
+ 69: 
+ 70:                             preparedMessageCountInThisMapedFile++;
+ 71: 
+ 72:                             // 回查Producer
+ 73:                             try {
+ 74:                                 this.transactionCheckExecuter.gotoCheck(groupHashCode, getTranStateOffset(i), clOffset, msgSize);
+ 75:                             } catch (Exception e) {
+ 76:                                 tranlog.warn("gotoCheck Exception", e);
+ 77:                             }
+ 78:                         }
+ 79: 
+ 80:                         // 无回查的【half消息】数量，且遍历完，则终止定时任务
+ 81:                         if (0 == preparedMessageCountInThisMapedFile //
+ 82:                                 && i == mapedFile.getFileSize()) {
+ 83:                             tranlog.info("remove the transaction timer task, because no prepared message in this mapedfile[{}]", mapedFile.getFileName());
+ 84:                             this.cancel();
+ 85:                         }
+ 86:                     } finally {
+ 87:                         selectMapedBufferResult.release();
+ 88:                     }
+ 89: 
+ 90:                     tranlog.info("the transaction timer task execute over in this period, {} Prepared Message: {} Check Progress: {}/{}", mapedFile.getFileName(),//
+ 91:                             preparedMessageCountInThisMapedFile, i / TSStoreUnitSize, mapedFile.getFileSize() / TSStoreUnitSize);
+ 92:                 } else if (mapedFile.isFull()) {
+ 93:                     tranlog.info("the mapedfile[{}] maybe deleted, cancel check transaction timer task", mapedFile.getFileName());
+ 94:                     this.cancel();
+ 95:                     return;
+ 96:                 }
+ 97:             } catch (Exception e) {
+ 98:                 log.error("check transaction timer task Exception", e);
+ 99:             }
+100:         }
+101: 
+102: 
+103:         private long getTranStateOffset(final long currentIndex) {
+104:             long offset = (this.mapedFile.getFileFromOffset() + currentIndex) / TransactionStateService.TSStoreUnitSize;
+105:             return offset;
+106:         }
+107:     }, 1000 * 60, this.defaultMessageStore.getMessageStoreConfig().getCheckTransactionMessageTimerInterval());
+108: }
+109: 
+110: // 【DefaultTransactionCheckExecuter.java】
+111: @Override
+112: public void gotoCheck(int producerGroupHashCode, long tranStateTableOffset, long commitLogOffset,
+113:         int msgSize) {
+114:     // 第一步、查询Producer
+115:     final ClientChannelInfo clientChannelInfo = this.brokerController.getProducerManager().pickProducerChannelRandomly(producerGroupHashCode);
+116:     if (null == clientChannelInfo) {
+117:         log.warn("check a producer transaction state, but not find any channel of this group[{}]", producerGroupHashCode);
+118:         return;
+119:     }
+120: 
+121:     // 第二步、查询消息
+122:     SelectMapedBufferResult selectMapedBufferResult = this.brokerController.getMessageStore().selectOneMessageByOffset(commitLogOffset, msgSize);
+123:     if (null == selectMapedBufferResult) {
+124:         log.warn("check a producer transaction state, but not find message by commitLogOffset: {}, msgSize: ", commitLogOffset, msgSize);
+125:         return;
+126:     }
+127: 
+128:     // 第三步、向Producer发起请求
+129:     final CheckTransactionStateRequestHeader requestHeader = new CheckTransactionStateRequestHeader();
+130:     requestHeader.setCommitLogOffset(commitLogOffset);
+131:     requestHeader.setTranStateTableOffset(tranStateTableOffset);
+132:     this.brokerController.getBroker2Client().checkProducerTransactionState(clientChannelInfo.getChannel(), requestHeader, selectMapedBufferResult);
+133: }
+```
+
+#### 3.1.1.4 初始化【事务消息】状态存储（TranStateTable）
 
 
 RocketMQ 这种实现事务方式，没有通过 KV 存储做，而是通过 Offset 方式，存在一个显著缺陷，即通过 Offset 更改数据，会令系统的脏页过多，需要特别关注。
