@@ -1,4 +1,4 @@
->  原文地址：[RocketMQ源码解析：定时消息与消息重试](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1010-RocketMQ源码解析：定时消息与消息重试.md)  
+>  原文地址：[RocketMQ源码解析：事务消息](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1011-RocketMQ源码解析：事务消息.md)  
 > `RocketMQ` **带注释**地址 ：[YunaiV/incubator-rocketmq](https://github.com/YunaiV/incubator-rocketmq)  
 > **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub。**  
 
@@ -174,7 +174,7 @@
 
 ## 2.2 Broker 处理结束事务请求
 
-* 查询请求的消息，进行**提交 / 回滚**。实现代码如下：
+* 🦅 查询请求的消息，进行**提交 / 回滚**。实现代码如下：
 
 ```Java
   1: // ⬇️⬇️⬇️【EndTransactionProcessor.java】
@@ -259,7 +259,7 @@
 
 ## 2.3 Broker 生成 ConsumeQueue
 
-* 事务消息，提交（`COMMIT`）后才生成 `ConsumeQueue`。
+* 🦅 事务消息，提交（`COMMIT`）后才生成 `ConsumeQueue`。
 
 ```Java
   1: // ⬇️⬇️⬇️【DefaultMessageStore.java】
@@ -284,10 +284,10 @@
 
 * 【事务消息回查】功能曾经开源过，目前（V4.0.0）暂未开源。如下是该功能的开源情况：
 
-| 版本 | 【事务消息回查】 |
-| --- | --- |
-| 官方V3.0.4 ~ V3.1.4 | 基于 文件系统 实现 |
-| 官方V3.1.5 ~ V4.0.0 | 基于 数据库 实现，未开源 |
+| 版本 | 【事务消息回查】 | |
+| --- | --- | --- |
+| 官方V3.0.4 ~ V3.1.4 | 基于 文件系统 实现 | 已开源 |
+| 官方V3.1.5 ~ V4.0.0 | 基于 数据库 实现 | 未完全开源 |
 
 我们来看看两种情况下是怎么实现的。
 
@@ -300,7 +300,7 @@
 相较于普通消息，【事务消息】多依赖如下三个组件：
 
 * **TransactionStateService** ：事务状态服务，负责对【事务消息】进行管理，包括存储与更新事务消息状态、回查事务消息状态等等。
-* **TranStateTable** ：【事务消息】状态存储。基于 `MappedFileQueue` 实现，默认存储路径为 `~/store/transaction/statetable`，每条事务状态存储结构如下：
+* **TranStateTable** ：【事务消息】状态存储。基于 `MappedFileQueue` 实现，默认存储路径为 `~/store/transaction/statetable`，每条【事务消息】状态存储结构如下：
 
 | 第几位 | 字段 | 说明 | 数据类型 | 字节数 |
 | :-- | :-- | :-- | :-- | :-- |
@@ -310,7 +310,7 @@
 | 4 | producerGroupHash | producerGroup 求 HashCode | Int | 4 |
 | 5 | state | 事务状态 | Int | 4 |
 
-* **TranRedoLog** ：`TranStateTable` 重放日志，每次**写**操作 `TranStateTable` 记录重放日志。当 `Broker` 异常关闭时，使用 `TranRedoLog` 恢复 `TranStateTable`。基于 `ConsumeQueue` 实现，`Topic` 为 `TRANSACTION_REDOLOG_TOPIC_XXXX`，默认存储路径为 `~/store/transaction/redolog`。
+* **TranRedoLog** ：`TranStateTable` 重放日志，每次**写操作** `TranStateTable` 记录重放日志。当 `Broker` 异常关闭时，使用 `TranRedoLog` 恢复 `TranStateTable`。基于 `ConsumeQueue` 实现，`Topic` 为 `TRANSACTION_REDOLOG_TOPIC_XXXX`，默认存储路径为 `~/store/transaction/redolog`。
 
 -------
 
@@ -320,7 +320,7 @@
 
 #### 3.1.1.1 存储消息到 CommitLog
 
-* 存储【half消息】到 `CommitLog` 时，消息队列位置（`queueOffset`）使用 `TranStateTable` 最大物理位置（可写入物理位置）。这样，消息可以索引到自己对应的 `TranStateTable` 的位置。
+* 🦅存储【half消息】到 `CommitLog` 时，消息队列位置（`queueOffset`）使用 `TranStateTable` 最大物理位置（可写入物理位置）。这样，消息可以索引到自己对应的 `TranStateTable` 的位置和记录。
 
 核心代码如下：
 
@@ -371,9 +371,9 @@
 
 #### 3.1.1.2 写【事务消息】状态存储（TranStateTable）
 
-* 处理【Half消息】时，新增【事务消息】状态存储（`TranStateTable`）。
-* 处理【事务Commit / Rollback消息】时，更新 【事务消息】状态存储（`TranStateTable`） COMMIT / ROLLBACK。
-* 每次**写**操作【事务消息】状态存储（`TranStateTable`），记录重放日志（`TranRedoLog`）。
+* 🦅处理【Half消息】时，新增【事务消息】状态存储（`TranStateTable`）。
+* 🦅处理【Commit / Rollback消息】时，更新 【事务消息】状态存储（`TranStateTable`） COMMIT / ROLLBACK。
+* 🦅每次**写操作【**事务消息】状态存储（`TranStateTable`），记录重放日志（`TranRedoLog`）。
 
 核心代码如下：
 
@@ -507,12 +507,12 @@
 
 #### 3.1.1.3 【事务消息】回查
 
-* `TranStateTable` 每个 `MappedFile` 都对应一个 `Timer`。`Timer` 固定周期（默认：60s）遍历 `MappedFile`，查找【half消息】，向 `Producer` 发起【事务消息】回查请求。【事务消息】回查结果的逻辑不在此处进行，在 [`CommitLog` dispatch](#3112-写事务消息状态存储transtatetable)时执行。
+* 🦅`TranStateTable` 每个 `MappedFile` 都对应一个 `Timer`。`Timer` 固定周期（默认：60s）遍历 `MappedFile`，查找【half消息】，向 `Producer` 发起【事务消息】回查请求。【事务消息】回查结果的逻辑不在此处进行，在 [CommitLog dispatch](#3112-写事务消息状态存储transtatetable)时执行。
 
 实现代码如下：
 
 ```Java
-  1: // 【TransactionStateService.java】
+  1: // ⬇️⬇️⬇️【TransactionStateService.java】
   2: /**
   3:  * 初始化定时任务
   4:  */
@@ -649,7 +649,7 @@
 
 #### 3.1.1.4 初始化【事务消息】状态存储（TranStateTable）
 
-* 根据最后 Broker 关闭是否正常，会有不同的初始化方式。
+* 🦅根据最后 Broker 关闭是否正常，会有不同的初始化方式。
 
 核心代码如下：
 
@@ -813,7 +813,9 @@
 
 > 仓库地址：https://github.com/apache/incubator-rocketmq
 
-官方V4.0.0 暂时未**完全**开源【事务消息回查】功能，So 我们需要进行一些猜想，可能不一定正确😈。我们来对比【官方V3.1.4：基于文件】的实现。
+官方V4.0.0 暂时未**完全**开源【事务消息回查】功能，**So 我们需要进行一些猜想，可能不一定正确😈**。
+
+😆我们来对比【官方V3.1.4：基于文件】的实现。
 
 * TransactionRecord ：记录每条【事务消息】。类似 `TranStateTable`。
 
