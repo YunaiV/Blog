@@ -1,3 +1,25 @@
+>  原文地址：[RocketMQ源码解析：定时消息与消息重试](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1010-RocketMQ源码解析：定时消息与消息重试.md)  
+> `RocketMQ` **带注释**地址 ：[YunaiV/incubator-rocketmq](https://github.com/YunaiV/incubator-rocketmq)  
+> **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub。**  
+
+-------
+
+- [1. 概述](#)
+- [2. 事务消息发送](#)
+	- [2.1 Producer 发送事务消息](#)
+	- [2.2 Broker 处理结束事务请求](#)
+	- [2.3 Broker 生成 ConsumeQueue](#)
+- [3. 事务消息回查](#)
+	- [3.1 Broker 发起【事务消息回查】](#)
+		- [3.1.1 官方V3.1.4：基于文件系统](#)
+			- [3.1.1.1 存储消息到 CommitLog](#)
+			- [3.1.1.2 写【事务消息】状态存储（TranStateTable）](#)
+			- [3.1.1.3 【事务消息】回查](#)
+			- [3.1.1.4 初始化【事务消息】状态存储（TranStateTable）](#)
+			- [3.1.1.5 补充](#)
+		- [3.1.2 官方V4.0.0：基于数据库](#)
+	- [3.2 Producer 接收【事务消息回查】](#)
+
 # 1. 概述
 
 **必须必须必须** 前置阅读内容：
