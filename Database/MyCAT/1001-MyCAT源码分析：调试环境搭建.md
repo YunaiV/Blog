@@ -1,5 +1,5 @@
 >  原文地址：[MyCAT源码分析：调试环境搭建](https://github.com/YunaiV/Blog/blob/master/Database/MyCAT/1001-MyCAT%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA.md)  
-> `RocketMQ` **带注释**地址 ：[YunaiV/incubator-rocketmq](https://github.com/YunaiV/incubator-rocketmq)  
+> `MyCat-Server` **带注释**地址 ：[https://github.com/YunaiV/Mycat-Server)  
 > **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub。**  
 
 -------
