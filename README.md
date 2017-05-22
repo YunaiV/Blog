@@ -1,7 +1,10 @@
 # Blog
 * 独立思考，有态度的工程师
 
+* Architecture
 
+  * [扯扯ID](https://github.com/YunaiV/Blog/blob/master/Architecture/0001-%E8%B0%88%E8%B0%88ID.md)
+  * [谈谈单元测试](https://github.com/YunaiV/Blog/blob/master/Architecture/0002-%E6%89%AF%E6%89%AF%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95.md)
 
 * RocketMQ
   * [RocketMQ源码解析：Message发送&接收](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1003-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E5%8F%91%E9%80%81%26%E6%8E%A5%E6%94%B6.md)
