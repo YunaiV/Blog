@@ -1,0 +1,158 @@
+>  原文地址：[1001-MyCAT源码分析：调试环境搭建](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1004-RocketMQ源码解析：Message存储.md)  
+> `RocketMQ` **带注释**地址 ：[YunaiV/incubator-rocketmq](https://github.com/YunaiV/incubator-rocketmq)  
+> **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub。**  
+
+-------
+
+
+
+# 1. 依赖工具
+
+* Maven
+* Git
+* JDK
+* MySQL
+* IntelliJ IDEA
+* Navicat
+
+# 2. 源码拉取
+
+从官方仓库 https://github.com/MyCATApache/Mycat-Server `Fork` 出属于自己的仓库。为什么要 `Fork` ？既然开始阅读、调试源码，我们可能会写一些注释，有了自己的仓库，可以进行自由的提交。😈
+
+使用 `IntelliJ IDEA` 从 `Fork` 出来的仓库拉取代码。拉取完成后，`Maven` 会下载依赖包，可能会花费一些事件，耐心等待下。
+
+# 3. 数据库配置
+
+我们要搭建的是**非分片表**的调试环境，需要创建一个数据库和表：
+
+1. 创建数据库：`db01` 。
+2. 创建数据库表：`travelrecord` 。
+
+```SQL
+CREATE TABLE `travelrecord` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin
+```
+
+# 4. MyCat 配置
+
+为了避免对实现源码产生影响，我们选择对 `test` 目录做变更。
+
+1、在 `resources` 目录下新建文件夹 `backups` ，将原 `resources` 下的所有文件移到 `backups` 下，这样我们的环境就干干净了。  
+2、在 `resources` 目录下新建 `schema.xml` 文件，配置 `MyCAT` 的逻辑库、表、数据节点、数据源。
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+
+    <schema name="dbtest" checkSQLschema="true" sqlMaxLimit="100">
+        <table name="travelrecord" dataNode="dn1" autoIncrement="true" primaryKey="id" />
+    </schema>
+
+	<dataNode name="dn1" dataHost="localhost1" database="db1" />
+
+	<dataHost name="localhost1" maxCon="1000" minCon="10" balance="0"
+			  writeType="0" dbType="mysql" dbDriver="native" switchType="1" slaveThreshold="100">
+		<heartbeat>select user()</heartbeat>
+		<writeHost host="hostM1" url="127.0.0.1:33061" user="root" password="123456"> <!-- ‼️‼️‼️ url、user、password 设置成你的数据库 -->
+		</writeHost>
+	</dataHost>
+
+</mycat:schema>
+```
+
+3、在 `resources` 目录下新建 `server.xml` 文件，配置 `MyCAT` 系统配置。
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mycat:server SYSTEM "server.dtd">
+<mycat:server xmlns:mycat="http://io.mycat/">
+	<system>
+        <property name="nonePasswordLogin">0</property> <!-- 0为需要密码登陆、1为不需要密码登陆 ,默认为0，设置为1则需要指定默认账户-->
+        <property name="useHandshakeV10">1</property>
+        <property name="useSqlStat">0</property>  <!-- 1为开启实时统计、0为关闭 -->
+        <property name="useGlobleTableCheck">0</property>  <!-- 1为开启全加班一致性检测、0为关闭 -->
+		<property name="sequnceHandlerType">2</property>
+		<property name="processorBufferPoolType">0</property>
+		<property name="handleDistributedTransactions">0</property>
+		<property name="useOffHeapForMerge">1</property>
+        <property name="memoryPageSize">64k</property>
+		<property name="spillsFileBufferSize">1k</property>
+		<property name="useStreamOutput">0</property>
+		<property name="systemReserveMemorySize">384m</property>
+		<property name="useZKSwitch">false</property>
+	</system>
+
+	<user name="root" defaultAccount="true">
+		<property name="password">123456</property>
+		<property name="schemas">dbtest</property>
+	</user>
+
+</mycat:server>
+```
+
+# 5. MyCAT 启动
+
+1、在 `java` 新建 `debugger` 包，和原先已存在的包做区分。
+2、在 `debbuger` 包下新建 `MycatStartupTest.java` ：
+
+```Java
+package debugger;
+
+import io.mycat.MycatStartup;
+
+/**
+ * {@link io.mycat.MycatStartup}测试
+ *
+ * Created by yunai on 2017/5/22.
+ */
+public class MycatStartupTest {
+
+    public static void main(String[] args) {
+        MycatStartup.main(args);
+    }
+
+}
+```
+
+3、运行 `MycatStartupTest.java` ，当看到输出日志 `MyCAT Server startup successfully. see logs in logs/mycat.log` 即为启动成功。
+
+截止目前，`test` 目录如下：
+
+![test目录.png](images/1001/test目录.png)
+
+# 6. MyCAT 测试
+
+调试环境已经搭建完成，我们看看是否正确。
+
+使用 `Navicat` 连接 `MyCAT`（使用 `MySQL` 客户端连接也是可以的）：
+
+* HOST ：127.0.0.1
+* PORT ：8066
+* USERNAME ：root
+* PASSWORD ：123456
+
+```SQL
+mysql> insert into travelrecord(name) values ('haha');
+Query OK, 1 rows affected (0.01 sec)
+
+mysql> select * from travelrecord;
++--------------------+------+
+| id                 | name |
++--------------------+------+
+| 866707181398003712 | haha |
++--------------------+------+
+1 rows in set (0.05 sec)
+```
+
+成功。😈😈😈
+
+# 7. 交流
+
+感谢阅读、收藏、关注。  
+**知其然知其所以然。学习 MyCat 会是一段很愉快的旅程。如果有你的交流，相信会更加愉快，欢迎添加微信：`wangwenbin-server` 进行交流。**
+
+
