@@ -1,10 +1,16 @@
->  原文地址：[1001-MyCAT源码分析：调试环境搭建](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1004-RocketMQ源码解析：Message存储.md)  
+>  原文地址：[MyCAT源码分析：调试环境搭建](https://github.com/YunaiV/Blog/blob/master/Database/MyCAT/1001-MyCAT%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA.md)  
 > `RocketMQ` **带注释**地址 ：[YunaiV/incubator-rocketmq](https://github.com/YunaiV/incubator-rocketmq)  
 > **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub。**  
 
 -------
 
-
+- [1. 依赖工具](#)
+- [2. 源码拉取](#)
+- [3. 数据库配置](#)
+- [4. MyCat 配置](#)
+- [5. MyCAT 启动](#)
+- [6. MyCAT 测试](#)
+- [7. 交流](#)
 
 # 1. 依赖工具
 
@@ -13,7 +19,6 @@
 * JDK
 * MySQL
 * IntelliJ IDEA
-* Navicat
 
 # 2. 源码拉取
 
@@ -36,7 +41,7 @@ CREATE TABLE `travelrecord` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin
 ```
 
-# 4. MyCat 配置
+# 4. MyCAT 配置
 
 为了避免对实现源码产生影响，我们选择对 `test` 目录做变更。
 
@@ -96,7 +101,7 @@ CREATE TABLE `travelrecord` (
 
 # 5. MyCAT 启动
 
-1、在 `java` 新建 `debugger` 包，和原先已存在的包做区分。
+1、在 `java` 目录下新建 `debugger` 包，和原先已存在的包做区分。  
 2、在 `debbuger` 包下新建 `MycatStartupTest.java` ：
 
 ```Java
@@ -128,7 +133,7 @@ public class MycatStartupTest {
 
 调试环境已经搭建完成，我们看看是否正确。
 
-使用 `Navicat` 连接 `MyCAT`（使用 `MySQL` 客户端连接也是可以的）：
+使用 `MySQL` 客户端连接 `MyCAT` ：
 
 * HOST ：127.0.0.1
 * PORT ：8066
@@ -153,6 +158,6 @@ mysql> select * from travelrecord;
 # 7. 交流
 
 感谢阅读、收藏、关注。  
-**知其然知其所以然。学习 MyCat 会是一段很愉快的旅程。如果有你的交流，相信会更加愉快，欢迎添加微信：`wangwenbin-server` 进行交流。**
+**知其然知其所以然。学习 MyCAT 会是一段很愉快的旅程。如果有你的交流，相信会更加愉快。欢迎添加微信：`wangwenbin-server` 进行探讨。**
 
 
