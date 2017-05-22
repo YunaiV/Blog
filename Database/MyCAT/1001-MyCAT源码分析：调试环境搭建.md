@@ -127,7 +127,7 @@ public class MycatStartupTest {
 
 截止目前，`test` 目录如下：
 
-![test目录.png](images/1001/test目录.png)
+![test目录.png](https://raw.githubusercontent.com/YunaiV/Blog/master/Database/MyCAT/images/1001/test目录.png)
 
 # 6. MyCAT 测试
 
