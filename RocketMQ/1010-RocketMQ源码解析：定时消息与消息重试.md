@@ -1,6 +1,6 @@
 >  原文地址：[RocketMQ源码解析：定时消息与消息重试](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1010-RocketMQ源码解析：定时消息与消息重试.md)  
 > `RocketMQ` **带注释**地址 ：[YunaiV/incubator-rocketmq](https://github.com/YunaiV/incubator-rocketmq)  
-> **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub。**  
+> **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub：https://github.com/YunaiV/Blog。**  
 
 -------
 
@@ -57,8 +57,11 @@
 | 15  | 20m |
 | 16  | 30m |
 | 17  | 1h  |
-| 18  | 2h  |* 核心源码如下：
-    ```Java
+| 18  | 2h  |
+
+* 核心源码如下：
+
+    ```Java
       1: // ⬇️⬇️⬇️【MessageStoreConfig.java】
       2: /**
       3:  * 消息延迟级别字符串配置

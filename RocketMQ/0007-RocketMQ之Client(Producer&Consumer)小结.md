@@ -1,6 +1,0 @@
-- [x] producer 发送消息
-- [x] broker 接收消息并持久化
-- [x] consumer 拉取消息
-- [ ] broker 提供拉取消息
-- [ ] consumer 消费消息并提交消费进度
-- [ ] broker 提供消息进度持久化

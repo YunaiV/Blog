@@ -1,6 +1,6 @@
 >  原文地址：[RocketMQ源码解析：事务消息](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1011-RocketMQ源码解析：事务消息.md)  
 > `RocketMQ` **带注释**地址 ：[YunaiV/incubator-rocketmq](https://github.com/YunaiV/incubator-rocketmq)  
-> **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub。**  
+> **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub：https://github.com/YunaiV/Blog。**  
 
 -------
 

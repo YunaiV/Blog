@@ -1,6 +1,6 @@
 >  原文地址：[RocketMQ源码解析：Filtersrv](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1008-RocketMQ源码解析：Filtersrv.md)  
 > `RocketMQ` **带注释**地址 ：[YunaiV/incubator-rocketmq](https://github.com/YunaiV/incubator-rocketmq)  
-> **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub。**  
+> **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub：https://github.com/YunaiV/Blog。**  
 
 -------
 
@@ -24,7 +24,10 @@
 为什么 `Broker` 不提供过滤消息的功能呢？我们来看看官方的说法：
 
 > * Broker 端消息过滤  
->  在 Broker 中，按照 Consumer 的要求做过滤，优点是减少了对于 Consumer 无用消息的网络传输。 缺点是增加了 Broker 的负担，实现相对复杂。  > (1). 淘宝 Notify 支持多种过滤方式，包含直接按照消息类型过滤，灵活的语法表达式过滤，几乎可以满足最苛刻的过滤需求。  > (2). 淘宝 RocketMQ 支持按照简单的 Message Tag 过滤，也支持按照 Message Header、body 进行过滤。  (3). CORBA Notification 规范中也支持灵活的语法表达式过滤。  
+>  在 Broker 中，按照 Consumer 的要求做过滤，优点是减少了对于 Consumer 无用消息的网络传输。 缺点是增加了 Broker 的负担，实现相对复杂。  
+> (1). 淘宝 Notify 支持多种过滤方式，包含直接按照消息类型过滤，灵活的语法表达式过滤，几乎可以满足最苛刻的过滤需求。  
+> (2). 淘宝 RocketMQ 支持按照简单的 Message Tag 过滤，也支持按照 Message Header、body 进行过滤。  
+(3). CORBA Notification 规范中也支持灵活的语法表达式过滤。  
 > * Consumer 端消息过滤  
 > 这种过滤方式可由应用完全自定义实现，但是缺点是很多无用的消息要传输到 Consumer 端。
 
