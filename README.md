@@ -1,12 +1,13 @@
 # Blog
 * 独立思考，有态度的工程师
+* **每周更新一篇，欢迎订阅、关注、收藏 GitHub：https://github.com/YunaiV/Blog**。
 
 * Architecture
 
   * [扯扯ID](https://github.com/YunaiV/Blog/blob/master/Architecture/0001-%E8%B0%88%E8%B0%88ID.md)
   * [谈谈单元测试](https://github.com/YunaiV/Blog/blob/master/Architecture/0002-%E6%89%AF%E6%89%AF%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95.md)
 
-* MyCAT
+* MyCAT（持续更新中...）
   * [1001-MyCAT源码分析：调试环境搭建](https://github.com/YunaiV/Blog/blob/master/Database/MyCAT/1001-MyCAT%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA.md)  
 
 * RocketMQ
