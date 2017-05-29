@@ -1,3 +1,15 @@
+>  原文地址：[MyCAT源码分析：【单库单表】插入](https://github.com/YunaiV/Blog/blob/master/Database/MyCAT/1003-MyCAT%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E3%80%90%E5%8D%95%E5%BA%93%E5%8D%95%E8%A1%A8%E3%80%91%E6%8F%92%E5%85%A5.md)  
+> `MyCat-Server` **带注释**地址 ：[https://github.com/YunaiV/Mycat-Server)  
+> **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub：https://github.com/YunaiV/Blog**  
+
+-------
+
+- [1. 概述](#)
+- [2. 接收请求，解析 SQL](#)
+- [3. 获得路由结果](#)
+- [4. 获得 MySQL 连接，执行 SQL](#)
+- [5. 响应执行 SQL 结果](#)
+
 # 1. 概述
 
 > 内容形态以 顺序图 + 核心代码 为主。  
@@ -5,7 +17,7 @@
 > 对于内容形态，非常纠结，如果有建议，特别特别特别欢迎您提出。  
 > 微信号：wangwenbin-server。
 
-本文讲解**【单库单表】插入**所涉及到的代码。交互如下图：
+本文讲解 【单库单表】插入 所涉及到的代码。交互如下图：
 
 ![单库单表插入简图](images/1003/单库单表插入简图.png)
 
@@ -392,7 +404,7 @@ insert into table (id, name) values (868348974560579584, 'name')
 
 处理 MySQL Server 响应数据包。
 
-##【 5 - 8 】
+## 【 5 - 8 】
 
 发送插入成功结果给 MySQL Client。
 
