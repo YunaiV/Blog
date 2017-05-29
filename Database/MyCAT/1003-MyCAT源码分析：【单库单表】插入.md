@@ -19,7 +19,7 @@
 
 本文讲解 【单库单表】插入 所涉及到的代码。交互如下图：
 
-![单库单表插入简图](images/1003/单库单表插入简图.png)
+![单库单表插入简图](https://raw.githubusercontent.com/YunaiV/Blog/master/Database/MyCAT/images/1003/单库单表插入简图.png)
 
 整个过程，MyCAT Server 流程如下：
 
@@ -32,7 +32,7 @@
 
 # 2. 接收请求，解析 SQL
 
-![【单库单表】插入（01主流程）](images/1003/【单库单表】插入（01主流程）.png)
+![【单库单表】插入（01主流程）](https://raw.githubusercontent.com/YunaiV/Blog/master/Database/MyCAT/images/1003/【单库单表】插入（01主流程）.png)
 
 ## 【 1 - 2 】
 
@@ -215,7 +215,7 @@
 
 # 3. 获得路由结果
 
-![【单库单表】插入（02获取路由）](images/1003/【单库单表】插入（02获取路由）.png)
+![【单库单表】插入（02获取路由）](https://raw.githubusercontent.com/YunaiV/Blog/master/Database/MyCAT/images/1003/【单库单表】插入（02获取路由）.png)
 
 ## 【 1 - 2 】【 12 】
 
@@ -383,7 +383,7 @@ insert into table (id, name) values (868348974560579584, 'name')
 
 # 4. 获得 MySQL 连接，执行 SQL
 
-![【单库单表】插入（03执行 SQL）](images/1003/【单库单表】插入（03执行 SQL）.png)
+![【单库单表】插入（03执行 SQL）](https://raw.githubusercontent.com/YunaiV/Blog/master/Database/MyCAT/images/1003/【单库单表】插入（03执行%20SQL）.png)
 
 ## 【 1 - 8 】
 
@@ -398,7 +398,7 @@ insert into table (id, name) values (868348974560579584, 'name')
 
 # 5. 响应执行 SQL 结果
 
-![【单库单表】插入（04执行响应）](images/1003/【单库单表】插入（04执行响应）.png)
+![【单库单表】插入（04执行响应）](https://raw.githubusercontent.com/YunaiV/Blog/master/Database/MyCAT/images/1003/【单库单表】插入（04执行响应）.png)
 
 ## 【 1 - 4 】
 
