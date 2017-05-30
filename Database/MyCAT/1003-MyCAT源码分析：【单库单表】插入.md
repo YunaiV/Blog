@@ -1,5 +1,5 @@
 >  原文地址：[MyCAT源码分析：【单库单表】插入](https://github.com/YunaiV/Blog/blob/master/Database/MyCAT/1003-MyCAT%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E3%80%90%E5%8D%95%E5%BA%93%E5%8D%95%E8%A1%A8%E3%80%91%E6%8F%92%E5%85%A5.md)  
-> `MyCat-Server` **带注释**地址 ：[https://github.com/YunaiV/Mycat-Server)  
+> `MyCat-Server` **带注释**地址 ：https://github.com/YunaiV/Mycat-Server  
 > **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub：https://github.com/YunaiV/Blog**  
 
 -------
