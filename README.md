@@ -5,7 +5,14 @@
 * 独立思考，有态度的工程师
 * 每周更新一篇，欢迎订阅、关注、收藏 GitHub：https://github.com/YunaiV/Blog。
 
-# 索引
+# 联系方式
+
+* QQ : 7685413
+* 微信 : wangwenbin-server
+* 掘金-Java交流群 : 217878901
+* 微信订阅号 : ![微信订阅号](http://ww2.sinaimg.cn/large/006HJ39wgy1fg3o14nfrnj3076076jru.jpg)
+
+# 文章索引
 
 * Architecture
 
@@ -16,6 +23,7 @@
   * 持续更新中....
   * [MyCAT源码分析：调试环境搭建](https://github.com/YunaiV/Blog/blob/master/Database/MyCAT/1001-MyCAT%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA.md)  
   * [MyCAT源码分析：【单库单表】插入](https://github.com/YunaiV/Blog/blob/master/Database/MyCAT/1003-MyCAT%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E3%80%90%E5%8D%95%E5%BA%93%E5%8D%95%E8%A1%A8%E3%80%91%E6%8F%92%E5%85%A5.md)  
+  * [MyCAT源码分析：【单库单表】查询](https://github.com/YunaiV/Blog/blob/master/Database/MyCAT/1004-MyCAT%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E3%80%90%E5%8D%95%E5%BA%93%E5%8D%95%E8%A1%A8%E3%80%91%E6%9F%A5%E8%AF%A2.md)  
 
 * 队列中间件 **RocketMQ**
   * [RocketMQ源码解析：Message发送&接收](https://github.com/YunaiV/Blog/blob/master/RocketMQ/1003-RocketMQ%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%9AMessage%E5%8F%91%E9%80%81%26%E6%8E%A5%E6%94%B6.md)
