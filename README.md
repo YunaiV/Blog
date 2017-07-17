@@ -10,7 +10,7 @@
 * QQ : 7685413
 * 微信 : wangwenbin-server
 * 掘金-Java交流群 : 217878901
-* 微信订阅号 : ![微信订阅号](http://ww2.sinaimg.cn/large/006HJ39wgy1fg3o14nfrnj3076076jru.jpg)
+* 微信订阅号 : ![微信订阅号](http://www.yunai.me/images/common/wechat_mp.jpeg)
 
 # 文章索引
 
