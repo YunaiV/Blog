@@ -1,8 +1,15 @@
->  原文地址：[MyCAT源码分析：调试环境搭建](https://github.com/YunaiV/Blog/blob/master/Database/MyCAT/1001-MyCAT%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA.md)  
-> `MyCat-Server` **带注释**地址 ：[https://github.com/YunaiV/Mycat-Server)  
-> **😈本系列每 1-2 周更新一篇，欢迎订阅、关注、收藏 GitHub：https://github.com/YunaiV/Blog。**  
+-------
+
+![](http://www.yunai.me/images/common/wechat_mp.jpeg)
+
+> 🙂🙂🙂关注**微信公众号：【芋艿的后端小屋】**有福利：  
+> 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
+> 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
+> 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
+> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。
 
 -------
+
 
 - [1. 依赖工具](#)
 - [2. 源码拉取](#)

@@ -1,18 +1,24 @@
 # 个人博客
 
-> 请点 **Star**，不要 **Fork**
+-------
 
-* 独立思考，有态度的工程师
-* 每周更新一篇，欢迎订阅、关注、收藏 GitHub：https://github.com/YunaiV/Blog。
+![](http://www.yunai.me/images/common/wechat_mp.jpeg)
+
+> 🙂🙂🙂关注**微信公众号：【芋艿的后端小屋】**有福利：  
+> 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
+> 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
+> 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
+> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。
+
+-------
 
 # 联系方式
 
 * QQ : 7685413
 * 微信 : wangwenbin-server
 * 掘金-Java交流群 : 217878901
-* 微信订阅号 : ![微信订阅号](http://ww2.sinaimg.cn/large/006HJ39wgy1fg3o14nfrnj3076076jru.jpg)
 
-# 文章索引
+# 文章索引(Blog 暂停更新，请关注微信公众号)
 
 * Architecture
 
