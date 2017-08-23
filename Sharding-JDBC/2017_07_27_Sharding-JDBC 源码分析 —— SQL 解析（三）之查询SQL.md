@@ -3,12 +3,13 @@ date: 2017-07-27
 tags:
 categories: Sharding-JDBC
 permalink: Sharding-JDBC/sql-parse-3
+keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 -------
 
 ![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
 
-> 🙂🙂🙂关注**微信公众号：【芋艿的后端小屋】**有福利：  
+> 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
 > 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
@@ -78,7 +79,7 @@ public final SelectStatement parse() {
 > 登记吧，骚年！[传送门](https://github.com/dangdangdotcom/sharding-jdbc/issues/234)**
 
 👼 查询语句解析是增删改查里面**最灵活也是最复杂的**，希望大家有耐心看完本文。理解查询语句解析，另外三种语句理解起来简直是 SO EASY。骗人是小狗🐶。  
-🙂如果对本文有不理解的地方，可以给我的公众号**（[芋艿的后端小屋](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)）**留言，我会**逐条认真耐心**回复。骗人是小猪🐷。
+🙂如果对本文有不理解的地方，可以给我的公众号**（[芋道源码](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)）**留言，我会**逐条认真耐心**回复。骗人是小猪🐷。
 
 OK，不废话啦，开始我们这段痛并快乐的旅途。
 
@@ -599,7 +600,7 @@ private void parseTableCondition(final int startPosition) {
 }
 ```
 
-OK，递归因为平时日常中写的比较少，可能理解起来可能会困难一些，努力看懂！🙂**如果真的看不懂，可以加微信公众号（[芋艿的后端小屋](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)），我来帮你一起理解。**
+OK，递归因为平时日常中写的比较少，可能理解起来可能会困难一些，努力看懂！🙂**如果真的看不懂，可以加微信公众号（[芋道源码](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)），我来帮你一起理解。**
 
 ### 3.4.2 子查询
 
@@ -1042,7 +1043,7 @@ public final class OrderByToken implements SQLToken {
 
 咳咳咳，确实有一些略长。但请相信，INSERT / UPDATE / DELETE 会简单很多很多。考试考的 SQL 最多的是什么？SELECT 语句呀！为啥，难呗。恩，我相信看到此处的你，一定是能看懂的，加油！
 
-🙂如果对本文有不理解的地方，可以关注我的公众号**（[芋艿的后端小屋](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)）**获得**微信号**，我们来一场，1 对 1 的搞基吧，不不不，是交流交流。
+🙂如果对本文有不理解的地方，可以关注我的公众号**（[芋道源码](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)）**获得**微信号**，我们来一场，1 对 1 的搞基吧，不不不，是交流交流。
 
 道友，帮我分享一波怎么样？
 

@@ -3,12 +3,13 @@ date: 2017-08-10
 tags:
 categories: Sharding-JDBC
 permalink: Sharding-JDBC/sql-rewrite
+keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL 改写,SQL 优化
 
 -------
 
 ![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
 
-> 🙂🙂🙂关注**微信公众号：【芋艿的后端小屋】**有福利：  
+> 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
 > 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
@@ -755,7 +756,7 @@ public String getBindingActualTable(final String dataSource, final String logicT
 
 哈哈哈，看完**SQL改写**后，**SQL解析**是不是清晰多了！嘿嘿嘿，反正我现在有点嗨。恩，蛮嗨的。
 
-当然，如果**SQL解析**理解上有点疑惑的你，**欢迎**加我的微信，咱 **1对1** 搞基。关注我的微信公众号：[【芋艿的后端小屋】](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg) 即可获得。
+当然，如果**SQL解析**理解上有点疑惑的你，**欢迎**加我的微信，咱 **1对1** 搞基。关注我的微信公众号：[【芋道源码】](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg) 即可获得。
 
 ![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
 

@@ -1,9 +1,9 @@
-title: Sharding-JDBC 源码分析 —— SQL 路由（三）之Spring与YAML配置
-date: 2017-08-08
+title: Sharding-JDBC 源码分析 —— SQL 解析（七）之DDL
+date: 2017-08-03
 tags:
 categories: Sharding-JDBC
-permalink: Sharding-JDBC/sql-route-3
-keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL 路由,路由,路由配置
+permalink: Sharding-JDBC/sql-parse-7
+keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 -------
 

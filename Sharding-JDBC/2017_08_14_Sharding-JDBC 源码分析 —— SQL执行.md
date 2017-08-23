@@ -3,12 +3,13 @@ date: 2017-08-14
 tags:
 categories: Sharding-JDBC
 permalink: Sharding-JDBC/sql-execute
+keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL 执行
 
 -------
 
 ![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
 
-> 🙂🙂🙂关注**微信公众号：【芋艿的后端小屋】**有福利：  
+> 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
 > 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
@@ -41,7 +42,7 @@ permalink: Sharding-JDBC/sql-execute
 
 ![](http://www.yunai.me/images/Sharding-JDBC/2017_08_14/01.png)
 
-本文主要分享**SQL 执行**的过程，不包括**结果聚合**。[《结果聚合》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg) **东半球第二良心笔者**会更新，关注微信公众号[【芋艿的后端小屋】](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)完稿后**第一时间**通知您哟。
+本文主要分享**SQL 执行**的过程，不包括**结果聚合**。[《结果聚合》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg) **东半球第二良心笔者**会更新，关注微信公众号[【芋道源码】](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)完稿后**第一时间**通知您哟。
 
 ![](http://www.yunai.me/images/Sharding-JDBC/2017_08_14/06.png)
 
@@ -268,7 +269,7 @@ private <T> ListenableFuture<List<T>> asyncExecute(
 
 ![](http://www.yunai.me/images/Sharding-JDBC/2017_08_14/03.gif)
 
-_😮 Guava 真她喵神器，公众号：[【芋艿的后端小屋】](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)会更新 Guava 源码分享的一个系列哟！老司机还不赶紧上车？_
+_😮 Guava 真她喵神器，公众号：[【芋道源码】](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)会更新 Guava 源码分享的一个系列哟！老司机还不赶紧上车？_
 
 * 为什么会分同步执行和异步执行呢？猜测，当**SQL 执行是单表时**，只要进行第一个任务的同步调用，性能更加优秀。等跟张亮大神请教确认原因后，咱会进行更新。
 
@@ -333,6 +334,13 @@ public interface ExecuteCallback<T> {
 ```
 
 * `synchronized (baseStatementUnit.getStatement().getConnection())` 原以为 Connection 非线程安全，因此需要用**同步**，后翻查资料[《数据库连接池为什么要建立多个连接》](http://blog.csdn.net/goldenfish1919/article/details/9089667)，Connection 是线程安全的。等跟张亮大神请教确认原因后，咱会进行更新。
+    * 解答：MySQL、Oracle 的 Connection 实现是线程安全的。数据库连接池实现的 Connection 不一定是线程安全，例如 Druid 的线程池 Connection 非线程安全
+
+    > FROM https://github.com/dangdangdotcom/sharding-jdbc/issues/166  
+    > druid的数据源的stat这种filter在并发使用同一个connection链接时没有考虑线程安全的问题，故造成多个线程修改filter中的状态异常。
+改造这个问题时，考虑到mysql驱动在执行statement时对同一个connection是线程安全的。也就是说同一个数据库链接的会话是串行执行的。故在sjdbc的executor对于多线程执行的情况也进行了针对数据库链接级别的同步。故该方案不会降低sjdbc的性能。
+同时jdk1.7版本的同步采用了锁升级技术，在碰撞较低的情况下开销也是很小的。
+      
 * ExecutionEvent 这里先不解释，在本文第四节【EventBus】分享。
 * ExecutorExceptionHandler、ExecutorDataMap 和 柔性事务 ( AbstractSoftTransaction )，放在[《柔性事务》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)分享。
 

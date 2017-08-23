@@ -3,12 +3,13 @@ date: 2017-07-26
 tags:
 categories: Sharding-JDBC
 permalink: Sharding-JDBC/sql-parse-2
+keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 -------
 
 ![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
 
-> 🙂🙂🙂关注**微信公众号：[【芋艿的后端小屋】](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)**有福利：  
+> 🙂🙂🙂关注**微信公众号：[【芋道源码】](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
 > 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
@@ -38,7 +39,7 @@ permalink: Sharding-JDBC/sql-parse-2
 
 # 1. 概述
 
-上篇文章[《词法解析》](http://www.yunai.me/Sharding-JDBC/sql-parse-1/)分享了**词法解析器Lexer**是如何解析 SQL 里的词法。本文分享**SQL解析引擎**是如何解析与理解 SQL的。因为本文建立在[《词法解析》](http://www.yunai.me/Sharding-JDBC/sql-parse-1/)之上，你需要阅读它后在开始这段旅程。🙂如果对词法解析不完全理解，请给我的公众号**（[芋艿的后端小屋](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)）**留言，我会**逐条认真耐心**回复。
+上篇文章[《词法解析》](http://www.yunai.me/Sharding-JDBC/sql-parse-1/)分享了**词法解析器Lexer**是如何解析 SQL 里的词法。本文分享**SQL解析引擎**是如何解析与理解 SQL的。因为本文建立在[《词法解析》](http://www.yunai.me/Sharding-JDBC/sql-parse-1/)之上，你需要阅读它后在开始这段旅程。🙂如果对词法解析不完全理解，请给我的公众号**（[芋道源码](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)）**留言，我会**逐条认真耐心**回复。
 
 区别于 Lexer，Parser **理解SQL**：
 
@@ -174,7 +175,7 @@ public final String skipParentheses() {
 }
 ```
 
-这个类其它方法很重要，逻辑相对简单，我们就不占用篇幅了。大家一定要看哟，后面调用非常非常多。[AbstractParser.java 传送门](https://github.com/dangdangdotcom/sharding-jdbc/blob/master/sharding-jdbc-core/src/main/java/com/dangdang/ddframe/rdb/sharding/parsing/parser/AbstractParser.java)。👼也可以关注我的公众号**（[芋艿的后端小屋](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)）**发送关键字【sjdbc】获取**增加方法内注释的项目地址**。
+这个类其它方法很重要，逻辑相对简单，我们就不占用篇幅了。大家一定要看哟，后面调用非常非常多。[AbstractParser.java 传送门](https://github.com/dangdangdotcom/sharding-jdbc/blob/master/sharding-jdbc-core/src/main/java/com/dangdang/ddframe/rdb/sharding/parsing/parser/AbstractParser.java)。👼也可以关注我的公众号**（[芋道源码](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)）**发送关键字【sjdbc】获取**增加方法内注释的项目地址**。
 
 ## 3.2 SQLParser
 
@@ -302,7 +303,7 @@ private void skipRestCompositeExpression() {
 }
 ```
 
-解析了 SQLExpression 有什么用呢？我们会在[《查询SQL解析》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)、[《插入SQL解析》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)、[《更新SQL解析》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)、[《删除SQL解析》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)。留个悬念😈，关注我的公众号**（[芋艿的后端小屋](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)）**，**实时收到新文更新通知**。
+解析了 SQLExpression 有什么用呢？我们会在[《查询SQL解析》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)、[《插入SQL解析》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)、[《更新SQL解析》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)、[《删除SQL解析》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)。留个悬念😈，关注我的公众号**（[芋道源码](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)）**，**实时收到新文更新通知**。
 
 ### 3.2.2 #parseAlias()
 
@@ -581,7 +582,7 @@ Statement 包含两部分信息：
 
 老铁，是不是有丢丢长？  
 如果有地方错误，烦请指出🙂。  
-如果有地方不是很理解，可以加我的公众号**（[芋艿的后端小屋](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)）**留言，我会**逐条认真耐心**回复。  
+如果有地方不是很理解，可以加我的公众号**（[芋道源码](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)）**留言，我会**逐条认真耐心**回复。  
 如果觉得还凑合，劳驾分享朋友圈或者基佬。
 
 [《查询SQL解析》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)已经写了一半，预计很快...

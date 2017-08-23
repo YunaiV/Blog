@@ -3,12 +3,13 @@ date: 2017-08-04
 tags:
 categories: Sharding-JDBC
 permalink: Sharding-JDBC/sql-route-1
+keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL 路由,路由,路由配置
 
 -------
 
 ![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
 
-> 🙂🙂🙂关注**微信公众号：【芋艿的后端小屋】**有福利：  
+> 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
 > 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
@@ -47,7 +48,7 @@ permalink: Sharding-JDBC/sql-route-1
 
 第一、二篇会在**近期**更新。第三篇会在[《SQL 改写》](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)、[《SQL 执行》](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)完成后进行更新。😈改写和执行相对有趣。
 
-👼道友，您看，逗比博主**“很有规划”**，是关注公众号一波[【芋艿的后端小屋】](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)还是分享朋友圈。
+👼道友，您看，逗比博主**“很有规划”**，是关注公众号一波[【芋道源码】](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)还是分享朋友圈。
 
 -------
 

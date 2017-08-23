@@ -8,7 +8,7 @@ permalink: Sharding-JDBC/why-read-Sharding-JDBC-source-code
 
 ![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
 
-> 🙂🙂🙂关注**微信公众号：【芋艿的后端小屋】**有福利：  
+> 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
 > 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
@@ -25,6 +25,14 @@ permalink: Sharding-JDBC/why-read-Sharding-JDBC-source-code
 3. 文档更加完善，开发体系更加健全。
 4. Sharding-JDBC 1.5.0.M3 发布。
 5. **最大努力送达型**事务支持，想要进一步了解分布式事务的解决方案。Last But Very Importment。
+
+## 使用公司
+
+1. 京东 ( FROM 民间 )
+1. 唯品会 ( FROM 民间 )
+1. 转转 ( FROM https://github.com/dangdangdotcom/sharding-jdbc/issues/234 )
+1. 足记 ( FROM https://github.com/dangdangdotcom/sharding-jdbc/issues/234 )
+1. **不定义更新** ( FROM https://github.com/dangdangdotcom/sharding-jdbc/issues/234 )
 
 ## 步骤
 
@@ -74,3 +82,5 @@ permalink: Sharding-JDBC/why-read-Sharding-JDBC-source-code
     
 * [ ] 分布式事务 ：最大努力送达型事务
 * [ ] 分布式事务 ：TCC型事务(TBD)
+
+
