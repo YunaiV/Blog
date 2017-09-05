@@ -1,7 +1,7 @@
 title: Elastic-Job 源码分析 —— 为什么阅读 Elastic-Job 源码？
 date: 2017-09-01
 tags:
-categories: Elastic-Job
+categories: Elastic-Job-Lite
 permalink: Elastic-Job/why-read-Elastic-Job-source-code
 
 -------
@@ -30,21 +30,21 @@ permalink: Elastic-Job/why-read-Elastic-Job-source-code
 
 ## 步骤/功能
 
-* [ ] 分布式调度协调
-* [ ] 弹性扩容缩容
-* [ ] 失效转移
+* [x] 分布式调度协调
+* [x] 弹性扩容缩容
+* [x] 失效转移
 * [x] 错过执行作业重触发
-* [ ] 作业分片策略
-* [ ] 作业唯一节点执行
-* [ ] 自诊断并修复分布式不稳定造成的问题
+* [x] 作业分片策略
+* [x] 作业唯一节点执行
+* [x] 自诊断并修复分布式不稳定造成的问题
 * [x] 支持并行调度
-* [ ] 支持作业生命周期操作
-* [ ] 丰富的作业类型
+* [x] 支持作业生命周期操作
+* [x] 丰富的作业类型
 * [ ] Spring整合以及命名空间提供
-* [ ] 运维平台
-* [ ] 事件追踪
-* [ ] DUMP 作业运行信息
-* [ ] 作业监听器
+* [x] 运维平台
+* [x] 事件追踪
+* [x] DUMP 作业运行信息
+* [x] 作业监听器
 * [ ] 基于 Docker 的进程隔离（TBD）
 * [x] 高可用
 

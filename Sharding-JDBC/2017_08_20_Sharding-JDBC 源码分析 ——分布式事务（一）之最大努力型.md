@@ -760,7 +760,7 @@ for (TransactionLog transactionLog : transactionLogs) {
 
 当然，个人还是很推荐 Elastic-Job。  
 
-😈 **笔者要开始写[《Elastic-Job 源码分析》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)**。
+😈 **笔者要开始写[《Elastic-Job 源码分析》](http://www.yunai.me/categories/Elastic-Job//?self)**。
 
 -------
 
@@ -782,6 +782,6 @@ for (TransactionLog transactionLog : transactionLogs) {
 
 满足！
 
-[《Elastic-Job 源码分析》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg) 走起！不 High 不结束！
+[《Elastic-Job 源码分析》](http://www.yunai.me/categories/Elastic-Job//?self) 走起！不 High 不结束！
 
 

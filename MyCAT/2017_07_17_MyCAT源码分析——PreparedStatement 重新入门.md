@@ -8,7 +8,7 @@ permalink: MyCAT/what-is-PreparedStatement
 
 ![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
 
-> 🙂🙂🙂关注**微信公众号：【芋艿的后端小屋】**有福利：  
+> 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
 > 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
@@ -336,7 +336,7 @@ public void recachePreparedStatement(ServerPreparedStatement pstmt) throws SQLEx
 
 为什么要这么实现？`PreparedStatement` 是有状态的变量，我们会去 `setXXX(pos, value)`，一旦多线程共享，会导致错乱。
 
-🗿 这个“彩蛋”还满意么？**请关注我的公众号：芋艿的后端小屋**。下一篇更新：《MyCAT源码解析 —— MongoDB》，极大可能就在本周噢。
+🗿 这个“彩蛋”还满意么？**请关注我的公众号：芋道源码**。下一篇更新：《MyCAT源码解析 —— MongoDB》，极大可能就在本周噢。
 
 ![wechat_mp](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
 

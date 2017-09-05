@@ -1,7 +1,7 @@
 title: Elastic-Job-Lite 源码分析 —— 作业初始化
 date: 2017-09-16
 tags:
-categories: Elastic-Job
+categories: Elastic-Job-Lite
 permalink: Elastic-Job/job-init
 
 -------
@@ -198,7 +198,7 @@ public class JobScheduler {
     ```
     * `jobInstanceId` 格式：`${IP}@-@${PID}`。其中 `PID` 为进程编号。同一个 Elastic-Job-Lite 实例，**不同**的作业使用**相同**的作业实例主键。
     
-* 设置作业监听器，在[《Elastic-Job-Lite 源码解析 —— 作业监听器》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细分享。
+* 设置作业监听器，在[《Elastic-Job-Lite 源码解析 —— 作业监听器》](http://www.yunai.me/Elastic-Job/job-listener/?self)详细分享。
 * SchedulerFacade，为**调度器**提供内部服务的门面类。
 
     ```Java
@@ -496,7 +496,7 @@ public void registerStartUpInfo(final boolean enabled) {
 ```
 
 * 开启所有监听器。每个功能模块都有其相应的监听器，在[模块对应「文章」](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细分享。
-* 选举主节点，在[《Elastic-Job-Lite 源码解析 —— 主从选举》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细分享。
+* 选举主节点，在[《Elastic-Job-Lite 源码解析 —— 主节点选举》](http://www.yunai.me/Elastic-Job/election/?self)详细分享。
 * 调用 `ServerService#persistOnline()` 方法，持久化作业服务器上线信息。
 
     ```Java
@@ -513,7 +513,7 @@ public void registerStartUpInfo(final boolean enabled) {
         }
     }
     ```
-    * 当作业配置设置作业**禁用**时( `LiteJobConfiguration.disabled = true` )，作业调度但**调度作业分片为空**。不太好理解？[《Elastic-Job-Lite 源码解析 —— 作业分片策略》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细分享。
+    * 当作业配置设置作业**禁用**时( `LiteJobConfiguration.disabled = true` )，作业调度但**调度作业分片为空**。不太好理解？[《Elastic-Job-Lite 源码解析 —— 作业分片》](http://www.yunai.me/Elastic-Job/job-sharding/?self)详细分享。
 
 * 调用 `InstanceService#persistOnline()` 方法，持久化作业运行实例上线相关信息：
 
@@ -528,9 +528,9 @@ public void registerStartUpInfo(final boolean enabled) {
     }
     ```
 
-* 设置需要重新分片的标记，在[《Elastic-Job-Lite 源码解析 —— 作业分片策略》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细分享。
-* 初始化作业监听服务，在[《Elastic-Job-Lite 源码解析 —— 作业监控服务》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细分享。
-* 初始化调解作业不一致状态服务，在[《Elastic-Job-Lite 源码解析 —— 作业不一致修复》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细分享。
+* 设置需要重新分片的标记，在[《Elastic-Job-Lite 源码解析 —— 作业分片》](http://www.yunai.me/Elastic-Job/job-sharding/?self)详细分享。
+* 初始化作业监听服务，在[《Elastic-Job-Lite 源码解析 —— 作业监控服务》](http://www.yunai.me/Elastic-Job/job-monitor/?self)详细分享。
+* 初始化调解作业不一致状态服务，在[《Elastic-Job-Lite 源码解析 —— 自诊断修复》](http://www.yunai.me/Elastic-Job/reconcile/?self)详细分享。
 
 ### 3.2.5 调度作业
 

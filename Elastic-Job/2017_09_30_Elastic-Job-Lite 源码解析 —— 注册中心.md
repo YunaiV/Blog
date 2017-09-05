@@ -1,7 +1,7 @@
 title: Elastic-Job-Lite 源码分析 —— 注册中心
 date: 2017-09-30
 tags:
-categories: Elastic-Job
+categories: Elastic-Job-Lite
 permalink: Elastic-Job/reg-center-zookeeper
 
 -------
@@ -426,7 +426,7 @@ public void executeInLeader(Lock lock) {
 }
 ```
 
-[《官方文档 —— LeaderLatch》](https://github.com/Netflix/curator/wiki/Leader-Latch)，有兴趣的同学可以看看。在[《Elastic-Job-Lite 源码解析 —— 主节点选举》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)中，我们会看到 `#executeInLeader(...)` 的使用。
+[《官方文档 —— LeaderLatch》](https://github.com/Netflix/curator/wiki/Leader-Latch)，有兴趣的同学可以看看。在[《Elastic-Job-Lite 源码解析 —— 主节点选举》](http://www.yunai.me/Elastic-Job/election/?self)中，我们会看到 `#executeInLeader(...)` 的使用。
 
 另一种分布式锁实现，[《官方文档 —— LeaderElection》](https://github.com/Netflix/curator/wiki/Leader-Election)，有兴趣也可以看看。在 Elastic-Job-Cloud 中使用到了，后续进行解析。
 

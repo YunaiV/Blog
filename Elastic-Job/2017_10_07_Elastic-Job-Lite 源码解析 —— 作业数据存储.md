@@ -1,7 +1,7 @@
 title: Elastic-Job-Lite 源码分析 —— 作业数据存储
 date: 2017-10-07
 tags:
-categories: Elastic-Job
+categories: Elastic-Job-Lite
 permalink: Elastic-Job/job-storage
 
 -------
@@ -19,6 +19,17 @@ permalink: Elastic-Job/job-storage
 - [9. FailoverNode](#9-failovernode)
 - [10. GuaranteeNode](#10-guaranteenode)
 - [666. 彩蛋](#666-%E5%BD%A9%E8%9B%8B)
+
+-------
+
+![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+
+> 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
+> 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
+> 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
+> 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
+> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。  
+> 5. **认真的**源码交流微信群。
 
 -------
 
@@ -219,7 +230,7 @@ ShardingNode，分片节点路径。
 ```
 
 * `/sharding/${ITEM_ID}` 目录下以作业分片项序号( `ITEM_ID` ) 为数据节点路径存储作业分片项的 `instance` / `running` / `misfire` / `disable` **数据节点**信息。
-* `/sharding/${ITEM_ID}/instance` 是**临时**节点，存储该作业分片项**分配到的作业实例主键**( `JOB_INSTANCE_ID` )。在[《Elastic-Job-Lite 源码分析 —— 作业分片策略》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细解析。
+* `/sharding/${ITEM_ID}/instance` 是**临时**节点，存储该作业分片项**分配到的作业实例主键**( `JOB_INSTANCE_ID` )。在[《Elastic-Job-Lite 源码分析 —— 作业分片》](http://www.yunai.me/Elastic-Job/job-sharding/?self)详细解析。
 * `/sharding/${ITEM_ID}/running` 是**临时**节点，当该作业分片项**正在运行**，存储空串( `""` )；当该作业分片项**不在运行**，移除该数据节点。[《Elastic-Job-Lite 源码分析 —— 作业执行》的「4.6」执行普通触发的作业](http://www.yunai.me/Elastic-Job/job-init/?self)已经详细解析。
 * `/sharding/${ITEM_ID}/misfire` 是**永久节点**，当该作业分片项**被错过执行**，存储空串( `""` )；当该作业分片项重新执行，移除该数据节点。[《Elastic-Job-Lite 源码分析 —— 作业执行》的「4.7」执行被错过触发的作业](http://www.yunai.me/Elastic-Job/job-init/?self)已经详细解析。
 * `/sharding/${ITEM_ID}/disable` 是**永久节点**，当该作业分片项**被禁用**，存储空串( `""` )；当该作业分片项**被开启**，移除数据节点。
@@ -295,7 +306,7 @@ LeaderNode，主节点路径。
 
 * `/leader/sharding/necessary` 是**永久节点**，当**相同作业**有新的作业节点加入或者移除时，存储空串( `""` )，标记需要进行作业分片项重新分配；当重新分配完成后，移除该数据节点。
 * `/leader/sharding/processing` 是**临时节点**，当开始重新分配作业分片项时，存储空串( `""` )，标记正在进行重新分配；当重新分配完成后，移除该数据节点。
-* 当且仅当作业节点为主节点时，才可以执行作业分片项分配，[《Elastic-Job-Lite 源码分析 —— 作业分片策略》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细解析。
+* 当且仅当作业节点为主节点时，才可以执行作业分片项分配，[《Elastic-Job-Lite 源码分析 —— 作业分片》](http://www.yunai.me/Elastic-Job/job-sharding/?self)详细解析。
 
 **作业失效转移**
 
@@ -337,7 +348,7 @@ FailoverNode，失效转移节点路径。
 ```
 
 * `/leader/failover/latch` 作业失效转移分布式锁，和 `/leader/failover/latch` 是一致的。
-* `/leader/items/${ITEM_ID}` 是**永久节点**，当某台作业节点 CRASH 时，其分配的作业分片项标记需要进行失效转移，存储其分配的作业分片项的 `/leader/items/${ITEM_ID}` 为空串( `""` )；当失效转移标记，移除 `/leader/items/${ITEM_ID}`，存储 `/sharding/${ITEM_ID}/failover` 为空串( `""` )，**临时**节点，需要进行失效转移执行。[《Elastic-Job-Lite 源码分析 —— 作业失效转移》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细解析。
+* `/leader/items/${ITEM_ID}` 是**永久节点**，当某台作业节点 CRASH 时，其分配的作业分片项标记需要进行失效转移，存储其分配的作业分片项的 `/leader/items/${ITEM_ID}` 为空串( `""` )；当失效转移标记，移除 `/leader/items/${ITEM_ID}`，存储 `/sharding/${ITEM_ID}/failover` 为空串( `""` )，**临时**节点，需要进行失效转移执行。[《Elastic-Job-Lite 源码分析 —— 作业失效转移》](http://www.yunai.me/Elastic-Job/job-failover/?self)详细解析。
 
 FailoverNode 代码如下：
 
@@ -368,7 +379,7 @@ public final class FailoverNode {
 
 # 10. GuaranteeNode
 
-GuaranteeNode，保证分布式任务全部开始和结束状态节点路径。在[《Elastic-Job-Lite 源码分析 —— 保证分布式任务全部开始和结束状态》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细解析。
+GuaranteeNode，保证分布式任务全部开始和结束状态节点路径。在[《Elastic-Job-Lite 源码分析 —— 作业监听器》](http://www.yunai.me/Elastic-Job/job-listener/?self)详细解析。
 
 # 666. 彩蛋
 
@@ -376,4 +387,6 @@ GuaranteeNode，保证分布式任务全部开始和结束状态节点路径。�
 芋道君：屁屁屁，劳资怼死你！如下是作业数据存储整理，哼哼哈兮！
 
 ![](http://www.yunai.me/images/Elastic-Job/2017_10_07/02.png)
+
+道友，赶紧上车，分享一波朋友圈！
 

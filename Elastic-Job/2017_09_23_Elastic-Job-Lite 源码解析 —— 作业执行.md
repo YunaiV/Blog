@@ -1,7 +1,7 @@
 title: Elastic-Job-Lite 源码分析 —— 作业执行
 date: 2017-09-23
 tags:
-categories: Elastic-Job
+categories: Elastic-Job-Lite
 permalink: Elastic-Job/job-execute
 
 -------
@@ -456,11 +456,11 @@ public void checkJobExecutionEnvironment() throws JobExecutionEnvironmentExcepti
 
 ## 4.2 获取当前作业服务器的分片上下文
 
-调用 `LiteJobFacade#getShardingContexts()` 方法获取当前作业服务器的分片上下文。通过这个方法，作业获得**其所分配执行的分片项**，在[《Elastic-Job-Lite 源码解析 —— 作业分片策略》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细分享。
+调用 `LiteJobFacade#getShardingContexts()` 方法获取当前作业服务器的分片上下文。通过这个方法，作业获得**其所分配执行的分片项**，在[《Elastic-Job-Lite 源码解析 —— 作业分片》](http://www.yunai.me/Elastic-Job/job-sharding/?self)详细分享。
 
 ## 4.3 发布作业状态追踪事件
 
-调用 `LiteJobFacade#postJobStatusTraceEvent()` 方法发布作业状态追踪事件，在[《Elastic-Job-Lite 源码解析 —— 作业事件与追踪》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细分享。
+调用 `LiteJobFacade#postJobStatusTraceEvent()` 方法发布作业状态追踪事件，在[《Elastic-Job-Lite 源码解析 —— 作业事件追踪》](http://www.yunai.me/Elastic-Job/job-event-trace/?self)详细分享。
 
 ## 4.4 跳过正在运行中的被错过执行的作业
 
@@ -478,7 +478,7 @@ public void beforeJobExecuted(final ShardingContexts shardingContexts) {
 }
 ```
 
-* 调用作业监听器执行作业**执行前**的方法，在[《Elastic-Job-Lite 源码解析 —— 作业监听器》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细分享。
+* 调用作业监听器执行作业**执行前**的方法，在[《Elastic-Job-Lite 源码解析 —— 作业监听器》](http://www.yunai.me/Elastic-Job/job-listener/?self)详细分享。
 
 ## 4.6 执行普通触发的作业
 
@@ -522,7 +522,7 @@ private void process(final ShardingContexts shardingContexts, final int item, fi
 protected abstract void process(ShardingContext shardingContext);
 ```
 
-ps：**作业事件**相关逻辑，先统一跳过，在[《Elastic-Job-Lite 源码解析 —— 作业事件与追踪》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细分享。
+ps：**作业事件**相关逻辑，先统一跳过，在[《Elastic-Job-Lite 源码解析 —— 作业事件追踪》](http://www.yunai.me/Elastic-Job/job-event-trace/?self)详细分享。
 
 -------
 
@@ -638,7 +638,7 @@ private void execute(final ShardingContexts shardingContexts, final JobExecution
     ```
     * 仅当作业配置设置**监控作业运行时状态**( `LiteJobConfiguration.monitorExecution = true` )，移除作业运行状态。
     * 调用 `JobNodeStorage#removeJobNodeIfExisted(...)` 方法**移除分配的作业分片项**正在运行中的标记，表示作业分片项不在运行中状态。
-    * 调用 `FailoverService#updateFailoverComplete(...)` 方法更新执行完毕失效转移的分片项状态，在[《Elastic-Job-Lite 源码解析 —— 作业失效转移》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细分享。
+    * 调用 `FailoverService#updateFailoverComplete(...)` 方法更新执行完毕失效转移的分片项状态，在[《Elastic-Job-Lite 源码解析 —— 作业失效转移》](http://www.yunai.me/Elastic-Job/job-failover/?self)详细分享。
 
 -------
 
@@ -1024,7 +1024,7 @@ public void failoverIfNecessary() {
 }
 ```
 
-* 调用作业失效转移服务( FailoverService )执行作业失效转移( `#failoverIfNecessary()` )，在[《Elastic-Job-Lite 源码解析 —— 作业失效转移》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细分享。
+* 调用作业失效转移服务( FailoverService )执行作业失效转移( `#failoverIfNecessary()` )，在[《Elastic-Job-Lite 源码解析 —— 作业失效转移》](http://www.yunai.me/Elastic-Job/job-failover/?self)详细分享。
 
 ## 4.9 执行作业执行后的方法
 
@@ -1038,7 +1038,7 @@ public void afterJobExecuted(final ShardingContexts shardingContexts) {
 }
 ```
 
-* 调用作业监听器执行作业**执行后**的方法，在[《Elastic-Job-Lite 源码解析 —— 作业监听器》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)详细分享。
+* 调用作业监听器执行作业**执行后**的方法，在[《Elastic-Job-Lite 源码解析 —— 作业监听器》](http://www.yunai.me/Elastic-Job/job-listener/?self)详细分享。
 
 # 666. 彩蛋
 
@@ -1046,7 +1046,7 @@ public void afterJobExecuted(final ShardingContexts shardingContexts) {
 
 下面会更新如下两篇文章，为后续的主节点选举、失效转移、作业分片策略等文章做铺垫：
 
-* [《Elastic-Job-Lite 源码解析 —— 注册中心》](http://www.yunai.me/images/common/wechat_mp_2017_07_31_bak.jpg)
+* [《Elastic-Job-Lite 源码解析 —— 注册中心》](http://www.yunai.me/Elastic-Job/reg-center-zookeeper/?self)
 * [《Elastic-Job-Lite 源码解析 —— 作业数据存储》](http://www.yunai.me/Elastic-Job/job-storage/?self)
 
 道友，赶紧上车，分享一波朋友圈！
