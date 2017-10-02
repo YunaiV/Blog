@@ -16,7 +16,7 @@ permalink: Elastic-Job/job-sharding
 
 -------
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -31,9 +31,9 @@ permalink: Elastic-Job/job-sharding
 
 本文主要分享 **Elastic-Job-Lite 作业分片**。
 
-涉及到主要类的类图如下( [打开大图](http://www.yunai.me/images/Elastic-Job/2017_10_31/01.png) )：
+涉及到主要类的类图如下( [打开大图](http://www.iocoder.cn/images/Elastic-Job/2017_10_31/01.png) )：
 
-![](http://www.yunai.me/images/Elastic-Job/2017_10_31/01.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_10_31/01.png)
 
 * 粉色的类在 `com.dangdang.ddframe.job.lite.internal.sharding` 包下，实现了 Elastic-Job-Lite 作业分片。
 * ShardingService，作业分片服务。
@@ -171,15 +171,15 @@ class ListenServersChangedJobListener extends AbstractJobListener {
 * 第一种，`#isServerChange(...)` 服务器被开启或禁用。
 * 第二种，`#isInstanceChange(...)` 作业节点新增或者移除。
 
-**第四种**，在[《Elastic-Job-Lite 源码解析 —— 自诊断修复》](http://www.yunai.me/Elastic-Job/reconcile/?self)详细分享。
+**第四种**，在[《Elastic-Job-Lite 源码解析 —— 自诊断修复》](http://www.iocoder.cn/Elastic-Job/reconcile/?self)详细分享。
 
 # 3. 分配作业分片项
 
 调用 `ShardingService#shardingIfNecessary()` 方法，如果需要分片且当前节点为主节点, 则作业分片。
 
-总体流程如下**顺序图**：( [打开大图](http://www.yunai.me/images/Elastic-Job/2017_10_31/02.png) )：
+总体流程如下**顺序图**：( [打开大图](http://www.iocoder.cn/images/Elastic-Job/2017_10_31/02.png) )：
 
-![](http://www.yunai.me/images/Elastic-Job/2017_10_31/02.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_10_31/02.png)
 
 实现代码如下：
 
@@ -223,7 +223,7 @@ public void shardingIfNecessary() {
 * 调用 `LeaderService#isLeaderUntilBlock()` 方法判断是否为**主节点**。作业分片项的分配过程：
     * 【主节点】**执行**作业分片项分配。
     * 【非主节点】**等待**作业分片项分配完成。
-    * `LeaderService#isLeaderUntilBlock()` 方法在[《Elastic-Job-Lite 源码分析 —— 主节点选举》「3. 选举主节点」](http://www.yunai.me/Elastic-Job/election/?self)有详细分享。
+    * `LeaderService#isLeaderUntilBlock()` 方法在[《Elastic-Job-Lite 源码分析 —— 主节点选举》「3. 选举主节点」](http://www.iocoder.cn/Elastic-Job/election/?self)有详细分享。
 * 调用 `#blockUntilShardingCompleted()` 方法【非主节点】**等待**作业分片项分配完成。
 
     ```Java
@@ -239,7 +239,7 @@ public void shardingIfNecessary() {
     * 调用 `#LeaderService#isLeaderUntilBlock()` 方法判断是否为**主节点**。为什么上面判断了一次，这里又判断一次？主节点作业分片项分配过程中，不排除自己挂掉了，此时【非主节点】若选举成主节点，无需继续等待，当然也不能等待，因为已经没节点在执行作业分片项分配，所有节点都会卡在这里。
     * 当 **作业需要重分片的标记**、**作业正在重分片的标记** 都不存在时，意味着作业分片项分配已经完成，下文 PersistShardingInfoTransactionExecutionCallback 类里我们会看到。
 
-* 调用 `#waitingOtherJobCompleted()` 方法等待作业未在运行中状态。作业是否在运行中需要 `LiteJobConfiguration.monitorExecution = true`，[《Elastic-Job-Lite 源码分析 —— 作业执行》「4.6 执行普通触发的作业」](http://www.yunai.me/Elastic-Job/election/?self)有详细分享。
+* 调用 `#waitingOtherJobCompleted()` 方法等待作业未在运行中状态。作业是否在运行中需要 `LiteJobConfiguration.monitorExecution = true`，[《Elastic-Job-Lite 源码分析 —— 作业执行》「4.6 执行普通触发的作业」](http://www.iocoder.cn/Elastic-Job/election/?self)有详细分享。
 * 调用 `ConfigurationService#load(...)` 方法从注册中心获取作业配置( **非缓存** )，避免主节点本地作业配置可能非最新的，主要目的是获得作业分片总数( `shardingTotalCount` )。
 * 调用 `jobNodeStorage.fillEphemeralJobNode(ShardingNode.PROCESSING, "")` 设置**作业正在重分片的标记** `/${JOB_NAME}/leader/sharding/processing`。该 Zookeeper 数据节点是**临时**节点，存储空串( `""` )，仅用于标记作业正在重分片，无特别业务逻辑。
 * 调用 `#resetShardingInfo(...)` 方法**重置**作业分片信息。
@@ -261,7 +261,7 @@ public void shardingIfNecessary() {
     }
     ```
 
-* 调用 `JobShardingStrategy#sharding(...)` 方法**计算**每个节点分配的作业分片项。[《Elastic-Job-Lite 源码分析 —— 作业分片策略》](http://www.yunai.me/Elastic-Job/job-sharding-strategy/?self)有详细分享。
+* 调用 `JobShardingStrategy#sharding(...)` 方法**计算**每个节点分配的作业分片项。[《Elastic-Job-Lite 源码分析 —— 作业分片策略》](http://www.iocoder.cn/Elastic-Job/job-sharding-strategy/?self)有详细分享。
 * 调用 `JobNodeStorage#executeInTransaction(...)` + `PersistShardingInfoTransactionExecutionCallback#execute()` 方法实现在**事务**中**设置**每个节点分配的作业分片项。
 
     ```Java
@@ -313,15 +313,15 @@ public void shardingIfNecessary() {
     192.168.3.2@-@31492
     ```
 
-**作业分片项分配整体流程有点长，耐着心看，毕竟是核心代码哟。如果中间有任何疑问，欢迎给我公众号：[芋道源码](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg) 留言。**
+**作业分片项分配整体流程有点长，耐着心看，毕竟是核心代码哟。如果中间有任何疑问，欢迎给我公众号：[芋道源码](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) 留言。**
 
 # 4. 获取作业分片上下文集合
 
-在[《Elastic-Job-Lite 源码分析 —— 作业执行的》「4.2 获取当前作业服务器的分片上下文」](http://www.yunai.me/Elastic-Job/job-execute/?self)中，我们可以看到作业执行器( AbstractElasticJobExecutor ) 执行作业时，会获取当前作业服务器的分片上下文进行执行。获取过程总体如下顺序图( [打开大图](http://www.yunai.me/images/Elastic-Job/2017_10_31/03.png) )：
+在[《Elastic-Job-Lite 源码分析 —— 作业执行的》「4.2 获取当前作业服务器的分片上下文」](http://www.iocoder.cn/Elastic-Job/job-execute/?self)中，我们可以看到作业执行器( AbstractElasticJobExecutor ) 执行作业时，会获取当前作业服务器的分片上下文进行执行。获取过程总体如下顺序图( [打开大图](http://www.iocoder.cn/images/Elastic-Job/2017_10_31/03.png) )：
 
-![](http://www.yunai.me/images/Elastic-Job/2017_10_31/03.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_10_31/03.png)
 
-* 橘色叉叉在[《Elastic-Job-Lite 源码解析 —— 作业失效转移》](http://www.yunai.me/Elastic-Job/job-failover/?self)有详细分享。
+* 橘色叉叉在[《Elastic-Job-Lite 源码解析 —— 作业失效转移》](http://www.iocoder.cn/Elastic-Job/job-failover/?self)有详细分享。
 
 实现代码如下：
 
@@ -463,7 +463,7 @@ public ShardingContexts getJobShardingContext(final List<Integer> shardingItems)
     ```
 
 * 使用 ShardingItemParameters 解析作业分片参数。例如作业分片参数( `JobCoreConfiguration.shardingItemParameters="0=Beijing,1=Shanghai,2=Guangzhou"` ) 解析结果：
-    ![](http://www.yunai.me/images/Elastic-Job/2017_10_31/04.png)
+    ![](http://www.iocoder.cn/images/Elastic-Job/2017_10_31/04.png)
     * ShardingItemParameters 代码清晰易懂，点击[链接](https://github.com/dangdangdotcom/elastic-job/blob/fd45d3799565f69c6b604db83f78629d8c9a70cd/elastic-job-common/elastic-job-common-core/src/main/java/com/dangdang/ddframe/job/util/config/ShardingItemParameters.java)直接查看。
 
 * 调用 `#buildTaskId(...)` 方法，创建作业任务ID( `ShardingContexts.taskId` )：
@@ -539,7 +539,7 @@ public ShardingContexts getJobShardingContext(final List<Integer> shardingItems)
 旁白君：小伙伴，更新了干货嘛，双击 666。  
 芋道君：那必须的嘛，而且这么勤快更新！是不是应该分享一波朋友圈。
 
-![](http://www.yunai.me/images/Elastic-Job/2017_10_31/05.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_10_31/05.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

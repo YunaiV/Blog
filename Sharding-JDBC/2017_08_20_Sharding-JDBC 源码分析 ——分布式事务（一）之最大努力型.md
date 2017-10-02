@@ -7,7 +7,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,JDBC,事务,分布式�
 
 -------
 
-![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -55,7 +55,7 @@ Sharding-JDBC 提供了两种 **柔性事务**：
 * 最大努力送达型 BED ：已经实现
 * 事务补偿型 TCC ：计划中
 
-**本文分享 最大努力送达型 的实现**。建议前置阅读：[《Sharding-JDBC 源码分析 —— SQL 执行》](http://www.yunai.me/Sharding-JDBC/sql-execute/?self)。
+**本文分享 最大努力送达型 的实现**。建议前置阅读：[《Sharding-JDBC 源码分析 —— SQL 执行》](http://www.iocoder.cn/Sharding-JDBC/sql-execute/?self)。
 
 > **Sharding-JDBC 正在收集使用公司名单：[传送门](https://github.com/dangdangdotcom/sharding-jdbc/issues/234)。  
 > 🙂 你的登记，会让更多人参与和使用 Sharding-JDBC。[传送门](https://github.com/dangdangdotcom/sharding-jdbc/issues/234)  
@@ -72,7 +72,7 @@ Sharding-JDBC 提供了两种 **柔性事务**：
 
 **架构图**
 
-> ![](http://www.yunai.me/images/Sharding-JDBC/2017_08_20/01.jpeg)
+> ![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_20/01.jpeg)
 
 执行过程有 **四种** 情况：
 
@@ -83,7 +83,7 @@ Sharding-JDBC 提供了两种 **柔性事务**：
 
 整体成漏斗倒三角，上一个阶段失败，交给下一个阶段重试：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_20/02.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_20/02.png)
 
 整个过程通过如下 **组件** 完成：
 
@@ -288,7 +288,7 @@ public class BEDSoftTransaction extends AbstractSoftTransaction {
 
 **TCCSoftTransaction**
 
-TCCSoftTransaction，TCC 型柔性事务，暂未实现。实现后，会更新到 [《Sharding-JDBC 源码分析 —— 分布式事务（二）之事务补偿型》](http://www.yunai.me/Sharding-JDBC/transaction-tcc/?self)。
+TCCSoftTransaction，TCC 型柔性事务，暂未实现。实现后，会更新到 [《Sharding-JDBC 源码分析 —— 分布式事务（二）之事务补偿型》](http://www.iocoder.cn/Sharding-JDBC/transaction-tcc/?self)。
 
 -------
 
@@ -598,7 +598,7 @@ public void listen(final DMLExecutionEvent event) {
 }
 ```
 
-* BestEffortsDeliveryListener 通过 EventBus 实现监听 SQL 的执行。Sharding-JDBC 如何实现 EventBus 的，请看[《Sharding-JDBC 源码分析 —— SQL 执行》](http://www.yunai.me/Sharding-JDBC/sql-execute/?self)
+* BestEffortsDeliveryListener 通过 EventBus 实现监听 SQL 的执行。Sharding-JDBC 如何实现 EventBus 的，请看[《Sharding-JDBC 源码分析 —— SQL 执行》](http://www.iocoder.cn/Sharding-JDBC/sql-execute/?self)
 * 调用 `#isProcessContinuously()` 方法判断是否处于**最大努力送达型事务**中，当且仅当处于该状态才进行监听事件处理
 * SQL 执行**前**，插入事务日志
 * SQL 执行**成功**，移除事务日志
@@ -760,7 +760,7 @@ for (TransactionLog transactionLog : transactionLogs) {
 
 当然，个人还是很推荐 Elastic-Job。  
 
-😈 **笔者要开始写[《Elastic-Job 源码分析》](http://www.yunai.me/categories/Elastic-Job//?self)**。
+😈 **笔者要开始写[《Elastic-Job 源码分析》](http://www.iocoder.cn/categories/Elastic-Job//?self)**。
 
 -------
 
@@ -782,6 +782,6 @@ for (TransactionLog transactionLog : transactionLogs) {
 
 满足！
 
-[《Elastic-Job 源码分析》](http://www.yunai.me/categories/Elastic-Job//?self) 走起！不 High 不结束！
+[《Elastic-Job 源码分析》](http://www.iocoder.cn/categories/Elastic-Job//?self) 走起！不 High 不结束！
 
 

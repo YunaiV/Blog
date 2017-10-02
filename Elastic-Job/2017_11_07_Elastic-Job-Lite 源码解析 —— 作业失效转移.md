@@ -6,7 +6,7 @@ permalink: Elastic-Job/job-failover
 
 -------
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -42,9 +42,9 @@ permalink: Elastic-Job/job-failover
 
 这样看概念可能还是比较难理解，代码搞起来！
 
-涉及到主要类的类图如下( [打开大图](http://www.yunai.me/images/Elastic-Job/2017_11_07/01.png) )：
+涉及到主要类的类图如下( [打开大图](http://www.iocoder.cn/images/Elastic-Job/2017_11_07/01.png) )：
 
-![](http://www.yunai.me/images/Elastic-Job/2017_11_07/01.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_11_07/01.png)
 
 * 粉色的类在 `com.dangdang.ddframe.job.lite.internal.failover` 包下，实现了 Elastic-Job-Lite 作业失效转移。
 * FailoverService，作业失效转移服务。
@@ -155,7 +155,7 @@ public void failoverIfNecessary() {
     
         > 失效转移： 运行中的作业服务器崩溃不会导致重新分片，只会在下次作业启动时分片。启用失效转移功能可以在本次作业执行过程中，监测其他作业服务器【空闲】，抓取未完成的孤儿分片项执行
 
-* 调用 `JobNodeStorage#executeInLeader(...)` 方法，使用 `FailoverNode.LATCH`( `/${JOB_NAME}/leader/failover/latch` ) 路径构成的**分布式锁**，保证 FailoverLeaderExecutionCallback 的回调方法同一时间，即使多个作业节点调用，有且仅有一个作业节点进行执行。另外，虽然 `JobNodeStorage#executeInLeader(...)` 方法上带有 `Leader` 关键字，实际非必须在主节点的操作，任何一个拿到**分布式锁**的作业节点都可以调用。目前和**分布式锁**相关的逻辑，在 Elastic-Job-Lite 里，都会调用 `JobNodeStorage#executeInLeader(...)` 方法，数据都存储在 `/leader/` 节点目录下。关于**分布式锁**相关的，在[《Elastic-Job-Lite 源码分析 —— 注册中心》「3.1 在主节点执行操作」](http://www.yunai.me/Elastic-Job/reg-center-zookeeper/?self)有详细分享。
+* 调用 `JobNodeStorage#executeInLeader(...)` 方法，使用 `FailoverNode.LATCH`( `/${JOB_NAME}/leader/failover/latch` ) 路径构成的**分布式锁**，保证 FailoverLeaderExecutionCallback 的回调方法同一时间，即使多个作业节点调用，有且仅有一个作业节点进行执行。另外，虽然 `JobNodeStorage#executeInLeader(...)` 方法上带有 `Leader` 关键字，实际非必须在主节点的操作，任何一个拿到**分布式锁**的作业节点都可以调用。目前和**分布式锁**相关的逻辑，在 Elastic-Job-Lite 里，都会调用 `JobNodeStorage#executeInLeader(...)` 方法，数据都存储在 `/leader/` 节点目录下。关于**分布式锁**相关的，在[《Elastic-Job-Lite 源码分析 —— 注册中心》「3.1 在主节点执行操作」](http://www.iocoder.cn/Elastic-Job/reg-center-zookeeper/?self)有详细分享。
 
 -------
 
@@ -246,17 +246,19 @@ public void failoverIfNecessary() {
 
 让我们在翻回 JobCrashedJobListener 处代码，为什么获取失效转移的作业分片项是这样的优先顺序？一个作业节点拥有 `${JOB_NAME}/sharding/${ITEM_ID}/failover` 数据分片项，意味着分配给它的作业分片项已经执行完成，否则怎么回调 FailoverLeaderExecutionCallback 方法，抓取失效转移的作业分片项呢？！
 
-![](http://www.yunai.me/images/Elastic-Job/2017_11_07/02.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_11_07/02.png)
 
 旁白君：双击666，关注笔者公众号一波。
 
+此处 `JobFacade#failoverIfNecessary()` 方法，只会抓取一个失效转移的作业分片，这样带来的好处是，多个作业分片可以一起承担执行失效转移的分片集合。举个例子：一个作业集群有 A / B / C 三个节点，分成六个作业分片，如果 C 节点挂了，A / B 节点分担 C 节点的两个分片。但是，也可能会存在失效转移的分片被**漏**执行。举个例子：一个作业集群有 A / B / C 三个节点，分成九个作业分片，如果 C 节点挂了，A / B 节点分担 C 节点的两个分片，有一个被漏掉，只能等下次作业分片才能执行。未来这块算法会进行优化。
+
 # 4. 获取作业分片上下文集合
 
-在[《Elastic-Job-Lite 源码分析 —— 作业执行》「4.2 获取当前作业服务器的分片上下文」](http://www.yunai.me/Elastic-Job/job-execute/?self)中，我们可以看到作业执行器( AbstractElasticJobExecutor ) 执行作业时，会获取当前作业服务器的分片上下文进行执行。获取过程总体如下顺序图( [打开大图](http://www.yunai.me/images/Elastic-Job/2017_11_07/03.png) )：
+在[《Elastic-Job-Lite 源码分析 —— 作业执行》「4.2 获取当前作业服务器的分片上下文」](http://www.iocoder.cn/Elastic-Job/job-execute/?self)中，我们可以看到作业执行器( AbstractElasticJobExecutor ) 执行作业时，会获取当前作业服务器的分片上下文进行执行。获取过程总体如下顺序图( [打开大图](http://www.iocoder.cn/images/Elastic-Job/2017_11_07/03.png) )：
 
-![](http://www.yunai.me/images/Elastic-Job/2017_11_07/03.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_11_07/03.png)
 
-* 红色叉叉在[《Elastic-Job-Lite 源码解析 —— 作业分片》](http://www.yunai.me/Elastic-Job/job-sharding/?self)有详细分享。
+* 红色叉叉在[《Elastic-Job-Lite 源码解析 —— 作业分片》](http://www.iocoder.cn/Elastic-Job/job-sharding/?self)有详细分享。
 
 实现代码如下：
 
@@ -300,7 +302,7 @@ public ShardingContexts getShardingContexts() {
     }
     ```
 
-* 调用 `ExecutionContextService#getJobShardingContext()` 方法，获取当前作业服务器分片上下文。在[《Elastic-Job-Lite 源码解析 —— 作业分片》「4. 获取作业分片上下文集合」](http://www.yunai.me/Elastic-Job/job-sharding/?self)有详细解析。
+* 调用 `ExecutionContextService#getJobShardingContext()` 方法，获取当前作业服务器分片上下文。在[《Elastic-Job-Lite 源码解析 —— 作业分片》「4. 获取作业分片上下文集合」](http://www.iocoder.cn/Elastic-Job/job-sharding/?self)有详细解析。
 * 当本作业节点不存在抓取的失效转移分片项，则获得分配给本作业分解的作业分片项。此时你会看到略奇怪的方法调用，`shardingItems.removeAll(failoverService.getLocalTakeOffItems())`。为什么呢？举个例子，作业节点A持有作业分片项[0, 1]，此时异常断网，导致[0, 1]被作业节点B失效转移抓取，此时若作业节点A恢复，作业分片项[0, 1]依然属于作业节点A，但是可能已经在作业节点B执行，因此需要进行移除，避免多节点运行相同的作业分片项。`FailoverService#getLocalTakeOffItems()` 方法实现代码如下：
 
     ```Java
@@ -342,7 +344,7 @@ class FailoverSettingsChangedJobListener extends AbstractJobListener {
 旁白君：啊啊啊，有点绕。  
 芋道君：耐心，耐心，耐心。
 
-![](http://www.yunai.me/images/Elastic-Job/2017_11_07/04.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_11_07/04.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

@@ -6,7 +6,7 @@ permalink: RocketMQ/message-store
 
 -------
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -33,14 +33,14 @@ permalink: RocketMQ/message-store
 
 # 1、概述
 
-本文接[《RocketMQ 源码分析 —— Message 发送与接收》](http://www.yunai.me/RocketMQ/message-send-and-receive/)。
+本文接[《RocketMQ 源码分析 —— Message 发送与接收》](http://www.iocoder.cn/RocketMQ/message-send-and-receive/)。
 主要解析 `CommitLog` 存储消息部分。
 
 # 2、CommitLog 结构
 
 `CommitLog`、`MappedFileQueue`、`MappedFile` 的关系如下：
 
-> ![CommitLog、MappedFileQueue、MappedFile的关系](http://www.yunai.me/images/RocketMQ/2017_04_23/02.png)
+> ![CommitLog、MappedFileQueue、MappedFile的关系](http://www.iocoder.cn/images/RocketMQ/2017_04_23/02.png)
 `CommitLog` : `MappedFileQueue` : `MappedFile` = 1 : 1 : N。
 
 反应到系统文件如下：
@@ -108,7 +108,7 @@ total 10485760
 
 # 3、CommitLog 存储消息
 
-> ![Broker存储发送消息顺序图](http://www.yunai.me/images/RocketMQ/2017_04_23/01.png)
+> ![Broker存储发送消息顺序图](http://www.iocoder.cn/images/RocketMQ/2017_04_23/01.png)
 
 ## CommitLog#putMessage(...)
 
@@ -600,7 +600,7 @@ total 10485760
 |   |   | 计算方式 | 长度 | |
 | --- | --- | --- | --- |  --- |
 | offsetMsgId | Broker存储时生成 | Hex(storeHostBytes, wroteOffset) | 32 |
-| msgId | Client发送消息时生成 | Hex(进程编号, IP, ClassLoader, startTime, currentTime, 自增序列) | 32 | [《RocketMQ 源码分析 —— Message 基础》](http://www.yunai.me/RocketMQ/message/) |
+| msgId | Client发送消息时生成 | Hex(进程编号, IP, ClassLoader, startTime, currentTime, 自增序列) | 32 | [《RocketMQ 源码分析 —— Message 基础》](http://www.iocoder.cn/RocketMQ/message/) |
 
 * 第 51 至 61 行 ：获取队列位置(offset)。
 * 第 78 至 95 行 ：计算消息总长度。
@@ -610,7 +610,7 @@ total 10485760
 
 ## FlushCommitLogService
 
-![FlushCommitLogService类图](http://www.yunai.me/images/RocketMQ/2017_04_23/03.png)
+![FlushCommitLogService类图](http://www.iocoder.cn/images/RocketMQ/2017_04_23/03.png)
 
 | 线程服务 | 场景 | 插入消息性能 |
 | --- | --- | --- |
@@ -626,7 +626,7 @@ total 10485760
 | 方式一 | 写入内存字节缓冲区(writeBuffer) | 从内存字节缓冲区(write buffer)提交(commit)到文件通道(fileChannel) | 文件通道(fileChannel)flush |
 | 方式二 |  | 写入映射文件字节缓冲区(mappedByteBuffer) | 映射文件字节缓冲区(mappedByteBuffer)flush  |
 
-![MappedFile的position迁移图](http://www.yunai.me/images/RocketMQ/2017_04_23/04.jpeg)
+![MappedFile的position迁移图](http://www.iocoder.cn/images/RocketMQ/2017_04_23/04.jpeg)
 
 **flush相关代码**
 
@@ -1082,6 +1082,6 @@ total 10485760
 
 再次感谢大家的阅读、点赞、收藏。
 
-下一篇：[《RocketMQ 源码分析 —— Message 拉取与消费》](http://www.yunai.me/RocketMQ/message-pull-and-consume-first/) 起航！
+下一篇：[《RocketMQ 源码分析 —— Message 拉取与消费》](http://www.iocoder.cn/RocketMQ/message-pull-and-consume-first/) 起航！
 
 

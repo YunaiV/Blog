@@ -34,7 +34,7 @@ permalink: Elastic-Job/cloud-job-scheduler-and-executor-first
 
 -------
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -49,20 +49,20 @@ permalink: Elastic-Job/cloud-job-scheduler-and-executor-first
 
 本文主要分享 **Elastic-Job-Cloud 调度主流程**。对应到 Elastic-Job-Lite 源码解析文章如下：
 
-* [《Elastic-Job-Lite 源码分析 —— 作业初始化》](http://www.yunai.me/Elastic-Job/job-init/?self)
-* [《Elastic-Job-Lite 源码分析 —— 作业执行》](http://www.yunai.me/Elastic-Job/job-execute/?self)
-* [《Elastic-Job-Lite 源码分析 —— 作业分片》](http://www.yunai.me/Elastic-Job/job-sharding/)
+* [《Elastic-Job-Lite 源码分析 —— 作业初始化》](http://www.iocoder.cn/Elastic-Job/job-init/?self)
+* [《Elastic-Job-Lite 源码分析 —— 作业执行》](http://www.iocoder.cn/Elastic-Job/job-execute/?self)
+* [《Elastic-Job-Lite 源码分析 —— 作业分片》](http://www.iocoder.cn/Elastic-Job/job-sharding/)
 
 如果你阅读过以下文章，有助于对本文的理解：
 
 * [《基于Mesos的当当作业云Elastic Job Cloud》](http://www.infoq.com/cn/news/2016/09/Mesos-Elastic-Job-Cloud)
 * [《由浅入深 | 如何优雅地写一个Mesos Framework》](https://segmentfault.com/a/1190000007723430)
 
-😈 另外，笔者假设你已经对 **[《Elastic-Job-Lite 源码分析系列》](http://www.yunai.me/categories/Elastic-Job/?self)** 有一定的了解。
+😈 另外，笔者假设你已经对 **[《Elastic-Job-Lite 源码分析系列》](http://www.iocoder.cn/categories/Elastic-Job/?self)** 有一定的了解。
 
-本文涉及到主体类的类图如下( [打开大图](http://www.yunai.me/images/Elastic-Job/2017_12_21/01.png) )：
+本文涉及到主体类的类图如下( [打开大图](http://www.iocoder.cn/images/Elastic-Job/2017_12_21/01.png) )：
 
-![](http://www.yunai.me/images/Elastic-Job/2017_12_21/01.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_12_21/01.png)
 
 > 你行好事会因为得到赞赏而愉悦  
 > 同理，开源项目贡献者会因为 Star 而更加有动力  
@@ -80,7 +80,7 @@ Elastic-Job-Cloud 由两个项目组成：
 * Elastic-Job-Cloud-Scheduler，实现调度器，实现类为 `com.dangdang.ddframe.job.cloud.scheduler.mesos.SchedulerEngine`。
 * Elastic-Job-Cloud-Executor，实现执行器，实现类为 `com.dangdang.ddframe.job.cloud.executor.TaskExecutor`。
 
-![](http://www.yunai.me/images/Elastic-Job/2017_12_21/11.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_12_21/11.png)
 
 本文略微**“啰嗦”**，请保持**耐心**。搭配[《用Mesos框架构建分布式应用》](http://product.dangdang.com/24187450.html)一起阅读，理解难度降低 99%。OK，开始我们的 Cloud 之旅。
 
@@ -102,13 +102,13 @@ Elastic-Job-Cloud 不同于 Elastic-Job-Lite 去中心化执行调度，转变�
 
 常驻作业、瞬时作业在调度中会略有不同，大体**粗略**流程如下：
 
-![](http://www.yunai.me/images/Elastic-Job/2017_12_21/02.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_12_21/02.png)
 
 下面，我们针对每个过程一节一节解析。
 
 # 3. Producer 发布任务
 
-在上文[《Elastic-Job-Cloud 源码分析 —— 作业配置》的「3.1.1 操作云作业配置」](http://www.yunai.me/Elastic-Job/cloud-job-config/?self)可以看到添加云作业配置后，Elastic-Job-Cloud-Scheduler 会执行**作业调度**，实现代码如下：
+在上文[《Elastic-Job-Cloud 源码分析 —— 作业配置》的「3.1.1 操作云作业配置」](http://www.iocoder.cn/Elastic-Job/cloud-job-config/?self)可以看到添加云作业配置后，Elastic-Job-Cloud-Scheduler 会执行**作业调度**，实现代码如下：
 
 ```Java
 // ProducerManager.java
@@ -176,7 +176,7 @@ final class ReadyNode {
     ```
 * 在运维平台，我们可以看到待执行作业队列：
     
-    ![](http://www.yunai.me/images/Elastic-Job/2017_12_21/10.png)    
+    ![](http://www.iocoder.cn/images/Elastic-Job/2017_12_21/10.png)    
     
 * 从官方的 RoadMap 来看，**待执行作业队列**未来会使用 Redis 存储以提高性能。
 
@@ -368,7 +368,7 @@ public static final class ProducerJob implements Job {
     }
     ```
     * **添加瞬时作业到待执行作业队列** 和 **添加常驻作业到待执行作业队列**基本是一致的。
-    * TODO :misfire
+    * 当作业配置允许 `misfire`，则不断累积作业可执行次数。
 
 ## 3.3 小结
 
@@ -400,7 +400,7 @@ public final class TaskLaunchScheduledService extends AbstractScheduledService {
 }
 ```
 
-* 每 10 秒执行提交任务( `#runOneIteration()` )。对 Guava AbstractScheduledService 不了解的同学，可以阅读完本文后 Google 下。
+* 每 10 秒执行提交任务( `#runOneIteration()` )。对 Guava AbstractScheduledService 不了解的同学，可以阅读完本文后 Google 下。因为是通过每 10 秒轮询的方式提交任务，所以**瞬时作业**的执行时间不是非常严格，存在略有延迟，这个实际在使用需要注意的。那**常驻作业**呢，看完本文，你就会知道答案。
 
 `#runOneIteration()` 方法相对比较复杂，我们一块一块拆解，**耐心**理解。实现代码如下：
 
@@ -484,7 +484,7 @@ List<TaskRequest> taskRequests = launchingTasks.getPendingTasks();
        return result;
     }
     ```
-    * 调用 `FailoverService#getAllEligibleJobContexts()` 方法，从**失效转移队列**中获取所有有资格执行的作业上下文。**TaskLaunchScheduledService 提交的任务还可能来自失效转移队列**。本文暂时不解析失效转移队列相关实现，避免增加复杂度影响大家的理解，在[《Elastic-Job-Cloud 源码分析 —— 作业失效转移》](http://www.yunai.me?todo)详细解析。
+    * 调用 `FailoverService#getAllEligibleJobContexts()` 方法，从**失效转移队列**中获取所有有资格执行的作业上下文。**TaskLaunchScheduledService 提交的任务还可能来自失效转移队列**。本文暂时不解析失效转移队列相关实现，避免增加复杂度影响大家的理解，在[《Elastic-Job-Cloud 源码分析 —— 作业失效转移》](http://www.iocoder.cn/Elastic-Job/cloud-job-failover/?self)详细解析。
     * 调用 `ReadyService#getAllEligibleJobContexts(...)` 方法，从**待执行队列**中获取所有有资格执行的作业上下文。
 
         ```Java
@@ -680,7 +680,7 @@ List<TaskRequest> taskRequests = launchingTasks.getPendingTasks();
     * TaskContext，任务运行时上下文。
     * JobTaskRequest，作业任务请求对象。       
 * 因为对象有点多，我们来贴一个 `LaunchingTasks#getPendingTasks()` 方法的返回结果。
-    ![](http://www.yunai.me/images/Elastic-Job/2017_12_21/03.png)
+    ![](http://www.iocoder.cn/images/Elastic-Job/2017_12_21/03.png)
 
 **友情提示，代码可能比较多，请耐心观看。**
 
@@ -691,7 +691,7 @@ List<TaskRequest> taskRequests = launchingTasks.getPendingTasks();
 > FROM http://dockone.io/article/636  
 > Fenzo是一个在Mesos框架上应用的通用任务调度器。它可以让你通过实现各种优化策略的插件，来优化任务调度，同时这也有利于集群的自动缩放。
 
-![](http://www.yunai.me/images/Elastic-Job/2017_12_21/05.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_12_21/05.png)
 
 Elastic-Job-Cloud-Scheduler 基于 Fenzo 实现对 Mesos 的弹性资源分配。
 
@@ -760,7 +760,7 @@ void loadAppRunningState() {
 
 * 调用 `FacadeService#loadExecutorInfo()` 方法，从 Mesos 获取所有正在运行的 Mesos 执行器( Executor )的信息。执行器和云作业App有啥关系？**每个云作业App 即是一个 Elastic-Job-Cloud-Executor 实例。**。`FacadeService#loadExecutorInfo()` 方法这里就不展开了，有兴趣的同学自己看下，主要是对 Mesos 的 API操作，我们来看下 `runningApps` 的结果：
 
-    ![](http://www.yunai.me/images/Elastic-Job/2017_12_21/04.png)
+    ![](http://www.iocoder.cn/images/Elastic-Job/2017_12_21/04.png)
 
 -------
 
@@ -908,7 +908,7 @@ public final class LeasesQueue {
 
 举个简单的例子，只考虑 `memory` 资源情况下，有一台 Slave 内存为 8GB ，现在要运行三个 1GB 的作业和 5GB 的作业。其中 5GB 的作业在 1GB 运行多次之后才执行。 
 
-![](http://www.yunai.me/images/Elastic-Job/2017_12_21/06.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_12_21/06.png)
 
 实际情况会比图更加复杂的多的多。通过使用 Fenzo ，可以很方便的，并且令人满意的分配。为了让你对 Fenzo 有更加透彻的理解，这里再引用一段对其的介绍：
 
@@ -918,8 +918,8 @@ public final class LeasesQueue {
 
 下面，来看两次 `TaskScheduler#scheduleOnce(...)` 的返回：
 
-* 第一次调度：![](http://www.yunai.me/images/Elastic-Job/2017_12_21/07.png)
-* 第二次调度：![](http://www.yunai.me/images/Elastic-Job/2017_12_21/08.png)
+* 第一次调度：![](http://www.iocoder.cn/images/Elastic-Job/2017_12_21/07.png)
+* 第二次调度：![](http://www.iocoder.cn/images/Elastic-Job/2017_12_21/08.png)
 * `com.netflix.fenzo.VMAssignmentResult`，每台主机分配任务结果。实现代码如下：
 
     ```Java
@@ -1292,7 +1292,7 @@ final class RunningNode {
 
     在运维平台，我们可以看到当前任务正在运行中：
     
-    ![](http://www.yunai.me/images/Elastic-Job/2017_12_21/09.png)
+    ![](http://www.iocoder.cn/images/Elastic-Job/2017_12_21/09.png)
     
 * 常驻作业会存储在**运行中作业队列**。运行中作业队列存储在注册中心( Zookeeper )的**持久**数据节点 `/${NAMESPACE}/state/running/${JOB_NAME}/${TASK_META_INFO}`，存储值为任务编号。使用 zkClient 查看如下： 
 
@@ -1467,7 +1467,7 @@ class TaskThread implements Runnable {
       }
     }
     ```
-    * 当作业是**瞬时**作业时，调用 `AbstractElasticJobExecutor#execute(...)` 执行作业逻辑，并调用 `ExecutorDriver#sendStatusUpdate(...)` 发送状态，更新 Mesos 任务已完成( Protos.TaskState.TASK_FINISHED )。`AbstractElasticJobExecutor#execute(...)` 实现代码，在 Elastic-Job-Lite 和 Elastic-Job-Cloud 基本一致，在[《Elastic-Job-Lite 源码分析 —— 作业执行》](http://www.yunai.me/Elastic-Job/job-execute/?self)有详细解析。
+    * 当作业是**瞬时**作业时，调用 `AbstractElasticJobExecutor#execute(...)` 执行作业逻辑，并调用 `ExecutorDriver#sendStatusUpdate(...)` 发送状态，更新 Mesos 任务已完成( Protos.TaskState.TASK_FINISHED )。`AbstractElasticJobExecutor#execute(...)` 实现代码，在 Elastic-Job-Lite 和 Elastic-Job-Cloud 基本一致，在[《Elastic-Job-Lite 源码分析 —— 作业执行》](http://www.iocoder.cn/Elastic-Job/job-execute/?self)有详细解析。
     * 当作业是**常驻**作业时，调用 `DaemonTaskScheduler#init()` 方法，初始化作业调度，在「5.2 DaemonTaskScheduler」详细解析。
 
 ## 5.2 DaemonTaskScheduler
@@ -1586,10 +1586,10 @@ public static final class DaemonJob implements Job {
 }
 ```
 
-* 调用 `AbstractElasticJobExecutor#execute(...)` 执行作业逻辑。`AbstractElasticJobExecutor#execute(...)` 实现代码，在 Elastic-Job-Lite 和 Elastic-Job-Cloud 基本一致，在[《Elastic-Job-Lite 源码分析 —— 作业执行》](http://www.yunai.me/Elastic-Job/job-execute/?self)有详细解析。
+* 调用 `AbstractElasticJobExecutor#execute(...)` 执行作业逻辑。`AbstractElasticJobExecutor#execute(...)` 实现代码，在 Elastic-Job-Lite 和 Elastic-Job-Cloud 基本一致，在[《Elastic-Job-Lite 源码分析 —— 作业执行》](http://www.iocoder.cn/Elastic-Job/job-execute/?self)有详细解析。
 * `jobEventSamplingCount` 来自应用配置 (`CloudAppConfiguration.eventTraceSamplingCount`) 属性，常驻作业事件采样率统计条数，默认采样全部记录。为避免数据量过大，可对频繁调度的常驻作业配置采样率，即作业每执行N次，才会记录作业执行及追踪相关数据。
 
-  当满足采样条件时，调用 `ShardingContexts#setAllowSendJobEvent(true)`，标记**要**记录作业事件。否则，调用 `ShardingContexts#setAllowSendJobEvent(false)`，标记**不**记录作业时间。作业事件追踪在[《Elastic-Job-Lite 源码分析 —— 作业事件追踪》](http://www.yunai.me/Elastic-Job/job-event-trace/?self)有详细解析。
+  当满足采样条件时，调用 `ShardingContexts#setAllowSendJobEvent(true)`，标记**要**记录作业事件。否则，调用 `ShardingContexts#setAllowSendJobEvent(false)`，标记**不**记录作业时间。作业事件追踪在[《Elastic-Job-Lite 源码分析 —— 作业事件追踪》](http://www.iocoder.cn/Elastic-Job/job-event-trace/?self)有详细解析。
   
   另外，当满足采样调试时，也会调用 `ExecutorDriver#sendStatusUpdate(...)` 方法，更新 Mesos 任务状态为运行中，并附带 `"BEGIN"` 或 `"COMPLETE"` 消息。
 
@@ -1684,7 +1684,7 @@ public void statusUpdate(final SchedulerDriver schedulerDriver, final Protos.Tas
     }    
     ```
 
-    若作业配置不存在时，调用 `SchedulerDriver#killTask(...)` 方法，杀死该 Mesos 任务。在[《Elastic-Job-Cloud 源码分析 —— 作业调度（二）》](http://www.yunai.me/Elastic-Job/cloud-job-scheduler-and-executor-second/?self)进一步解析。
+    若作业配置不存在时，调用 `SchedulerDriver#killTask(...)` 方法，杀死该 Mesos 任务。在[《Elastic-Job-Cloud 源码分析 —— 作业调度（二）》](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-second/?self)进一步解析。
 
 * 当更新 Mesos 任务状态为 `TASK_FINISHED` 时，调用 `FacadeService#removeRunning(...)` 方法，将任务从运行时队列删除。实现代码如下：
 
@@ -1733,11 +1733,11 @@ public void statusUpdate(final SchedulerDriver schedulerDriver, final Protos.Tas
     }
     ```
 
-* 当更新 Mesos 任务状态为 `TASK_KILLED` 时，调用 `FacadeService#addDaemonJobToReadyQueue(...)` 方法，将常驻作业放入待执行队列。在[《Elastic-Job-Cloud 源码分析 —— 作业调度（二）》](http://www.yunai.me/Elastic-Job/cloud-job-scheduler-and-executor-second/?self)进一步解析。TODO
+* 当更新 Mesos 任务状态为 `TASK_KILLED` 时，调用 `FacadeService#addDaemonJobToReadyQueue(...)` 方法，将常驻作业放入待执行队列。**为什么要将常驻作业放入待执行队列呢？**被 Kill 掉的作业后续要继续调度执行，如果不加入待执行队列，TaskLaunchScheduledService 就无法提交作业给 Elastic-Job-Cloud-Executor 继续调度执行。
 
     另外会调用 `FacadeService#removeRunning(...)`、`#unAssignTask(...)` 方法。
 
-* 当更新 Mesos 任务状态为 `TASK_ERROR` 等等时，调用 `FacadeService#recordFailoverTask(...)` 方法，在 [《Elastic-Job-Cloud 源码分析 —— 作业失效转移》](TODO)详细解析。
+* 当更新 Mesos 任务状态为 `TASK_ERROR` 等等时，调用 `FacadeService#recordFailoverTask(...)` 方法，在 [《Elastic-Job-Cloud 源码分析 —— 作业失效转移》](http://www.iocoder.cn/Elastic-Job/cloud-job-failover/?self)详细解析。
 
     另外会调用 `FacadeService#removeRunning(...)` 和 `#unAssignTask(...)` 方法。
     
@@ -1746,7 +1746,7 @@ public void statusUpdate(final SchedulerDriver schedulerDriver, final Protos.Tas
 旁白君：真的真的真的，好长好长好长啊。但是真的真的真的，干货！  
 芋道君：那必须的！
 
-![](http://www.yunai.me/images/Elastic-Job/2017_12_21/12.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_12_21/12.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

@@ -16,7 +16,7 @@ permalink: Elastic-Job/election
 
 -------
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -33,13 +33,13 @@ permalink: Elastic-Job/election
 
 建议前置阅读：
 
-* [《Elastic-Job-Lite 源码分析 —— 注册中心》](http://www.yunai.me/Elastic-Job/reg-center-zookeeper/?self)
-* [《Elastic-Job-Lite 源码分析 —— 作业数据存储》](http://www.yunai.me/Elastic-Job/job-storage/?self)
-* [《Elastic-Job-Lite 源码分析 —— 注册中心监听器》](http://www.yunai.me/Elastic-Job/reg-center-zookeeper-listener/?self)
+* [《Elastic-Job-Lite 源码分析 —— 注册中心》](http://www.iocoder.cn/Elastic-Job/reg-center-zookeeper/?self)
+* [《Elastic-Job-Lite 源码分析 —— 作业数据存储》](http://www.iocoder.cn/Elastic-Job/job-storage/?self)
+* [《Elastic-Job-Lite 源码分析 —— 注册中心监听器》](http://www.iocoder.cn/Elastic-Job/reg-center-zookeeper-listener/?self)
 
-涉及到主要类的类图如下( [打开大图](http://www.yunai.me/images/Elastic-Job/2017_10_21/01.png) )：
+涉及到主要类的类图如下( [打开大图](http://www.iocoder.cn/images/Elastic-Job/2017_10_21/01.png) )：
 
-![](http://www.yunai.me/images/Elastic-Job/2017_10_21/01.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_10_21/01.png)
 
 * 粉色的类在 `com.dangdang.ddframe.job.lite.internal.election` 包下，实现了 Elastic-Job-Lite 主节点选举。
 
@@ -61,8 +61,8 @@ permalink: Elastic-Job/election
 
 调用 `LeaderService#electLeader()` 选举主节点。
 
-大体流程如下( [打开大图](http://www.yunai.me/images/Elastic-Job/2017_10_21/02.png) )：
-![](http://www.yunai.me/images/Elastic-Job/2017_10_21/02.png)
+大体流程如下( [打开大图](http://www.iocoder.cn/images/Elastic-Job/2017_10_21/02.png) )：
+![](http://www.iocoder.cn/images/Elastic-Job/2017_10_21/02.png)
 
 实现代码如下：
 
@@ -100,7 +100,7 @@ class LeaderElectionExecutionCallback implements LeaderExecutionCallback {
 }
 ```
 
-* 使用 Curator LeaderLatch 分布式锁，**保证同一时间有且仅有一个工作节点**能够调用 `LeaderElectionExecutionCallback#execute()` 方法执行主节点设置。Curator LeaderLatch 在[《Elastic-Job-Lite 源码分析 —— 注册中心》「3.1 在主节点执行操作」](http://www.yunai.me/Elastic-Job/reg-center-zookeeper/?self)有详细解析。
+* 使用 Curator LeaderLatch 分布式锁，**保证同一时间有且仅有一个工作节点**能够调用 `LeaderElectionExecutionCallback#execute()` 方法执行主节点设置。Curator LeaderLatch 在[《Elastic-Job-Lite 源码分析 —— 注册中心》「3.1 在主节点执行操作」](http://www.iocoder.cn/Elastic-Job/reg-center-zookeeper/?self)有详细解析。
 * 在 `LeaderElectionExecutionCallback#execute()` 为什么要调用 `#hasLeader()` 呢？LeaderLatch **只保证同一时间有且仅有一个工作节点**，在获得分布式锁的工作节点结束逻辑后，第二个工作节点会开始逻辑，如果不判断当前是否有主节点，原来的主节点会被覆盖。
 
     ```Java
@@ -332,14 +332,14 @@ public void shutdownInstance() {
 * **远程**关闭作业节点有两种方式：
     * zkClient 发起命令：`rmr /${NAMESPACE}/${JOB_NAME}/instances/${JOB_INSTANCE_ID}`。
     * 运维平台发起 `Shutdown` 操作。`Shutdown` 操作实质上就是第一种。
-        ![](http://www.yunai.me/images/Elastic-Job/2017_10_21/04.png)
+        ![](http://www.iocoder.cn/images/Elastic-Job/2017_10_21/04.png)
 
 # 666. 彩蛋
 
 旁白君：哎哟，这次竟然分享了点干货 😈  
 芋道君：嘿呀嘿呀，必须的啊，虽然有点焦头烂额啦。  
 
-![](http://www.yunai.me/images/Elastic-Job/2017_10_21/03.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_10_21/03.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

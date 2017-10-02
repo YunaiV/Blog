@@ -7,7 +7,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 -------
 
-![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -47,8 +47,8 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 本文前置阅读：
 
-* [《SQL 解析（一）之词法解析》](http://www.yunai.me/Sharding-JDBC/sql-parse-1/?self)
-* [《SQL 解析（二）之SQL解析》](http://www.yunai.me/Sharding-JDBC/sql-parse-2/?self)
+* [《SQL 解析（一）之词法解析》](http://www.iocoder.cn/Sharding-JDBC/sql-parse-1/?self)
+* [《SQL 解析（二）之SQL解析》](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/?self)
 
 本文分享**插入SQL解析**的源码实现。
 
@@ -56,7 +56,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 查询 SQL 解析主流程如下：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_07_27/03.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_07_27/03.png)
 
 ```Java
 // AbstractSelectParser.java
@@ -79,7 +79,7 @@ public final SelectStatement parse() {
 > 登记吧，骚年！[传送门](https://github.com/dangdangdotcom/sharding-jdbc/issues/234)**
 
 👼 查询语句解析是增删改查里面**最灵活也是最复杂的**，希望大家有耐心看完本文。理解查询语句解析，另外三种语句理解起来简直是 SO EASY。骗人是小狗🐶。  
-🙂如果对本文有不理解的地方，可以给我的公众号**（[芋道源码](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)）**留言，我会**逐条认真耐心**回复。骗人是小猪🐷。
+🙂如果对本文有不理解的地方，可以给我的公众号**（[芋道源码](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)）**留言，我会**逐条认真耐心**回复。骗人是小猪🐷。
 
 OK，不废话啦，开始我们这段痛并快乐的旅途。
 
@@ -219,7 +219,7 @@ SELECT
 
 大体流程如下：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_07_27/04.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_07_27/04.png)
 
 ```Java
 // MySQLSelectParser.java
@@ -315,7 +315,7 @@ SelectItem 接口，**属于分片上下文信息**，有 2 个实现类：
 * CommonSelectItem ：通用选择项
 * AggregationSelectItem ：聚合选择项
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_07_27/01.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_07_27/01.png)
 
 解析单个 SelectItem 核心代码：
 
@@ -380,9 +380,9 @@ SELECT `*` FROM t_user; // 也能达到查询所有字段的效果
 例如，`SELECT COUNT(user_id) FROM t_user` 的 `COUNT(user_id)`。
 
 解析结果 AggregationSelectItem：  
-![](http://www.yunai.me/images/Sharding-JDBC/2017_07_27/05.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_07_27/05.png)
 
-`sqlParser.skipParentheses()` 解析见[《SQL 解析（二）之SQL解析》的AbstractParser小节](http://www.yunai.me/Sharding-JDBC/sql-parse-2/?self)。
+`sqlParser.skipParentheses()` 解析见[《SQL 解析（二）之SQL解析》的AbstractParser小节](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/?self)。
 
 * 第三种：**非 `*` 通用选择项**：
 
@@ -401,7 +401,7 @@ ROW_NUMBER 是 SQLServer 独有的。由于本文大部分的读者使用的 MyS
 
 ### 3.2.2 #parseAlias() 解析别名
 
-解析别名，分成是否带 `AS` 两种情况。解析代码：[《SQL 解析（二）之SQL解析》的#parseAlias()小节](http://www.yunai.me/Sharding-JDBC/sql-parse-2/?self)。
+解析别名，分成是否带 `AS` 两种情况。解析代码：[《SQL 解析（二）之SQL解析》的#parseAlias()小节](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/?self)。
 
 ### 3.2.3 TableToken 表标记对象
 
@@ -429,7 +429,7 @@ public final class TableToken implements SQLToken {
 ```
 
 例如上文第三种情况。
-![](http://www.yunai.me/images/Sharding-JDBC/2017_07_27/06.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_07_27/06.png)
 
 ## 3.3 #skipToFrom()
 
@@ -508,7 +508,7 @@ SELECT * FROM t_order o, t_order_item i
 
 在看实现代码之前，先一起看下调用顺序图：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_07_27/02.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_07_27/02.png)
 
 看懂上图后，来继续看下实现代码（🙂**代码有点多，不要方！**）：
 
@@ -600,7 +600,7 @@ private void parseTableCondition(final int startPosition) {
 }
 ```
 
-OK，递归因为平时日常中写的比较少，可能理解起来可能会困难一些，努力看懂！🙂**如果真的看不懂，可以加微信公众号（[芋道源码](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)），我来帮你一起理解。**
+OK，递归因为平时日常中写的比较少，可能理解起来可能会困难一些，努力看懂！🙂**如果真的看不懂，可以加微信公众号（[芋道源码](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)），我来帮你一起理解。**
 
 ### 3.4.2 子查询
 
@@ -661,7 +661,7 @@ selectStatement.getTables().add(new Table(SQLUtil.getExactlyValue(literals), sql
 
 ## 3.5 #parseWhere()
 
-解析 WHERE 条件。解析代码：[《SQL 解析（二）之SQL解析》的#parseWhere()小节](http://www.yunai.me/Sharding-JDBC/sql-parse-2/?self)。
+解析 WHERE 条件。解析代码：[《SQL 解析（二）之SQL解析》的#parseWhere()小节](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/?self)。
 
 ## 3.6 #parseGroupBy()
 
@@ -1043,7 +1043,7 @@ public final class OrderByToken implements SQLToken {
 
 咳咳咳，确实有一些略长。但请相信，INSERT / UPDATE / DELETE 会简单很多很多。考试考的 SQL 最多的是什么？SELECT 语句呀！为啥，难呗。恩，我相信看到此处的你，一定是能看懂的，加油！
 
-🙂如果对本文有不理解的地方，可以关注我的公众号**（[芋道源码](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)）**获得**微信号**，我们来一场，1 对 1 的搞基吧，不不不，是交流交流。
+🙂如果对本文有不理解的地方，可以关注我的公众号**（[芋道源码](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)）**获得**微信号**，我们来一场，1 对 1 的搞基吧，不不不，是交流交流。
 
 道友，帮我分享一波怎么样？
 

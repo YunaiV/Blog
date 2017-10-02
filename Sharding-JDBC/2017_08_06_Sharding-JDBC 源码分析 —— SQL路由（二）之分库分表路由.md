@@ -7,7 +7,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL 路由,路由,路�
 
 -------
 
-![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -51,13 +51,13 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL 路由,路由,路�
 
 SQL 路由大体流程如下：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_06/06.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_06/06.png)
 
 # 2. SQLRouteResult
 
 经过 **SQL解析**、**SQL路由**后，产生**SQL路由结果**，即 SQLRouteResult。根据路由结果，**生成SQL**，**执行SQL**。
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_06/01.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_06/01.png)
 
 * `sqlStatement` ：SQL语句对象，经过**SQL解析**的结果对象。
 * `executionUnits` ：SQL最小执行单元集合。**SQL执行**时，执行每个单元。
@@ -65,7 +65,7 @@ SQL 路由大体流程如下：
 
 # 3. 路由策略 x 算法
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_04/04.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_04/04.png)
 
 ShardingStrategy，分片策略。目前支持两种分片：  
 
@@ -199,7 +199,7 @@ public interface MultipleKeysShardingAlgorithm extends ShardingAlgorithm {
 
 分片算法类结构如下：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_06/02.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_06/02.png)
 
 来看看 Sharding-JDBC 实现的无需分库的分片算法 NoneDatabaseShardingAlgorithm (NoneTableShardingAlgorithm 基本一模一样)：
 
@@ -318,7 +318,7 @@ SQLRouter，SQL 路由器接口，共有两种实现：
 
 它们实现 `#parse()`进行**SQL解析**，`#route()`进行**SQL路由**。
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_06/03.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_06/03.png)
 
 -------
 
@@ -331,7 +331,7 @@ RoutingEngine，路由引擎接口，共有四种实现：
 
 **ComplexRoutingEngine 根据路由结果会转化成 SimpleRoutingEngine 或 ComplexRoutingEngine**。下文会看相应源码。
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_06/04.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_06/04.png)
 
 -------
 
@@ -340,7 +340,7 @@ RoutingEngine，路由引擎接口，共有四种实现：
 * RoutingResult：简单路由结果
 * CartesianRoutingResult：笛卡尔积路由结果
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_06/05.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_06/05.png)
 
 从图中，我们已经能大概看到两者有什么区别，更具体的下文随源码一起分享。
 
@@ -349,7 +349,7 @@ RoutingEngine，路由引擎接口，共有四种实现：
 * SQLRouteResult：**整个SQL路由**返回的路由结果
 * RoutingResult：**RoutingEngine**返回路由结果
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_06/06.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_06/06.png)
 
 -------
 
@@ -507,7 +507,7 @@ public RoutingResult route() {
 
 ParsingSQLRouter，需要解析的SQL路由器。
 
-ParsingSQLRouter 使用 SQLParsingEngine **解析SQL**。对**SQL解析**有兴趣的同学可以看看拙作[《Sharding-JDBC 源码分析 —— SQL 解析》](http://www.yunai.me/categories/Sharding-JDBC/?mp)。
+ParsingSQLRouter 使用 SQLParsingEngine **解析SQL**。对**SQL解析**有兴趣的同学可以看看拙作[《Sharding-JDBC 源码分析 —— SQL 解析》](http://www.iocoder.cn/categories/Sharding-JDBC/?mp)。
 
 ```Java
 // ParsingSQLRouter.java
@@ -523,7 +523,7 @@ public SQLStatement parse(final String logicSQL, final int parametersSize) {
 }
 ```
 
-* `#appendGenerateKeyToken()` 会在[《SQL 改写》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)分享
+* `#appendGenerateKeyToken()` 会在[《SQL 改写》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)分享
 
 -------
 
@@ -640,7 +640,7 @@ public Optional<BindingTableRule> findBindingTableRule(final String logicTable) 
 
 SimpleRoutingEngine，简单路由引擎。
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_06/07.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_06/07.png)
 
 ```Java
 // SimpleRoutingEngine.java
@@ -665,7 +665,7 @@ private List<ShardingValue<?>> getShardingValues(final Collection<String> shardi
 ```
 
 * 可以使用 HintManager 设置**库**分片值进行**强制路由**。
-* `#getShardingValues()` 我们看到了[《SQL 解析（二）之SQL解析》](http://www.yunai.me/Sharding-JDBC/sql-parse-2/)分享的 Condition 对象。之前我们提到过**Parser 半理解SQL的目的之一是：提炼分片上下文**，此处即是该目的的体现。Condition 里只放**明确**影响路由的条件，例如：`order_id = 1`, `order_id IN (1, 2)`, `order_id BETWEEN (1, 3)`，不放**无法计算**的条件，例如：`o.order_id = i.order_id`。该方法里，使用**分片键**从 Condition 查找 **分片值**。🙂 是不是对 Condition 的认识更加清晰一丢丢落。
+* `#getShardingValues()` 我们看到了[《SQL 解析（二）之SQL解析》](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/)分享的 Condition 对象。之前我们提到过**Parser 半理解SQL的目的之一是：提炼分片上下文**，此处即是该目的的体现。Condition 里只放**明确**影响路由的条件，例如：`order_id = 1`, `order_id IN (1, 2)`, `order_id BETWEEN (1, 3)`，不放**无法计算**的条件，例如：`o.order_id = i.order_id`。该方法里，使用**分片键**从 Condition 查找 **分片值**。🙂 是不是对 Condition 的认识更加清晰一丢丢落。
 
 ```Java
 // SimpleRoutingEngine.java
@@ -723,7 +723,7 @@ private Collection<DataNode> getStaticDataNodes(final Collection<String> targetD
 }
 ```
 
-* 在 SimpleRoutingEngine 只生成了当前表的 TableUnits。如果存在**与其互为BindingTable关系**的表的 TableUnits 怎么获得？你可以想想噢，当然在后文[《SQL 改写》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)也会给出答案，看看和你想的是否一样。
+* 在 SimpleRoutingEngine 只生成了当前表的 TableUnits。如果存在**与其互为BindingTable关系**的表的 TableUnits 怎么获得？你可以想想噢，当然在后文[《SQL 改写》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)也会给出答案，看看和你想的是否一样。
 
 ## 6.2 ComplexRoutingEngine
 
@@ -770,7 +770,7 @@ public RoutingResult route() {
 
 * ComplexRoutingEngine 计算每个逻辑表的简单路由分片，路由结果交给 CartesianRoutingEngine **继续**路由形成笛卡尔积结果。
  
-![](http://www.yunai.me//images/Sharding-JDBC/2017_08_06/08.png)
+![](http://www.iocoder.cn//images/Sharding-JDBC/2017_08_06/08.png)
 
 * 由于目前 ComplexRoutingEngine 路由前已经判断**全部表互为 BindingTable 关系**，因而不会出现 `result.size == 1`，属于防御性编程。
 * **部分表互为 BindingTable 关系**时，ComplexRoutingEngine 不重复计算分片。
@@ -854,7 +854,7 @@ private Collection<String> getIntersectionDataSources() {
    return result;
 }
 ```
-* `#getDataSourceLogicTablesMap()` 返回如图：![](http://www.yunai.me//images/Sharding-JDBC/2017_08_06/09.png)
+* `#getDataSourceLogicTablesMap()` 返回如图：![](http://www.iocoder.cn//images/Sharding-JDBC/2017_08_06/09.png)
 
 -------
 
@@ -883,8 +883,8 @@ private List<Set<TableUnit>> toTableUnitGroups(final String dataSource, final Li
 }
 ```
 
-* `#getActualTableGroups()` 返回如图：![](http://www.yunai.me//images/Sharding-JDBC/2017_08_06/10.png)
-* `#toTableUnitGroups()` 返回如图：![](http://www.yunai.me//images/Sharding-JDBC/2017_08_06/11.png)
+* `#getActualTableGroups()` 返回如图：![](http://www.iocoder.cn//images/Sharding-JDBC/2017_08_06/10.png)
+* `#toTableUnitGroups()` 返回如图：![](http://www.iocoder.cn//images/Sharding-JDBC/2017_08_06/11.png)
 
 -------
 
@@ -917,8 +917,8 @@ private void merge(final String dataSource, final CartesianTableReference routin
 }
 ```
 
-* `Sets.cartesianProduct(tableUnitGroups)` 返回如图（Guava 工具库真强大）：![](http://www.yunai.me//images/Sharding-JDBC/2017_08_06/12.png)
-* `#getCartesianTableReferences()` 返回如图：![](http://www.yunai.me//images/Sharding-JDBC/2017_08_06/13.png)
+* `Sets.cartesianProduct(tableUnitGroups)` 返回如图（Guava 工具库真强大）：![](http://www.iocoder.cn//images/Sharding-JDBC/2017_08_06/12.png)
+* `#getCartesianTableReferences()` 返回如图：![](http://www.iocoder.cn//images/Sharding-JDBC/2017_08_06/13.png)
 
     CartesianTableReference，笛卡尔积表**路由组**，包含**多条** TableUnit，即 TableUnit[0] `x` TableUnit[1] …… `x` TableUnit[n]。例如图中：`t_order_01 x t_order_item_02`，最终转换成 SQL 为 `SELECT * FROM t_order_01 o join t_order_item_02 i ON o.order_id = i.order_id`。
 * `#merge()` 合并笛卡尔积路由结果。CartesianRoutingResult 包含多个 CartesianDataSource，因此需要将 CartesianTableReference 合并（添加）到对应的 CartesianDataSource。当然，目前在实现时已经是按照**数据源（库）**生成对应的 CartesianTableReference。
@@ -968,7 +968,7 @@ public SQLRouteResult route(final String logicSQL, final List<Object> parameters
 ```
 
 * `RoutingResult routingResult = route(parameters, sqlStatement);` **调用**的就是上文分析的 SimpleRoutingEngine、ComplexRoutingEngine、CartesianRoutingEngine 的 `#route()` 方法。
-* `#processGeneratedKey()`、`#processLimit()`、`#rewrite()`、`#generateSQL()` 等会放在[《SQL 改写》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg) 分享。
+* `#processGeneratedKey()`、`#processLimit()`、`#rewrite()`、`#generateSQL()` 等会放在[《SQL 改写》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) 分享。
 
 
 # 666. 彩蛋

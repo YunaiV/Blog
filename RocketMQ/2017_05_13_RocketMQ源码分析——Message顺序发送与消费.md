@@ -6,7 +6,7 @@ permalink: RocketMQ/message-send-and-consume-orderly
 
 -------
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -31,8 +31,8 @@ permalink: RocketMQ/message-send-and-consume-orderly
 
 **建议**前置阅读内容：
 
-* [《RocketMQ 源码分析 —— Message 发送与接收》](http://www.yunai.me/RocketMQ/message-send-and-receive/)
-* [《RocketMQ 源码分析 —— Message 拉取与消费（下）》](http://www.yunai.me/RocketMQ/message-pull-and-consume-second/)
+* [《RocketMQ 源码分析 —— Message 发送与接收》](http://www.iocoder.cn/RocketMQ/message-send-and-receive/)
+* [《RocketMQ 源码分析 —— Message 拉取与消费（下）》](http://www.iocoder.cn/RocketMQ/message-pull-and-consume-second/)
 
 当然对 `Message` 发送与消费已经有一定了解的同学，可以选择跳过。
 
@@ -362,11 +362,11 @@ permalink: RocketMQ/message-send-and-consume-orderly
 
 ## 3.3 消费消息队列
 
-😏本节会类比**并发消费消费队列**，建议对照 [PushConsumer并发消费消息](http://www.yunai.me/RocketMQ/message-pull-and-consume-second/#6、PushConsumer-消费消息) 一起理解。
+😏本节会类比**并发消费消费队列**，建议对照 [PushConsumer并发消费消息](http://www.iocoder.cn/RocketMQ/message-pull-and-consume-second/#6、PushConsumer-消费消息) 一起理解。
 
 ### 3.1.1 消费消息
 
-![顺序消费活动图-消费消息](http://www.yunai.me/images/RocketMQ/2017_05_13/01.png)
+![顺序消费活动图-消费消息](http://www.iocoder.cn/images/RocketMQ/2017_05_13/01.png)
 
 ```Java
   1: // ⬇️⬇️⬇️【ConsumeMessageOrderlyService.java】

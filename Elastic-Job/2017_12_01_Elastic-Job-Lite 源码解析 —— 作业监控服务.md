@@ -14,7 +14,7 @@ permalink: Elastic-Job/job-monitor
 
 -------
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -32,9 +32,9 @@ permalink: Elastic-Job/job-monitor
 > 使用Elastic-Job-Lite过程中可能会碰到一些分布式问题，导致作业运行不稳定。  
 由于无法在生产环境调试，通过dump命令可以把作业内部相关信息dump出来，方便开发者debug分析； 另外为了不泄露隐私，已将相关信息中的ip地址以ip1, ip2…的形式过滤，可以在互联网上公开传输环境信息，便于进一步完善Elastic-Job。
 
-涉及到主要类的类图如下( [打开大图](http://www.yunai.me/images/Elastic-Job/2017_12_01/01.png) )：
+涉及到主要类的类图如下( [打开大图](http://www.iocoder.cn/images/Elastic-Job/2017_12_01/01.png) )：
 
-![](http://www.yunai.me/images/Elastic-Job/2017_12_01/01.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_12_01/01.png)
 
 * 在 Elastic-Job-lite 里，作业监控服务( MonitorService ) 实现了**DUMP作业运行信息**功能。
 
@@ -164,7 +164,7 @@ private void process(final Socket socket) throws IOException {
 
 芋道君：是是是，对对的，我水更啦！😆
 
-![](http://www.yunai.me/images/Elastic-Job/2017_12_01/02.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_12_01/02.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

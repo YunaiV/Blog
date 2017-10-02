@@ -7,7 +7,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,分布式主键
 
 -------
 
-![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -56,11 +56,11 @@ KeyGenerator，主键生成器接口。实现类通过实现 `#generateKey()` �
 
 ## 2.1 DefaultKeyGenerator
 
-DefaultKeyGenerator，默认的主键生成器。该生成器采用 Twitter Snowflake 算法实现，生成 **64 Bits** 的 **Long** 型编号。国内另外一款数据库中间件 MyCAT 分布式主键也是基于该算法实现。国内很多大型互联网公司**发号器**服务基于该算法加部分改造实现。所以 DefaultKeyGenerator 必须是**根正苗红**。如果你对**分布式主键**感兴趣，可以看看逗比笔者整理的[《谈谈 ID》](http://www.yunai.me/Architecture/talk-about-global-id/?self)。
+DefaultKeyGenerator，默认的主键生成器。该生成器采用 Twitter Snowflake 算法实现，生成 **64 Bits** 的 **Long** 型编号。国内另外一款数据库中间件 MyCAT 分布式主键也是基于该算法实现。国内很多大型互联网公司**发号器**服务基于该算法加部分改造实现。所以 DefaultKeyGenerator 必须是**根正苗红**。如果你对**分布式主键**感兴趣，可以看看逗比笔者整理的[《谈谈 ID》](http://www.iocoder.cn/Architecture/talk-about-global-id/?self)。
 
 咳咳咳，有点跑题了。**编号**由四部分组成，从高位到低位（从左到右）分别是：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_12/01.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_12/01.png)
 
 | Bits | 名字 | 说明 |
 | :--- | :--- | :--- |
@@ -301,5 +301,5 @@ static void initWorkerId() {
 
 感谢你，技术如此只好，还关注我的公众号。
 
-![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 

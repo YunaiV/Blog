@@ -1,4 +1,4 @@
-title: Sharding-JDBC 源码分析 —— SQL 路由改写
+title: Sharding-JDBC 源码分析 —— SQL 改写
 date: 2017-08-10
 tags:
 categories: Sharding-JDBC
@@ -7,7 +7,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL 改写,SQL 优化
 
 -------
 
-![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -37,7 +37,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL 改写,SQL 优化
 
 # 1. 概述
 
-前置阅读：[《SQL 解析（三）之查询SQL》](http://www.yunai.me/Sharding-JDBC/sql-parse-3/?mp)
+前置阅读：[《SQL 解析（三）之查询SQL》](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/?mp)
 
 本文分享**SQL 改写**的源码实现。主要涉及两方面：
 
@@ -48,7 +48,7 @@ SQLRewriteEngine，SQL重写引擎，实现 SQL 改写、生成功能。从 Shar
 
 > 1.4.x及之前版本，SQL改写是在SQL路由之前完成的，在1.5.x中调整为SQL路由之后，因为SQL改写可以根据路由至单库表还是多库表而进行进一步优化。
 
-😆 很多同学看完[《SQL 解析-系列》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg) 可能是一脸懵逼，特别对**“SQL 半理解”**。![](http://www.yunai.me/images/Sharding-JDBC/2017_08_10/01.png)希望本文能给你一些启发。
+😆 很多同学看完[《SQL 解析-系列》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) 可能是一脸懵逼，特别对**“SQL 半理解”**。![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_10/01.png)希望本文能给你一些启发。
 
 > **Sharding-JDBC 正在收集使用公司名单：[传送门](https://github.com/dangdangdotcom/sharding-jdbc/issues/234)。  
 > 🙂 你的登记，会让更多人参与和使用 Sharding-JDBC。[传送门](https://github.com/dangdangdotcom/sharding-jdbc/issues/234)  
@@ -57,11 +57,11 @@ SQLRewriteEngine，SQL重写引擎，实现 SQL 改写、生成功能。从 Shar
 
 # 2. SQLToken
 
-😁 SQLToken 在本文中很重要，所以即使在[《SQL 解析-系列》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)已经分享过，我们也换个姿势，再来一次。
+😁 SQLToken 在本文中很重要，所以即使在[《SQL 解析-系列》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)已经分享过，我们也换个姿势，再来一次。
 
 SQLToken，SQL标记对象**接口**。SQLRewriteEngine 基于 SQLToken 实现 **SQL改写**。SQL解析器在 SQL解析过程中，很重要的一个目的是**标记需要SQL改写的部分**，也就是 SQLToken。
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_10/02.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_10/02.png)
 
 **各 SQLToken 生成条件如下**(*悲伤，做成表格形式排版是乱的*)：
 
@@ -129,7 +129,7 @@ public SQLBuilder rewrite(final boolean isRewriteLimit) {
     * 间隔：遍历 SQLToken，逐个拼接。
 
 例如：
-    ![](http://www.yunai.me/images/Sharding-JDBC/2017_08_10/03.png)
+    ![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_10/03.png)
 
 -------
 
@@ -238,9 +238,9 @@ public static String getExactlyValue(final String value) {
 
 * 当 SQL 为 `SELECT o.* FROM t_order o`
     * TableToken 为查询列前的表别名 `o` 时返回结果：
-        ![](http://www.yunai.me/images/Sharding-JDBC/2017_08_10/04.png)
+        ![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_10/04.png)
     * TableToken 为表名 `t_order` 时返回结果：
-        ![](http://www.yunai.me/images/Sharding-JDBC/2017_08_10/05.png)
+        ![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_10/05.png)
 
 ## 3.2 ItemsToken
 
@@ -270,9 +270,9 @@ private void appendItemsToken(final SQLBuilder sqlBuilder, final ItemsToken item
 ```
 
 * 第一种情况，**AVG查询列**，SQL 为 `SELECT AVG(order_id) FROM t_order o` 时返回结果：
-  ![](http://www.yunai.me/images/Sharding-JDBC/2017_08_10/06.png)
+  ![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_10/06.png)
 * 第二种情况，**ORDER BY 字段不在查询列**，SQL 为 `SELECT userId FROM t_order o ORDER BY order_id` 时返回结果：
-  ![](http://www.yunai.me/images/Sharding-JDBC/2017_08_10/07.png)
+  ![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_10/07.png)
 * 第三种情况，**GROUP BY 字段不在查询列**，类似第二种情况，就不举例子列。
 
 ## 3.3 OffsetToken
@@ -447,11 +447,11 @@ private void appendOrderByToken(final SQLBuilder sqlBuilder) {
 ```
 
 * 当 SQL 为 `SELECT order_id FROM t_order o GROUP BY order_id` 返回结果：
-    ![](http://www.yunai.me/images/Sharding-JDBC/2017_08_10/08.png)
+    ![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_10/08.png)
 
 ## 3.6 GeneratedKeyToken
 
-前置阅读：[《SQL 解析（四）之插入SQL》](http://www.yunai.me/Sharding-JDBC/sql-parse-4/?mp)
+前置阅读：[《SQL 解析（四）之插入SQL》](http://www.iocoder.cn/Sharding-JDBC/sql-parse-4/?mp)
 
 GeneratedKeyToken，和其它 SQLToken 不同，在 **SQL解析** 完进行处理。
 
@@ -620,7 +620,7 @@ public SQLRouteResult route(final String logicSQL, final List<Object> parameters
 }
 ```
 
-* 调用 `RewriteEngine#generateSQL()` 生成**执行SQL**。对于笛卡尔积路由结果和简单路由结果传递的参数略有不同：前者使用 CartesianDataSource ( CartesianTableReference )，后者使用路由表单元 ( TableUnit )。对路由结果不是很了解的同学，建议看下 [《SQL 路由（二）之分库分表路由》](http://www.yunai.me/Sharding-JDBC/sql-route-2/?mp)。
+* 调用 `RewriteEngine#generateSQL()` 生成**执行SQL**。对于笛卡尔积路由结果和简单路由结果传递的参数略有不同：前者使用 CartesianDataSource ( CartesianTableReference )，后者使用路由表单元 ( TableUnit )。对路由结果不是很了解的同学，建议看下 [《SQL 路由（二）之分库分表路由》](http://www.iocoder.cn/Sharding-JDBC/sql-route-2/?mp)。
 
 `RewriteEngine#generateSQL()` 对于笛卡尔积路由结果和简单路由结果两种情况，处理上大体是一致的：1. 获得 SQL 相关**逻辑表**对应的**真实表**映射，2. 根据映射改写 SQL 相关**逻辑表**为**真实表**。
 
@@ -665,7 +665,7 @@ public String toSQL(final Map<String, String> tableTokens) {
 }
 ```
 
-* `#toSQL()` 结果如图： ![](http://www.yunai.me/images/Sharding-JDBC/2017_08_10/09.png)
+* `#toSQL()` 结果如图： ![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_10/09.png)
   😜 对 **SQL改写** 是不是清晰很多了。
 
 -------
@@ -747,7 +747,7 @@ public String getBindingActualTable(final String dataSource, final String logicT
 
 可能看起来有些绕，我们看张图：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_10/10.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_10/10.png)
 
 **友情提示**：这里不嫌啰嗦在提一句，互为 BindingTable 的表，配置 TableRule 时，`actualTables` 数量一定要一致，否则多出来的表，可能会无法被路由到。
 
@@ -756,13 +756,13 @@ public String getBindingActualTable(final String dataSource, final String logicT
 
 哈哈哈，看完**SQL改写**后，**SQL解析**是不是清晰多了！嘿嘿嘿，反正我现在有点嗨。恩，蛮嗨的。
 
-当然，如果**SQL解析**理解上有点疑惑的你，**欢迎**加我的微信，咱 **1对1** 搞基。关注我的微信公众号：[【芋道源码】](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg) 即可获得。
+当然，如果**SQL解析**理解上有点疑惑的你，**欢迎**加我的微信，咱 **1对1** 搞基。关注我的微信公众号：[【芋道源码】](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) 即可获得。
 
-![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 道友，转发一波朋友圈可好？
 
-Let's Go! [《分布式主键》](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)、[《SQL 执行》](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)、[《结果聚合》](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg) 继续。
+Let's Go! [《分布式主键》](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)、[《SQL 执行》](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)、[《结果聚合》](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) 继续。
 
 _感谢技术牛逼如你耐心的阅读本文。_
 

@@ -7,7 +7,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,结果归并
 
 -------
 
-![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -45,13 +45,13 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,结果归并
 
 本文分享**查询结果归并**的源码实现。
 
-正如前文[《SQL 执行》](http://www.yunai.me/Sharding-JDBC/sql-execute/?self)提到的**“分表分库，需要执行的 SQL 数量从单条变成了多条”**，多个**SQL执行**结果必然需要进行合并，例如：
+正如前文[《SQL 执行》](http://www.iocoder.cn/Sharding-JDBC/sql-execute/?self)提到的**“分表分库，需要执行的 SQL 数量从单条变成了多条”**，多个**SQL执行**结果必然需要进行合并，例如：
 
 ``` SQL
 SELECT * FROM t_order ORDER BY create_time
 ```
 
-在各分片排序完后，Sharding-JDBC 获取到结果后，仍然需要再进一步排序。目前有 **分页**、**分组**、**排序**、**聚合列**、**迭代** 五种场景需要做进一步处理。当然，如果单分片**SQL执行**结果是无需合并的。在[《SQL 执行》](http://www.yunai.me/Sharding-JDBC/sql-execute/?self)不知不觉已经分享了插入、更新、删除操作的结果合并，所以下面我们一起看看**查询结果归并**的实现。
+在各分片排序完后，Sharding-JDBC 获取到结果后，仍然需要再进一步排序。目前有 **分页**、**分组**、**排序**、**聚合列**、**迭代** 五种场景需要做进一步处理。当然，如果单分片**SQL执行**结果是无需合并的。在[《SQL 执行》](http://www.iocoder.cn/Sharding-JDBC/sql-execute/?self)不知不觉已经分享了插入、更新、删除操作的结果合并，所以下面我们一起看看**查询结果归并**的实现。
 
 -------
 
@@ -145,7 +145,7 @@ public void setIndexForItems(final Map<String, Integer> columnLabelIndexMap) {
 }
 ```
 
-* 部分**查询列**是经过**推到**出来，在 **SQL解析** 过程中，未获得到查询列位置，需要通过该方法进行初始化。对这块不了解的同学，回头可以看下[《SQL 解析（三）之查询SQL》](http://www.yunai.me/Sharding-JDBC/sql-parse-3/?self)。🙂 现在不用回头，皇冠会掉。
+* 部分**查询列**是经过**推到**出来，在 **SQL解析** 过程中，未获得到查询列位置，需要通过该方法进行初始化。对这块不了解的同学，回头可以看下[《SQL 解析（三）之查询SQL》](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/?self)。🙂 现在不用回头，皇冠会掉。
 * `#setIndexForAggregationItem()` 处理 **AVG聚合计算列** 推导出其对应的 **SUM/COUNT 聚合计算列**的位置：
 
     ```Java
@@ -183,7 +183,7 @@ ResultSetMerger，归并结果集接口。
 
 我们先来看看整体的类结构关系：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_16/04.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_16/04.png)
 
 从 **功能** 上分成四种：
 
@@ -200,7 +200,7 @@ ResultSetMerger，归并结果集接口。
 
 **什么时候该用什么实现方式？**
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_16/06.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_16/06.png)
 
 * Stream 流式：将数据游标与结果集的游标保持一致，顺序的从结果集中一条条的获取正确的数据。看完下文*第三节* OrderByStreamResultSetMerger 可以形象的理解。
 * Memory 内存：需要将结果集的所有数据都遍历并存储在内存中，再通过内存归并后，将内存中的数据伪装成结果集返回。看完下文*第五节* GroupByMemoryResultSetMerger 可以形象的理解。
@@ -397,7 +397,7 @@ OrderByStreamResultSetMerger，基于 **Stream** 方式排序归并结果集实�
 
 从定义上看，是不是超级符合我们这个场景。😈 此时此刻，你是不是捂着胸口，感叹：“大学怎么没好好学数据结构与算法呢”？反正我是捂着了，都是眼泪。
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_16/01.jpg)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_16/01.jpg)
 
 ```Java
 public class OrderByStreamResultSetMerger extends AbstractStreamResultSetMerger {
@@ -523,7 +523,7 @@ public class OrderByStreamResultSetMerger extends AbstractStreamResultSetMerger 
 
 通过调用 `OrderByStreamResultSetMerger#next()` 不断获得当前排在第一的记录。`#next()` 每次调用后，实际做的是当前 ResultSet 的替换，以及当前的 ResultSet 的记录指向下一条。这样说起来可能比较绕，我们来看一张图：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_16/02.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_16/02.png)
 
 * 白色向下箭头：OrderByStreamResultSetMerger 对 ResultSet 的指向。
 * 黑色箭头：ResultSet 对当前记录的指向。
@@ -576,7 +576,7 @@ public boolean next() throws SQLException {
 
 GroupByStreamResultSetMerger，基于 **Stream** 方式分组归并结果集实现。 它继承自 OrderByStreamResultSetMerger，在**排序**的逻辑上，实现分组功能。实现原理也较为简单：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_16/03.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_16/03.png)
 
 ```Java
 public final class GroupByStreamResultSetMerger extends OrderByStreamResultSetMerger {
@@ -674,7 +674,7 @@ AggregationUnit，归并计算单元接口，有两个接口方法：
 
 我们先看看大体的调用流程：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_16/05.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_16/05.png)
 
 😈 看起来代码比较多，逻辑其实比较清晰，对照着顺序图顺序往下读即可。
 
@@ -768,7 +768,7 @@ GroupByMemoryResultSetMerger，基于 **内存** 分组归并结果集实现。
 
 主流程如下：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_16/07.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_16/07.png)
 
 ```Java
 public final class GroupByMemoryResultSetMerger extends AbstractMemoryResultSetMerger {

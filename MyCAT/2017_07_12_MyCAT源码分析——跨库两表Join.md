@@ -6,7 +6,7 @@ permalink: MyCAT/two-table-share-join
 
 ---
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -38,7 +38,7 @@ MyCAT 支持跨库表 Join，目前版本仅支持跨库**两**表 Join。虽然
 1. 整体流程、调用顺序图
 2. 核心代码的分析
 
-前置阅读：[《MyCAT 源码分析 —— 【单库单表】查询》](http://www.yunai.me/MyCAT/single-db-single-table-select/?yunai)。
+前置阅读：[《MyCAT 源码分析 —— 【单库单表】查询》](http://www.iocoder.cn/MyCAT/single-db-single-table-select/?yunai)。
 
 OK，Let's Go。
 
@@ -46,7 +46,7 @@ OK，Let's Go。
 
 当执行跨库两表 Join SQL 时，经历的大体流程如下：
 
-![](http://www.yunai.me/images/MyCAT/2017_07_12/01.png)
+![](http://www.iocoder.cn/images/MyCAT/2017_07_12/01.png)
 
 SQL 上，需要添加注解 `/*!mycat:catlet=io.mycat.catlets.ShareJoin */ ${SQL}` 。`RouteService#route(...)` 解析注解 `mycat:catlet` 后，路由给 `HintCatletHandler` 作进一步处理。
 
@@ -108,11 +108,11 @@ for (dn : dns) { // 此处是并行执行，使用回调逻辑
 
 `JoinParser` 负责对 SQL 进行解析。整体流程如下：
 
-![](http://www.yunai.me/images/MyCAT/2017_07_12/02.png)
+![](http://www.iocoder.cn/images/MyCAT/2017_07_12/02.png)
  
 举个例子，`/*!mycat:catlet=io.mycat.catlets.ShareJoin */ SELECT o.id, u.username from t_order o join t_user u on o.uid = u.id;` 解析后，`TableFilter` 结果如下：
 
-![](http://www.yunai.me/images/MyCAT/2017_07_12/03.png)
+![](http://www.iocoder.cn/images/MyCAT/2017_07_12/03.png)
 
 * tName ：表名
 * tAlia ：表自定义命名
@@ -193,7 +193,7 @@ public String getSQL() {
 
 当 SQL 解析完后，生成**左边的表**执行的 SQL，发送给对应的数据节点查询数据。大体流程如下：
 
-![](http://www.yunai.me/images/MyCAT/2017_07_12/04.png)
+![](http://www.iocoder.cn/images/MyCAT/2017_07_12/04.png)
 
 当 SQL 为 `/*!mycat:catlet=io.mycat.catlets.ShareJoin */ SELECT o.id, u.username from t_order o join t_user u on o.uid = u.id;` 时，
 `sql = getSql()` 的返回结果为 `select id, uid from t_order`。
@@ -202,7 +202,7 @@ public String getSQL() {
 
 ## 3.3 BatchSQLJob
 
-![](http://www.yunai.me/images/MyCAT/2017_07_12/05.png)
+![](http://www.iocoder.cn/images/MyCAT/2017_07_12/05.png)
 
 `EngineCtx` 对 `BatchSQLJob` 封装，提供上层两个方法：
 
@@ -286,13 +286,13 @@ public boolean jobFinished(SQLJob sqlJob) {
 
 在 `ShareJoin` 里，`SQLJobHandler` 有两个实现：`ShareDBJoinHandler`、`ShareRowOutPutDataHandler`。前者，**左边的表**执行的 SQL 回调；后者，**右边的表**执行的 SQL 回调。
 
-![](http://www.yunai.me/images/MyCAT/2017_07_12/06.png)
+![](http://www.iocoder.cn/images/MyCAT/2017_07_12/06.png)
 
 ## 3.4 ShareDBJoinHandler
 
 `ShareDBJoinHandler`，**左边的表**执行的 SQL 回调。流程如下：
 
-![](http://www.yunai.me/images/MyCAT/2017_07_12/07.png)
+![](http://www.iocoder.cn/images/MyCAT/2017_07_12/07.png)
 
 * `#fieldEofResponse(...)` ：接收数据节点返回的 fields，放入内存。
 * `#rowResponse(...)` ：接收数据节点返回的 row，放入内存。
@@ -345,7 +345,7 @@ private void createQryJob(int batchSize) {
 
 `ShareRowOutPutDataHandler`，**右边的表**执行的 SQL 回调。流程如下：
 
-![](http://www.yunai.me/images/MyCAT/2017_07_12/08.png)
+![](http://www.iocoder.cn/images/MyCAT/2017_07_12/08.png)
 
 * `#fieldEofResponse(...)` ：接收数据节点返回的 fields，返回 header 给 MySQL Client。
 * `#rowResponse(...)` ：接收数据节点返回的 row，匹配左表的记录，返回合并后返回的 row 给 MySQL Client。
@@ -397,7 +397,7 @@ public boolean onRowData(String dataNode, byte[] rowData) {
 
 如下是本文涉及到的核心类，有兴趣的同学可以翻一翻。
 
-![](http://www.yunai.me/images/MyCAT/2017_07_12/09.png)
+![](http://www.iocoder.cn/images/MyCAT/2017_07_12/09.png)
 
 `ShareJoin` 另外不支持的功能：
 

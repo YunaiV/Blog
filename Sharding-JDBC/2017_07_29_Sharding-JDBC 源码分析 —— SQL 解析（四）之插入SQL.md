@@ -7,7 +7,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 -------
 
-![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -36,8 +36,8 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 本文前置阅读：
 
-* [《SQL 解析（一）之词法解析》](http://www.yunai.me/Sharding-JDBC/sql-parse-1/?self)
-* [《SQL 解析（二）之SQL解析》](http://www.yunai.me/Sharding-JDBC/sql-parse-2/?self)
+* [《SQL 解析（一）之词法解析》](http://www.iocoder.cn/Sharding-JDBC/sql-parse-1/?self)
+* [《SQL 解析（二）之SQL解析》](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/?self)
 
 本文分享**插入SQL解析**的源码实现。
 
@@ -90,7 +90,7 @@ Sharding-JDBC 目前支持：
 
 Sharding-JDBC 插入SQL解析主流程如下：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_07_29/01.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_07_29/01.png)
 
 ```Java
 // AbstractInsertParser.java
@@ -143,7 +143,7 @@ public final class InsertStatement extends AbstractSQLStatement {
 
 我们来看下 `INSERT INTO t_order (uid, nickname) VALUES (?, ?)` 的**解析结果**：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_07_29/02.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_07_29/02.png)
 
 # 3. #parse()
 
@@ -181,7 +181,7 @@ private void skipBetweenTableAndValues() {
 }
 ```
 
-其中 `#parseSingleTable()` 请看[《SQL 解析（二）之SQL解析》的 `#parseSingleTable()` 小节](http://www.yunai.me/Sharding-JDBC/sql-parse-2/?self)。
+其中 `#parseSingleTable()` 请看[《SQL 解析（二）之SQL解析》的 `#parseSingleTable()` 小节](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/?self)。
 
 ## 3.2 #parseColumns()
 
@@ -297,7 +297,7 @@ public final class GeneratedKey {
 
 ### 3.4.2 Condition
 
-条件对象，**属于分片上下文信息**。在**插入SQL解析**里存储**影响分片的值字段**。后续[《SQL 路由》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg) 会专门分享这块。
+条件对象，**属于分片上下文信息**。在**插入SQL解析**里存储**影响分片的值字段**。后续[《SQL 路由》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) 会专门分享这块。
 
 ```Java
 public final class Condition {
@@ -378,7 +378,7 @@ private void parseInsertSet() {
 INSERT INTO t_user(nickname, age) VALUES (?, ?)
 ```
 
-后续 SQL 改写会生成该自增编号，并改写该 SQL。后续[《SQL 改写》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg) 会专门分享这块。
+后续 SQL 改写会生成该自增编号，并改写该 SQL。后续[《SQL 改写》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) 会专门分享这块。
 
 ```Java
 private void appendGenerateKey() {
@@ -413,7 +413,7 @@ public final class GeneratedKeyToken implements SQLToken {
 
 # 666. 彩蛋
 
-😈 是不是比[《SQL 解析（三）之插入SQL》](http://www.yunai.me/Sharding-JDBC/sql-parse-3/?self)简单很多。
+😈 是不是比[《SQL 解析（三）之插入SQL》](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/?self)简单很多。
 
 **道友，可否分享一波【本文】到朋友圈**。
 

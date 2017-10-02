@@ -15,7 +15,7 @@ permalink: Elastic-Job/job-listener
 
 -------
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -30,9 +30,9 @@ permalink: Elastic-Job/job-listener
 
 本文主要分享 **Elastic-Job-Lite 作业监听器**。
 
-涉及到主要类的类图如下( [打开大图](http://www.yunai.me/images/Elastic-Job/2017_11_21/01.png) )：
+涉及到主要类的类图如下( [打开大图](http://www.iocoder.cn/images/Elastic-Job/2017_11_21/01.png) )：
 
-![](http://www.yunai.me/images/Elastic-Job/2017_11_21/01.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_11_21/01.png)
 
 * 绿色**监听器**接口 ElasticJobListener，每台作业节点均执行。
 * 粉色**监听器**接口 AbstractDistributeOnceElasticJobListener，分布式场景中仅单一节点执行。
@@ -286,14 +286,14 @@ public final void beforeJobExecuted(final ShardingContexts shardingContexts) {
     public abstract void doAfterJobExecutedAtLastCompleted(ShardingContexts shardingContexts);
     ```
 
-* 整体流程如下图：![](http://www.yunai.me/images/Elastic-Job/2017_11_21/02.png)    
+* 整体流程如下图：![](http://www.iocoder.cn/images/Elastic-Job/2017_11_21/02.png)    
 
 # 666. 彩蛋
 
 旁白君：哎哟喂，AbstractDistributeOnceElasticJobListener 还不错哟。  
 芋道君：那必须必的。
 
-![](http://www.yunai.me/images/Elastic-Job/2017_11_21/03.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_11_21/03.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

@@ -31,7 +31,7 @@ permalink: Elastic-Job/job-execute
 
 -------
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -46,9 +46,9 @@ permalink: Elastic-Job/job-execute
 
 本文主要分享 **Elastic-Job-Lite 作业执行**。
 
-涉及到主要类的类图如下( [打开大图](http://www.yunai.me/images/Elastic-Job/2017_09_23/01.png) )：
+涉及到主要类的类图如下( [打开大图](http://www.iocoder.cn/images/Elastic-Job/2017_09_23/01.png) )：
 
-![](http://www.yunai.me/images/Elastic-Job/2017_09_23/01.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_09_23/01.png)
 
 * **黄色**的类在 `elastic-job-common-core` 项目里，为 Elastic-Job-Lite、Elastic-Job-Cloud **公用**作业执行类。
 
@@ -62,7 +62,7 @@ Lite调度作业( LiteJob )，作业被调度后，调用 `#execute()` 执行作
 
 **为什么是 LiteJob 作为入口呢？**
 
-在[《Elastic-Job-Lite 源码分析 —— 作业初始化》的「3.2.3」创建作业调度控制器](http://www.yunai.me/Elastic-Job/job-init/?self)里，我们可以看到 Quartz 的 JobDetail 创建代码如下：
+在[《Elastic-Job-Lite 源码分析 —— 作业初始化》的「3.2.3」创建作业调度控制器](http://www.iocoder.cn/Elastic-Job/job-init/?self)里，我们可以看到 Quartz 的 JobDetail 创建代码如下：
 
 ```Java
 JobDetail result = JobBuilder.newJob(LiteJob.class).withIdentity(liteJobConfig.getJobName()).build();
@@ -216,7 +216,7 @@ public final class ScriptJobExecutor extends AbstractElasticJobExecutor {
 
 ## 3.1 加载作业配置
 
-从**缓存**中读取作业配置。在[《Elastic-Job-Lite 源码分析 —— 作业配置》的「3.1」读取作业配置](http://www.yunai.me/Elastic-Job/job-config/?self) 已经解析。
+从**缓存**中读取作业配置。在[《Elastic-Job-Lite 源码分析 —— 作业配置》的「3.1」读取作业配置](http://www.iocoder.cn/Elastic-Job/job-config/?self) 已经解析。
 
 ## 3.2 获取作业执行线程池
 
@@ -298,7 +298,7 @@ public final class DefaultExecutorServiceHandler implements ExecutorServiceHandl
         }
     }
     ```
-    * `MoreExecutors#listeningDecorator(...)` 在[《Sharding-JDBC 源码分析 —— SQL 执行》](http://www.yunai.me/Sharding-JDBC/sql-execute/?self) 已经解析。
+    * `MoreExecutors#listeningDecorator(...)` 在[《Sharding-JDBC 源码分析 —— SQL 执行》](http://www.iocoder.cn/Sharding-JDBC/sql-execute/?self) 已经解析。
     * `MoreExecutors#getExitingExecutorService(...)` 方法逻辑：将 ThreadPoolExecutor 转换成 ExecutorService，并增加 JVM 关闭钩子，实现 **120s** 等待任务完成：
 
     ```Java
@@ -349,7 +349,7 @@ private Object getDefaultHandler(final JobProperties.JobPropertiesEnum jobProper
 ```
 
 * 每个处理器都会对应一个 JobPropertiesEnum，使用枚举获得处理器。优先从 `JobProperties.map` 获取**自定义**的处理器实现类，如果不符合条件( 未实现正确接口 或者 创建处理器失败 )，使用**默认**的处理器实现。
-* 每个作业可以配置**不同**的处理器，在[《Elastic-Job-Lite 源码分析 —— 作业配置》的「2.2.2」作业核心配置](http://www.yunai.me/Elastic-Job/job-config/?self) 已经解析。
+* 每个作业可以配置**不同**的处理器，在[《Elastic-Job-Lite 源码分析 —— 作业配置》的「2.2.2」作业核心配置](http://www.iocoder.cn/Elastic-Job/job-config/?self) 已经解析。
 
 ## 3.3 获取作业异常执行器
 
@@ -382,9 +382,9 @@ public final class DefaultJobExceptionHandler implements JobExceptionHandler {
 
 # 4. 执行器执行
 
-执行逻辑主流程如下图( [打开大图](http://www.yunai.me/images/Elastic-Job/2017_09_23/02.png) )：
+执行逻辑主流程如下图( [打开大图](http://www.iocoder.cn/images/Elastic-Job/2017_09_23/02.png) )：
 
-![](http://www.yunai.me/images/Elastic-Job/2017_09_23/02.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_09_23/02.png)
 
 ```Java
 // AbstractElasticJobExecutor.java
@@ -451,16 +451,16 @@ public void checkJobExecutionEnvironment() throws JobExecutionEnvironmentExcepti
 }
 ```
 
-* 调用 `ConfigService#checkMaxTimeDiffSecondsTolerable()` 方法校验本机时间是否合法，在[《Elastic-Job-Lite 源码分析 —— 作业配置》的「3.3」校验本机时间是否合法](http://www.yunai.me/Elastic-Job/job-config/?self) 已经解析。
+* 调用 `ConfigService#checkMaxTimeDiffSecondsTolerable()` 方法校验本机时间是否合法，在[《Elastic-Job-Lite 源码分析 —— 作业配置》的「3.3」校验本机时间是否合法](http://www.iocoder.cn/Elastic-Job/job-config/?self) 已经解析。
 * 当校验本机时间不合法时，抛出异常。若使用 DefaultJobExceptionHandler 作为异常处理，**只打印日志，不会终止作业执行**。如果你的作业对时间精准度有比较高的要求，期望作业**终止**执行，可以自定义 JobExceptionHandler 实现对异常的处理。
 
 ## 4.2 获取当前作业服务器的分片上下文
 
-调用 `LiteJobFacade#getShardingContexts()` 方法获取当前作业服务器的分片上下文。通过这个方法，作业获得**其所分配执行的分片项**，在[《Elastic-Job-Lite 源码解析 —— 作业分片》](http://www.yunai.me/Elastic-Job/job-sharding/?self)详细分享。
+调用 `LiteJobFacade#getShardingContexts()` 方法获取当前作业服务器的分片上下文。通过这个方法，作业获得**其所分配执行的分片项**，在[《Elastic-Job-Lite 源码解析 —— 作业分片》](http://www.iocoder.cn/Elastic-Job/job-sharding/?self)详细分享。
 
 ## 4.3 发布作业状态追踪事件
 
-调用 `LiteJobFacade#postJobStatusTraceEvent()` 方法发布作业状态追踪事件，在[《Elastic-Job-Lite 源码解析 —— 作业事件追踪》](http://www.yunai.me/Elastic-Job/job-event-trace/?self)详细分享。
+调用 `LiteJobFacade#postJobStatusTraceEvent()` 方法发布作业状态追踪事件，在[《Elastic-Job-Lite 源码解析 —— 作业事件追踪》](http://www.iocoder.cn/Elastic-Job/job-event-trace/?self)详细分享。
 
 ## 4.4 跳过正在运行中的被错过执行的作业
 
@@ -478,7 +478,7 @@ public void beforeJobExecuted(final ShardingContexts shardingContexts) {
 }
 ```
 
-* 调用作业监听器执行作业**执行前**的方法，在[《Elastic-Job-Lite 源码解析 —— 作业监听器》](http://www.yunai.me/Elastic-Job/job-listener/?self)详细分享。
+* 调用作业监听器执行作业**执行前**的方法，在[《Elastic-Job-Lite 源码解析 —— 作业监听器》](http://www.iocoder.cn/Elastic-Job/job-listener/?self)详细分享。
 
 ## 4.6 执行普通触发的作业
 
@@ -522,7 +522,7 @@ private void process(final ShardingContexts shardingContexts, final int item, fi
 protected abstract void process(ShardingContext shardingContext);
 ```
 
-ps：**作业事件**相关逻辑，先统一跳过，在[《Elastic-Job-Lite 源码解析 —— 作业事件追踪》](http://www.yunai.me/Elastic-Job/job-event-trace/?self)详细分享。
+ps：**作业事件**相关逻辑，先统一跳过，在[《Elastic-Job-Lite 源码解析 —— 作业事件追踪》](http://www.iocoder.cn/Elastic-Job/job-event-trace/?self)详细分享。
 
 -------
 
@@ -545,7 +545,7 @@ private void execute(final ShardingContexts shardingContexts, final JobExecution
    if (shardingContexts.isAllowSendJobEvent()) {
        jobFacade.postJobStatusTraceEvent(taskId, State.TASK_RUNNING, "");
    }
-   // TODO
+   //
    try {
        process(shardingContexts, executionSource);
    } finally {
@@ -606,7 +606,7 @@ private void execute(final ShardingContexts shardingContexts, final JobExecution
     }
     ```
     * 仅当作业配置设置**监控作业运行时状态**( `LiteJobConfiguration.monitorExecution = true` )时，记录作业运行状态。
-    * 调用 `JobNodeStorage#fillEphemeralJobNode(...)` 方法记录**分配的作业分片项**正在运行中。如何记录的，在[《Elastic-Job-Lite 源码解析 —— 作业数据存储》](http://www.yunai.me/Elastic-Job/job-storage/?self)详细分享。
+    * 调用 `JobNodeStorage#fillEphemeralJobNode(...)` 方法记录**分配的作业分片项**正在运行中。如何记录的，在[《Elastic-Job-Lite 源码解析 —— 作业数据存储》](http://www.iocoder.cn/Elastic-Job/job-storage/?self)详细分享。
 
 * 调用 `LiteJobFacade#registerJobCompleted(...)` 方法注册作业**完成**信息：
 
@@ -638,7 +638,7 @@ private void execute(final ShardingContexts shardingContexts, final JobExecution
     ```
     * 仅当作业配置设置**监控作业运行时状态**( `LiteJobConfiguration.monitorExecution = true` )，移除作业运行状态。
     * 调用 `JobNodeStorage#removeJobNodeIfExisted(...)` 方法**移除分配的作业分片项**正在运行中的标记，表示作业分片项不在运行中状态。
-    * 调用 `FailoverService#updateFailoverComplete(...)` 方法更新执行完毕失效转移的分片项状态，在[《Elastic-Job-Lite 源码解析 —— 作业失效转移》](http://www.yunai.me/Elastic-Job/job-failover/?self)详细分享。
+    * 调用 `FailoverService#updateFailoverComplete(...)` 方法更新执行完毕失效转移的分片项状态，在[《Elastic-Job-Lite 源码解析 —— 作业失效转移》](http://www.iocoder.cn/Elastic-Job/job-failover/?self)详细分享。
 
 -------
 
@@ -921,7 +921,7 @@ private CronTrigger createTrigger(final String cron) {
 }
 ```
 
-* `org.quartz.jobStore.misfireThreshold` 设置超过 1 毫秒，作业分片项即被视为错过执行。
+* `org.quartz.jobStore.misfireThreshold` 设置最大允许超过 1 毫秒，作业分片项即被视为错过执行。
 * `#withMisfireHandlingInstructionDoNothing()` 设置 Quartz 系统不会立刻再执行任务，而是等到距离目前时间最近的预计时间执行。**重新执行被错过执行的作业交给 Elastic-Job-Lite 处理**。
 * 使用 TriggerListener 监听被错过执行的作业分片项：
 
@@ -1024,7 +1024,7 @@ public void failoverIfNecessary() {
 }
 ```
 
-* 调用作业失效转移服务( FailoverService )执行作业失效转移( `#failoverIfNecessary()` )，在[《Elastic-Job-Lite 源码解析 —— 作业失效转移》](http://www.yunai.me/Elastic-Job/job-failover/?self)详细分享。
+* 调用作业失效转移服务( FailoverService )执行作业失效转移( `#failoverIfNecessary()` )，在[《Elastic-Job-Lite 源码解析 —— 作业失效转移》](http://www.iocoder.cn/Elastic-Job/job-failover/?self)详细分享。
 
 ## 4.9 执行作业执行后的方法
 
@@ -1038,7 +1038,7 @@ public void afterJobExecuted(final ShardingContexts shardingContexts) {
 }
 ```
 
-* 调用作业监听器执行作业**执行后**的方法，在[《Elastic-Job-Lite 源码解析 —— 作业监听器》](http://www.yunai.me/Elastic-Job/job-listener/?self)详细分享。
+* 调用作业监听器执行作业**执行后**的方法，在[《Elastic-Job-Lite 源码解析 —— 作业监听器》](http://www.iocoder.cn/Elastic-Job/job-listener/?self)详细分享。
 
 # 666. 彩蛋
 
@@ -1046,8 +1046,8 @@ public void afterJobExecuted(final ShardingContexts shardingContexts) {
 
 下面会更新如下两篇文章，为后续的主节点选举、失效转移、作业分片策略等文章做铺垫：
 
-* [《Elastic-Job-Lite 源码解析 —— 注册中心》](http://www.yunai.me/Elastic-Job/reg-center-zookeeper/?self)
-* [《Elastic-Job-Lite 源码解析 —— 作业数据存储》](http://www.yunai.me/Elastic-Job/job-storage/?self)
+* [《Elastic-Job-Lite 源码解析 —— 注册中心》](http://www.iocoder.cn/Elastic-Job/reg-center-zookeeper/?self)
+* [《Elastic-Job-Lite 源码解析 —— 作业数据存储》](http://www.iocoder.cn/Elastic-Job/job-storage/?self)
 
 道友，赶紧上车，分享一波朋友圈！
 

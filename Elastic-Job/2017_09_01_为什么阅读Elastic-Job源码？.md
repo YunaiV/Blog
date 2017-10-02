@@ -6,7 +6,7 @@ permalink: Elastic-Job/why-read-Elastic-Job-source-code
 
 -------
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -48,6 +48,19 @@ permalink: Elastic-Job/why-read-Elastic-Job-source-code
 * [ ] 基于 Docker 的进程隔离（TBD）
 * [x] 高可用
 
+
+## Elastic-Job-Cloud 不考虑写的内容
+
+* 《Elastic-Job-Cloud 源码解析 —— 注册中心》和《Elastic-Job-Lite 源码解析 —— 注册中心》 一致
+* 《Elastic-Job-Cloud 源码解析 —— 作业数据存储》和《Elastic-Job-Lite 源码解析 —— 作业数据存储》 一致
+* 《Elastic-Job-Cloud 源码解析 —— 注册中心监听器》和《Elastic-Job-Lite 源码解析 —— 注册中心监听器》 一致
+* 《Elastic-Job-Cloud 源码解析 —— 注册中心监听器》和《Elastic-Job-Lite 源码解析 —— 注册中心监听器》 一致
+* 《Elastic-Job-Cloud 源码解析 —— 作业事件追踪》和《Elastic-Job-Lite 源码解析 —— 作业事件追踪》 一致
+* 《Elastic-Job-Cloud 源码解析 —— 作业分片策略》在《Elastic-Job-Cloud 源码解析 —— 作业调度（一）》包含
+* 《Elastic-Job-Cloud 源码解析 —— 作业监听器》该功能暂不支持
+* 《Elastic-Job-Cloud 源码解析 —— 作业监控服务》该功能暂不支持
+* 《Elastic-Job-Cloud 源码解析 —— 运维平台》融合在每一张里，**统计相关暂时未解析**
+* 《Elastic-Job-Cloud 源码解析 —— 诊断自修复》《Elastic-Job-Cloud 源码解析 —— 高可用》包含
 
 ## XXL-JOB 
 

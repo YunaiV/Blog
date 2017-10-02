@@ -6,7 +6,7 @@ permalink: RocketMQ/message-pull-and-consume-first
 
 -------
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -54,17 +54,17 @@ permalink: RocketMQ/message-pull-and-consume-first
 
 ok，先看第一张关于消费逻辑的图：
 
-> ![消费逻辑图](http://www.yunai.me/images/RocketMQ/2017_05_04/13.png)
+> ![消费逻辑图](http://www.iocoder.cn/images/RocketMQ/2017_05_04/13.png)
 
 再看消费逻辑精简的顺序图（实际情况会略有差别）：
 
-> ![Consumer&Broker消费精简图.png](http://www.yunai.me/images/RocketMQ/2017_05_04/04.png)
+> ![Consumer&Broker消费精简图.png](http://www.iocoder.cn/images/RocketMQ/2017_05_04/04.png)
 
 # 2、ConsumeQueue 结构
 
 `ConsumeQueue`、`MappedFileQueue`、`MappedFile` 的关系如下：
 
-> ![ConsumeQueue、MappedFileQueue、MappedFile的关系](http://www.yunai.me/images/RocketMQ/2017_05_04/03.png)
+> ![ConsumeQueue、MappedFileQueue、MappedFile的关系](http://www.iocoder.cn/images/RocketMQ/2017_05_04/03.png)
 `ConsumeQueue` : `MappedFileQueue` : `MappedFile` = 1 : 1 : N。
 
 反应到系统文件如下：
@@ -119,7 +119,7 @@ total 11720
 
 # 3、ConsumeQueue 存储
 
-![CommitLog重放ConsumeQueue图](http://www.yunai.me/images/RocketMQ/2017_05_04/02.png)
+![CommitLog重放ConsumeQueue图](http://www.iocoder.cn/images/RocketMQ/2017_05_04/02.png)
 
 主要有两个组件：
 
@@ -128,7 +128,7 @@ total 11720
 
 ## ReputMessageService
 
-![ReputMessageService顺序图](http://www.yunai.me/images/RocketMQ/2017_05_04/12.png)
+![ReputMessageService顺序图](http://www.iocoder.cn/images/RocketMQ/2017_05_04/12.png)
 
 ```Java
   1: class ReputMessageService extends ServiceThread {
@@ -278,7 +278,7 @@ total 11720
 * 说明：重放消息线程服务。
     * 该服务不断生成 消息位置信息 到 消费队列(ConsumeQueue)
     * 该服务不断生成 消息索引 到 索引文件(IndexFile)    
-* ![ReputMessageService用例图](http://www.yunai.me/images/RocketMQ/2017_05_04/11.png)
+* ![ReputMessageService用例图](http://www.iocoder.cn/images/RocketMQ/2017_05_04/11.png)
     * 第 61 行 ：获取 `reputFromOffset` 开始的 `CommitLog` 对应的 `MappedFile` 对应的 `MappedByteBuffer`。
     * 第 67 行 ：遍历 `MappedByteBuffer`。
     * 第 69 行 ：生成重放消息重放调度请求 (`DispatchRequest`) 。请求里主要包含一条消息 (`Message`) 或者 文件尾 (`BLANK`) 的基本信息。
@@ -458,7 +458,7 @@ total 11720
 * `#putMessagePositionInfoWrapper(...)` 说明 ：添加位置信息到 `ConsumeQueue` 的封装，实际需要调用 `#putMessagePositionInfo(...)` 方法。
     * 第 13 行 ：判断 `ConsumeQueue` 是否允许写入。当发生Bug时，不允许写入。
     * 第 17 行 ：调用 `#putMessagePositionInfo(...)` 方法，添加位置信息。
-    * 第 18 至 21 行 ：添加成功，使用消息存储时间 作为 存储检查点。`StoreCheckpoint` 的详细解析见：[Store初始化与关闭](http://www.yunai.me/RocketMQ/store-init-and-shutdown/)。
+    * 第 18 至 21 行 ：添加成功，使用消息存储时间 作为 存储检查点。`StoreCheckpoint` 的详细解析见：[Store初始化与关闭](http://www.iocoder.cn/RocketMQ/store-init-and-shutdown/)。
     * 第 22 至 32 行 ：添加失败，目前基本可以认为是BUG。
     * 第 35 至 37 行 ：写入失败时，标记 `ConsumeQueue` 写入异常，不允许继续写入。
 * `#putMessagePositionInfo(...)` 说明 ：添加位置信息到 `ConsumeQueue`，并返回添加是否成功。
@@ -551,8 +551,8 @@ total 11720
 * 第 11 至 14 行 ：当 `retryTimes == RETRY_TIMES_OVER` 时，进行强制flush。用于 `shutdown` 时。
 * 第 15 至 23 行 ：每 flushConsumeQueueThoroughInterval 周期，执行一次 flush 。因为不是每次循环到都能满足 flushConsumeQueueLeastPages 大小，因此，需要一定周期进行一次强制 flush 。当然，不能每次循环都去执行强制 flush，这样性能较差。
 * 第 24 至 33 行 ：flush `ConsumeQueue`(消费队列)。
-    * flush 逻辑：[MappedFile#落盘](http://www.yunai.me/RocketMQ/message-store/#MappedFile-落盘)。
-* 第 34 至 40 行 ：flush `StoreCheckpoint`。`StoreCheckpoint` 的详细解析见：[Store初始化与关闭](http://www.yunai.me/RocketMQ/store-init-and-shutdown/)。
+    * flush 逻辑：[MappedFile#落盘](http://www.iocoder.cn/RocketMQ/message-store/#MappedFile-落盘)。
+* 第 34 至 40 行 ：flush `StoreCheckpoint`。`StoreCheckpoint` 的详细解析见：[Store初始化与关闭](http://www.iocoder.cn/RocketMQ/store-init-and-shutdown/)。
 * 第 43 至 59 行 ：每 1000ms 执行一次 `flush`。如果 wakeup() 时，则会立即进行一次 `flush`。目前，暂时不存在 wakeup() 的调用。
 
 # 4、Broker 提供[拉取消息]接口
@@ -983,7 +983,7 @@ total 11720
 * 第 64 至 110 行 ：校验 `SubscriptionData`(订阅信息) 是否正确。
 * 第 113 行 ：调用 `MessageStore#getMessage(...)` 获取 `GetMessageResult`(消息)。详细解析见：[MessageStore#getMessage(...)](#messagestoregetmessage)。
 * 第 122 至 152 行 ：计算建议拉取消息 `brokerId` 。
-* 第 154 至 201 行 ：![PullMessageProcessor拉取消息状态图](http://www.yunai.me/images/RocketMQ/2017_05_04/08.png)
+* 第 154 至 201 行 ：![PullMessageProcessor拉取消息状态图](http://www.iocoder.cn/images/RocketMQ/2017_05_04/08.png)
 * 第 204 至 244 行 ：`Hook` 逻辑，`#executeConsumeMessageHookBefore(...)` 。
 * 第 247 至 283 行 ：拉取消息成功，即拉取到消息。
     * 第 255 至 263 行 ：方式一 ：调用 `readGetMessageResult(...)` 获取消息内容到堆内内存，设置到 响应`body`。
@@ -1869,7 +1869,7 @@ Yunai-MacdeMacBook-Pro-2:config yunai$ cat consumerOffset.json
 
 # 6、Broker 提供[发回消息]接口
 
-大部分逻辑和 [`Broker` 提供[接收消息]接口](http://www.yunai.me/RocketMQ/message-send-and-receive/#3、Broker-接收消息) 类似，可以先看下相关内容。
+大部分逻辑和 [`Broker` 提供[接收消息]接口](http://www.iocoder.cn/RocketMQ/message-send-and-receive/#3、Broker-接收消息) 类似，可以先看下相关内容。
 
 ## SendMessageProcessor#consumerSendMsgBack(...)
 

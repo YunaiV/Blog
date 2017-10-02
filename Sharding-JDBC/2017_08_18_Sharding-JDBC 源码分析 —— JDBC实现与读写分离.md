@@ -7,7 +7,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,JDBC,读写分离
 
 -------
 
-![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -44,11 +44,11 @@ OK，我们先来看一段 Sharding-JDBC 官方对自己的定义和定位
 
 > Sharding-JDBC定位为轻量级java框架，使用客户端直连数据库，以jar包形式提供服务，未使用中间层，无需额外部署，无其他依赖，DBA也无需改变原有的运维方式，可理解为**增强版的JDBC驱动**，旧代码迁移成本几乎为零。
 
-可以看出，Sharding-JDBC 通过实现 **JDBC规范**，对上层提供透明化数据库分库分表的访问。😈 黑科技？实际我们使用的**数据库连接池**也是通过这种方式实现对上层无感知的提供连接池。甚至还可以通过这种方式实现对 Lucene、[MongoDB](http://www.yunai.me/MyCAT/connect-mongodb/?self) 等等的访问。
+可以看出，Sharding-JDBC 通过实现 **JDBC规范**，对上层提供透明化数据库分库分表的访问。😈 黑科技？实际我们使用的**数据库连接池**也是通过这种方式实现对上层无感知的提供连接池。甚至还可以通过这种方式实现对 Lucene、[MongoDB](http://www.iocoder.cn/MyCAT/connect-mongodb/?self) 等等的访问。
 
 扯远了，下面来看看 Sharding-JDBC `jdbc` 包的结构：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_18/01.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_18/01.png)
 
 * `unsupported`：声明**不支持**的数据操作方法
 * `adapter`：适配类，实现和分库分表**无关**的方法
@@ -58,19 +58,19 @@ OK，我们先来看一段 Sharding-JDBC 官方对自己的定义和定位
 
 * Datasource
 
-    ![-w640](http://www.yunai.me/images/Sharding-JDBC/2017_08_18/02.png)
+    ![-w640](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_18/02.png)
 
 * Connection
 
-   ![-w640](http://www.yunai.me/images/Sharding-JDBC/2017_08_18/03.png)
+   ![-w640](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_18/03.png)
 
 * Statement
 
-  ![-w640](http://www.yunai.me/images/Sharding-JDBC/2017_08_18/04.png)
+  ![-w640](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_18/04.png)
 
 * ResultSet
 
-  ![-w640](http://www.yunai.me/images/Sharding-JDBC/2017_08_18/05.png)
+  ![-w640](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_18/05.png)
 
 **实现**层级如下：**JDBC 接口** <=(继承)== **`unsupported`抽象类** <=(继承)== **`unsupported`抽象类** <=(继承)== **`core`类**。
 
@@ -572,7 +572,7 @@ if (rs.next()) {
 
 **调用 `#executeUpdate()` 方法，内部过程如下**：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_18/06.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_18/06.png)
 
 是不是对上层**完全透明**？！我们来看看内部是怎么实现的。
 
@@ -605,7 +605,7 @@ public int executeUpdate() throws SQLException {
     }
     ```
 
-* `#executeUpdate()` 调用[执行引擎](http://www.yunai.me/Sharding-JDBC/sql-execute/?self)**并行**执行**多个**预编译语句对象。执行时，最终调用预编译语句对象( PreparedStatement )。我们来看一个例子：
+* `#executeUpdate()` 调用[执行引擎](http://www.iocoder.cn/Sharding-JDBC/sql-execute/?self)**并行**执行**多个**预编译语句对象。执行时，最终调用预编译语句对象( PreparedStatement )。我们来看一个例子：
 
     ```Java
     // PreparedStatementExecutor.java
@@ -791,8 +791,8 @@ public ResultSet executeQuery() throws SQLException {
 }
 ```
 
-* **SQL执行** 感兴趣的同学可以看：[《Sharding-JDBC 源码分析 —— SQL 执行》](http://www.yunai.me/Sharding-JDBC/sql-execute/?self)
-* **结果归并** 感兴趣的同学可以看：[《Sharding-JDBC 源码分析 —— 结果归并》](http://www.yunai.me/Sharding-JDBC/result-merger/?self)
+* **SQL执行** 感兴趣的同学可以看：[《Sharding-JDBC 源码分析 —— SQL 执行》](http://www.iocoder.cn/Sharding-JDBC/sql-execute/?self)
+* **结果归并** 感兴趣的同学可以看：[《Sharding-JDBC 源码分析 —— 结果归并》](http://www.iocoder.cn/Sharding-JDBC/result-merger/?self)
 * 结果归并 `#merge()` 完后，创建分片结果集( ShardingResultSet )
 
     ```Java
@@ -962,7 +962,7 @@ private static boolean isMasterRoute(final SQLType sqlType) {
 没有  
 没  
 
-下一篇，[《分布式事务（一）之最大努力型》](http://www.yunai.me/Sharding-JDBC/transaction-bed/?self)走起。老司机，赶紧上车。
+下一篇，[《分布式事务（一）之最大努力型》](http://www.iocoder.cn/Sharding-JDBC/transaction-bed/?self)走起。老司机，赶紧上车。
 
 道友，分享一个朋友圈可好？不然交个道姑那~~敏感词~~你。
 

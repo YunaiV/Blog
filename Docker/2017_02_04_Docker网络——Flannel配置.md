@@ -6,7 +6,7 @@ permalink: Docker/docker-network-flannel
 
 -------
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -38,7 +38,7 @@ $ tar -zxvf flannel-v0.7.0-linux-amd64.tar.gz
 $ ls -ls
 ```
     
-结果：![](http://www.yunai.me/images/Docker/2017_02_04/00AD067C-53F7-43EF-A8CA-F77CD72471BA.png)    
+结果：![](http://www.iocoder.cn/images/Docker/2017_02_04/00AD067C-53F7-43EF-A8CA-F77CD72471BA.png)    
     
 ### 2. 启动Flannel
 
@@ -49,7 +49,7 @@ $ nohup ./flanneld -etcd-endpoints=http://10.29.76.96:2379 &
 $ cat /run/flannel/subnet.env
 ```
 
-结果：![](http://www.yunai.me/images/Docker/2017_02_04/D7087C8C-E6D7-408E-A088-3517E454A592.png)    
+结果：![](http://www.iocoder.cn/images/Docker/2017_02_04/D7087C8C-E6D7-408E-A088-3517E454A592.png)    
 
 ps：重要！重要！重要！目前该方式仅仅用于测试，如果正式使用，请将Flannel配置到Systemd。
 
@@ -70,7 +70,7 @@ $ ifconfig docker0
 $ ifconfig flannel0
 ```
 
-结果：![](http://www.yunai.me/images/Docker/2017_02_04/3B5B0FEC-E65D-4D02-87FD-70C443952845.png)
+结果：![](http://www.iocoder.cn/images/Docker/2017_02_04/3B5B0FEC-E65D-4D02-87FD-70C443952845.png)
 
 ### 4. 验证网络是否通畅 
 
@@ -102,10 +102,10 @@ $ ping 10.1.97.2
 
 ## D. 性能
 
-* ![](http://www.yunai.me/images/Docker/2017_02_04/F7429465-2334-48C6-B84E-4C7FC735F5F9.png)
+* ![](http://www.iocoder.cn/images/Docker/2017_02_04/F7429465-2334-48C6-B84E-4C7FC735F5F9.png)
 （来自文章[干货|你想要的百分点大规模Kubernetes集群的应用实践来了](http://mp.weixin.qq.com/s?__biz=MjM5MzI5NjY2MA==&mid=2653782073&idx=1&sn=6db70559acabae67e35e13af7883e1d5&chksm=bd4018428a37915415ffda36c4f9f5e31088063ef3ad83e325d3e4ecd4eccf8d202709ac9629&mpshare=1&scene=1&srcid=0203g7cy4y9XpVhqA9fr5PGp#rd)）
 
-* ![](http://www.yunai.me/images/Docker/2017_02_04/0BF283C9-C26C-46C1-9BDA-604EAD67B2E2.png)
+* ![](http://www.iocoder.cn/images/Docker/2017_02_04/0BF283C9-C26C-46C1-9BDA-604EAD67B2E2.png)
 （来自文章[Weave is kinda slow](http://www.generictestdomain.net/docker/weave/networking/stupidity/2015/04/05/weave-is-kinda-slow/）
 
 * [Docker或Kubernets的网络模型](http://www.do1618.com/archives/869)

@@ -6,7 +6,7 @@ permalink: MyCAT/connect-mongodb
 
 ---
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -39,12 +39,12 @@ permalink: MyCAT/connect-mongodb
 
 建议你看过这两篇文章（_非必须_）：
 
-1. [《MyCAT 源码分析 —— 【单库单表】插入》](http://www.yunai.me/MyCAT/single-db-single-table-insert/?self)
-2. [《MyCAT 源码分析 —— 【单库单表】查询》](http://www.yunai.me/MyCAT/single-db-single-table-select/?self)
+1. [《MyCAT 源码分析 —— 【单库单表】插入》](http://www.iocoder.cn/MyCAT/single-db-single-table-insert/?self)
+2. [《MyCAT 源码分析 —— 【单库单表】查询》](http://www.iocoder.cn/MyCAT/single-db-single-table-select/?self)
 
 # 2. 主流程
 
-![](http://www.yunai.me/images/MyCAT/2017_07_19/01.png)   
+![](http://www.iocoder.cn/images/MyCAT/2017_07_19/01.png)   
 
 1. `MyCAT Server` 接收 `MySQL Client` 基于 **MySQL协议** 的请求，翻译 **SQL** 成 **MongoDB操作** 发送给 `MongoDB Server`。
 2. `MyCAT Server` 接收 `MongoDB Server` 返回的 **MongoDB数据**，翻译成 `MySQL数据结果` 返回给 `MySQL Client`。
@@ -53,13 +53,13 @@ permalink: MyCAT/connect-mongodb
 
 -------
 
-![](http://www.yunai.me/images/MyCAT/2017_07_19/02.png)
+![](http://www.iocoder.cn/images/MyCAT/2017_07_19/02.png)
 
 > Java数据库连接，（Java Database Connectivity，简称JDBC）是Java语言中用来规范客户端程序如何来访问数据库的应用程序接口，提供了诸如查询和更新数据库中数据的方法。JDBC也是Sun Microsystems的商标。JDBC是面向关系型数据库的。
 
 MyCAT 使用 JDBC 规范，抽象了对 MongoDB 的访问。通过这样的方式，MyCAT 也抽象了 SequoiaDB 的访问。可能这样说法有些抽象，看个类图压压惊。
 
-![](http://www.yunai.me/images/MyCAT/2017_07_19/03.png)
+![](http://www.iocoder.cn/images/MyCAT/2017_07_19/03.png)
 
 是不是熟悉的味道。**不得不说 JDBC 规范的精妙。**
 
@@ -69,7 +69,7 @@ MyCAT 使用 JDBC 规范，抽象了对 MongoDB 的访问。通过这样的方�
 SELECT id, name FROM user WHERE name > '' ORDER BY _id DESC;
 ```
 
-![](http://www.yunai.me/images/MyCAT/2017_07_19/04.png)
+![](http://www.iocoder.cn/images/MyCAT/2017_07_19/04.png)
 
 看顺序图已经很方便的理解整体逻辑，我就不多废话啦。我们来看几个核心的代码逻辑。
 
@@ -384,7 +384,7 @@ mysql> select * from user order by _id asc;
 
 # 4. 插入操作
 
-![](http://www.yunai.me/images/MyCAT/2017_07_19/05.png)
+![](http://www.iocoder.cn/images/MyCAT/2017_07_19/05.png)
 
 ```Java
 // MongoSQLParser.java
@@ -431,7 +431,7 @@ private int InsertData(SQLInsertStatement state) {
 
 老铁，看到这里，来一波微信公众号关注吧？！
 
-![wechat_mp](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![wechat_mp](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 **1、支持多 MongoDB ，并使用 MyCAT 进行分片。**
 

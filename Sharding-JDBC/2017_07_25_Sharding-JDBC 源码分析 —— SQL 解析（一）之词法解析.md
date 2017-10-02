@@ -7,7 +7,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 -------
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -51,7 +51,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 -------
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_07_23/01.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_07_23/01.png)
 
 **SQL 解析引擎**在 `parsing` 包下，如上图所见包含两大组件：
 
@@ -199,7 +199,7 @@ _我们来总结下，`Lexer#nextToken()` 方法里，使用 `#skipIgnoredToken(
 
 由于不同数据库遵守 SQL 规范略有不同，所以不同的数据库对应不同的 Lexer。
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_07_23/02.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_07_23/02.png)
 
 子 Lexer 通过重写方法实现自己独有的 SQL 语法。
 
@@ -218,11 +218,11 @@ TokenType 词法标记类型，一共分成 4 个大类：
 * Symbol ：词法符号标记
 * Assist ：词法辅助标记
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_07_23/03.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_07_23/03.png)
 
 ## 3.1 DefaultKeyword 词法关键词
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_07_23/04.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_07_23/04.png)
 
 **不同数据库有自己独有的_词法关键词_，例如 MySQL 熟知的分页 Limit。**
 

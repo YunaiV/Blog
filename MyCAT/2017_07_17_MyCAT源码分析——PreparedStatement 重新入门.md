@@ -6,7 +6,7 @@ permalink: MyCAT/what-is-PreparedStatement
 
 ---
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -145,7 +145,7 @@ pStmt = (PreparedStatement) clientPrepareStatement(nativeSql, resultSetType, res
 
 该操作对应 Client `conn.prepareStatement(....)`。
 
-![](http://www.yunai.me/images/MyCAT/2017_07_17/01.png)
+![](http://www.iocoder.cn/images/MyCAT/2017_07_17/01.png)
 
 MyCAT 接收到请求后，创建 `PreparedStatement`，并返回 `statementId` 等信息。Client 发起 SQL 执行时，需要将 `statementId` 带给 MyCAT。核心代码如下：
 
@@ -215,7 +215,7 @@ public static void response(PreparedStatement pstmt, FrontendConnection c) {
 
 该操作对应 Client `conn.execute(....)`。
 
-![](http://www.yunai.me/images/MyCAT/2017_07_17/02.png)
+![](http://www.iocoder.cn/images/MyCAT/2017_07_17/02.png)
 
 MyCAT 接收到请求后，将 PreparedStatement 使用请求的参数格式化成可执行的 SQL 进行执行。伪代码如下：
 
@@ -338,7 +338,7 @@ public void recachePreparedStatement(ServerPreparedStatement pstmt) throws SQLEx
 
 🗿 这个“彩蛋”还满意么？**请关注我的公众号：芋道源码**。下一篇更新：《MyCAT源码解析 —— MongoDB》，极大可能就在本周噢。
 
-![wechat_mp](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![wechat_mp](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 另外推荐一篇文章：[《JDBC PreparedStatement》](https://www.zybuluo.com/stefanlu/note/254899)。
 

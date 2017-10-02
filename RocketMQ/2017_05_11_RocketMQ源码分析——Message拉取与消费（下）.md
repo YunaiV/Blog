@@ -6,7 +6,7 @@ permalink: RocketMQ/message-pull-and-consume-second
 
 -------
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -84,7 +84,7 @@ permalink: RocketMQ/message-pull-and-consume-second
 
 # 1、概述
 
-本文接：[《RocketMQ 源码分析 —— Message 拉取与消费（上）》](http://www.yunai.me/RocketMQ/message-pull-and-consume-first/)。
+本文接：[《RocketMQ 源码分析 —— Message 拉取与消费（上）》](http://www.iocoder.cn/RocketMQ/message-pull-and-consume-first/)。
 
 主要解析 `Consumer` 在 **消费** 逻辑涉及到的源码。
 
@@ -105,7 +105,7 @@ MQ 提供了两类消费者：
 
 先看一张 `PushConsumer` 包含的组件以及组件之间的交互图：
 
-![PushConsumer手绘图.png](http://www.yunai.me/images/RocketMQ/2017_05_04/09.png)
+![PushConsumer手绘图.png](http://www.iocoder.cn/images/RocketMQ/2017_05_04/09.png)
 
 * `RebalanceService`：均衡消息队列服务，负责分配当前 `Consumer` 可消费的消息队列( `MessageQueue` )。当有新的 `Consumer` 的加入或移除，都会重新分配消息队列。
 * `PullMessageService`：拉取消息服务，**不断不断不断**从 `Broker` 拉取消息，并提交消费任务到 `ConsumeMessageService`。
@@ -187,7 +187,7 @@ MQ 提供了两类消费者：
 
 # 5、PushConsumer 消息队列分配
 
-![RebalanceService&PushConsumer分配队列](http://www.yunai.me/images/RocketMQ/2017_05_04/10.png)
+![RebalanceService&PushConsumer分配队列](http://www.iocoder.cn/images/RocketMQ/2017_05_04/10.png)
 
 ## RebalanceService
 
@@ -502,7 +502,7 @@ MQ 提供了两类消费者：
         * 第 103 行 ：移除不需要的消息队列。详细解析见：[RebalancePushImpl#removeUnnecessaryMessageQueue(...)](#rebalancepushimplremoveunnecessarymessagequeue)。
         * 第 108 至 120 行 ：队列拉取超时，即 `当前时间 - 最后一次拉取消息时间 > 120s` ( 120s 可配置)，判定发生 **BUG**，过久未进行消息拉取，移除消息队列。移除后，下面**#新增队列逻辑#**可以重新加入新的该消息队列。
     * 第 128 至 158 行 ：增加 分配的消息队列( `mqSet` ) 新增的消息队列。
-        * 第 132 至 135 行 ：`顺序消费` 相关跳过，详细解析见：[《RocketMQ 源码分析 —— Message 顺序发送与消费》](http://www.yunai.me/RocketMQ/message-send-and-consume-orderly/)。
+        * 第 132 至 135 行 ：`顺序消费` 相关跳过，详细解析见：[《RocketMQ 源码分析 —— Message 顺序发送与消费》](http://www.iocoder.cn/RocketMQ/message-send-and-consume-orderly/)。
         * 第 137 行 ：移除消息队列的消费进度。
         * 第 139 行 ：获取队列消费进度。详细解析见：[RebalancePushImpl#computePullFromWhere(...)](#rebalancepushimplcomputepullfromwhere)。
         * 第 140 至 156 行 ：**添加新消费处理队列，添加消费拉取消息请求**。
@@ -546,7 +546,7 @@ MQ 提供了两类消费者：
 
 * 说明 ：移除不需要的消息队列相关的信息，并返回是否移除成功。
 * 第 2 至 4 行 ：**同步**队列的消费进度，并移除之。
-* 第 5 至 27 行 ：`顺序消费` 相关跳过，详细解析见：[《RocketMQ 源码分析 —— Message 顺序发送与消费》](http://www.yunai.me/RocketMQ/message-send-and-consume-orderly/)。
+* 第 5 至 27 行 ：`顺序消费` 相关跳过，详细解析见：[《RocketMQ 源码分析 —— Message 顺序发送与消费》](http://www.iocoder.cn/RocketMQ/message-send-and-consume-orderly/)。
 
 #### `[PullConsumer]` RebalancePullImpl#removeUnnecessaryMessageQueue(...)
 
@@ -585,7 +585,7 @@ MQ 提供了两类消费者：
 
 ### AllocateMessageQueueStrategy
 
-![AllocateMessageQueueStrategy类图](http://www.yunai.me/images/RocketMQ/2017_05_04/01.png)
+![AllocateMessageQueueStrategy类图](http://www.iocoder.cn/images/RocketMQ/2017_05_04/01.png)
 
 #### AllocateMessageQueueAveragely
 
@@ -889,7 +889,7 @@ MQ 提供了两类消费者：
 
 # 6、PushConsumer 拉取消息
 
-![DefaultMQPushConsumerImpl拉取消息](http://www.yunai.me/images/RocketMQ/2017_05_04/05.png)
+![DefaultMQPushConsumerImpl拉取消息](http://www.iocoder.cn/images/RocketMQ/2017_05_04/05.png)
 
 ## PullMessageService
 
@@ -1285,14 +1285,14 @@ MQ 提供了两类消费者：
     * 第 20 至 25 行 ： `Consumer` 处于暂停中，不进行消息拉取，提交**延迟**拉取消息请求。
     * 第 27 至 37 行 ：消息处理队列持有消息超过最大允许值（默认：1000条），不进行消息拉取，提交**延迟**拉取消息请求。
     * 第 39 至 49 行 ：`Consumer` 为**并发消费** 并且 消息队列持有消息跨度过大（消息跨度 = 持有消息最后一条和第一条的消息位置差，默认：2000），不进行消息拉取，提交**延迟**拉取消息请求。
-    * 第 50 至 70 行 ：`顺序消费` 相关跳过，详细解析见：[《RocketMQ 源码分析 —— Message 顺序发送与消费》](http://www.yunai.me/RocketMQ/message-send-and-consume-orderly/)。
+    * 第 50 至 70 行 ：`顺序消费` 相关跳过，详细解析见：[《RocketMQ 源码分析 —— Message 顺序发送与消费》](http://www.iocoder.cn/RocketMQ/message-send-and-consume-orderly/)。
     * 第 72 至 78 行 ：`Topic` 对应的订阅信息不存在，不进行消息拉取，提交**延迟**拉取消息请求。
-    * 第 222 至 224 行 ：判断请求是否使用 `Consumer` **本地**的订阅信息( `SubscriptionData` )，而不使用 `Broker` 里的订阅信息。详细解析见：[PullMessageProcessor#processRequest(...) 第 64 至 110 行代码](http://www.yunai.me/RocketMQ/message-pull-and-consume-first/#PullMessageProcessor-processRequest-…)。
-    * 第 226 行 ：是否开启过滤类过滤模式。详细解析见：[《RocketMQ 源码分析 —— Filtersrv》](http://www.yunai.me/RocketMQ/filtersrv/)。
-    * 第 229 至 235 行 ：计算拉取消息请求系统标识。详细解析见：[PullMessageRequestHeader.sysFlag](http://www.yunai.me/RocketMQ/message-pull-and-consume-first/#PullMessageRequestHeader)。
+    * 第 222 至 224 行 ：判断请求是否使用 `Consumer` **本地**的订阅信息( `SubscriptionData` )，而不使用 `Broker` 里的订阅信息。详细解析见：[PullMessageProcessor#processRequest(...) 第 64 至 110 行代码](http://www.iocoder.cn/RocketMQ/message-pull-and-consume-first/#PullMessageProcessor-processRequest-…)。
+    * 第 226 行 ：是否开启过滤类过滤模式。详细解析见：[《RocketMQ 源码分析 —— Filtersrv》](http://www.iocoder.cn/RocketMQ/filtersrv/)。
+    * 第 229 至 235 行 ：计算拉取消息请求系统标识。详细解析见：[PullMessageRequestHeader.sysFlag](http://www.iocoder.cn/RocketMQ/message-pull-and-consume-first/#PullMessageRequestHeader)。
     * 第 237 至 255 行 ：
         * 执行消息拉取**异步**请求。详细解析见：[PullAPIWrapper#pullKernelImpl(...)](#pullapiwrapperpullkernelimpl)。
-        * 当发起请求产生异常时，提交**延迟**拉取消息请求。对应 `Broker` 处理拉取消息逻辑见：[PullMessageProcessor#processRequest(...)](http://www.yunai.me/RocketMQ/message-pull-and-consume-first/#PullMessageProcessor-processRequest-…)。
+        * 当发起请求产生异常时，提交**延迟**拉取消息请求。对应 `Broker` 处理拉取消息逻辑见：[PullMessageProcessor#processRequest(...)](http://www.iocoder.cn/RocketMQ/message-pull-and-consume-first/#PullMessageProcessor-processRequest-…)。
 * `PullCallback` ：拉取消息回调：
    * 第 86 行 ：处理拉取结果。详细逻辑见：[PullAPIWrapper#processPullResult(...)](#pullapiwrapperprocesspullresult)。
    * 第 89 至 192 行 ：处理拉取状态结果：
@@ -1583,7 +1583,7 @@ MQ 提供了两类消费者：
     *  解析消息，并根据订阅信息消息 `tagCode `匹配合适消息。
 * 第 16 行 ：更新消息队列拉取消息 `Broker` 编号的映射。下次拉取消息时，如果未设置默认拉取的 `Broker` 编号，会使用更新后的 `Broker` 编号。
 * 第 18 至 55 行 ：解析消息，并根据订阅信息消息 `tagCode` 匹配合适消息。
-    * 第 20 至 22 行 ：解析消息。详细解析见：[《RocketMQ 源码分析 —— Message基础》](http://www.yunai.me/RocketMQ/message/) 。
+    * 第 20 至 22 行 ：解析消息。详细解析见：[《RocketMQ 源码分析 —— Message基础》](http://www.iocoder.cn/RocketMQ/message/) 。
     * 第 24 至 35 行 ：根据订阅信息`tagCode` 匹配消息。
     * 第 37 至 43 行 ：`Hook`。
     * 第 45 至 51 行 ：设置消息队列当前最小/最大位置到消息拓展字段。
@@ -1689,7 +1689,7 @@ while (true) {
 
 # 6、PushConsumer 消费消息
 
-![DefaultMQPushConsumerImpl消费消息](http://www.yunai.me/images/RocketMQ/2017_05_04/06.png)
+![DefaultMQPushConsumerImpl消费消息](http://www.iocoder.cn/images/RocketMQ/2017_05_04/06.png)
 
 ## ConsumeMessageConcurrentlyService 提交消费请求
 
@@ -2256,7 +2256,7 @@ while (true) {
 
 ## OffsetStore
 
-![OffsetStore类图.png](http://www.yunai.me/images/RocketMQ/2017_05_04/07.png)
+![OffsetStore类图.png](http://www.iocoder.cn/images/RocketMQ/2017_05_04/07.png)
 
 * `RemoteBrokerOffsetStore` ：`Consumer` **集群模式** 下，使用远程 `Broker` 消费进度。
 * `LocalFileOffsetStore` ：`Consumer` **广播模式**下，使用本地 `文件` 消费进度。

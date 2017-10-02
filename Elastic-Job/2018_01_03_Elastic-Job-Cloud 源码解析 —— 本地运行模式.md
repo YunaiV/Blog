@@ -15,6 +15,17 @@ permalink: Elastic-Job/cloud-local-executor
 
 -------
 
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+
+> 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
+> 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
+> 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
+> 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
+> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。  
+> 5. **认真的**源码交流微信群。
+
+-------
+
 # 1. 概述
 
 本文主要分享 **Elastic-Job-Cloud 本地运行模式**，对应[《官方文档 —— 本地运行模式》](http://elasticjob.io/docs/elastic-job-cloud/02-guide/local-executor/)。
@@ -26,9 +37,9 @@ permalink: Elastic-Job/cloud-local-executor
 
 😈 是不是很赞 + 1024？！
 
-本文涉及到主体类的类图如下( [打开大图](http://www.yunai.me/images/Elastic-Job/2018_01_03/01.png) )：
+本文涉及到主体类的类图如下( [打开大图](http://www.iocoder.cn/images/Elastic-Job/2018_01_03/01.png) )：
 
-![](http://www.yunai.me/images/Elastic-Job/2018_01_03/01.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2018_01_03/01.png)
 
 > 你行好事会因为得到赞赏而愉悦  
 > 同理，开源项目贡献者会因为 Star 而更加有动力  
@@ -36,7 +47,7 @@ permalink: Elastic-Job/cloud-local-executor
 
 # 2. 配置
 
-LocalCloudJobConfiguration，本地云作业配置，在[《Elastic-Job-Cloud 源码分析 —— 作业配置》「3.2 本地云作业配置」](http://www.yunai.me/Elastic-Job/cloud-local-executor/?self)有详细解析。
+LocalCloudJobConfiguration，本地云作业配置，在[《Elastic-Job-Cloud 源码分析 —— 作业配置》「3.2 本地云作业配置」](http://www.iocoder.cn/Elastic-Job/cloud-local-executor/?self)有详细解析。
 
 创建本地云作业配置示例代码如下（来自官方）：
 
@@ -142,14 +153,14 @@ public void execute() {
     }
     ```
 
-* 调用 `AbstractElasticJobExecutor#execute()` 方法，执行作业逻辑。 Elastic-Job-Lite 和 Elastic-Job-Cloud 作业执行基本一致，在[《Elastic-Job-Lite 源码分析 —— 作业执行》](http://www.yunai.me/Elastic-Job/job-execute/?self)有详细解析。
+* 调用 `AbstractElasticJobExecutor#execute()` 方法，执行作业逻辑。 Elastic-Job-Lite 和 Elastic-Job-Cloud 作业执行基本一致，在[《Elastic-Job-Lite 源码分析 —— 作业执行》](http://www.iocoder.cn/Elastic-Job/job-execute/?self)有详细解析。
 
 # 666. 彩蛋
 
 芋道君：可能有点水更，和大家实际开发太相关，想想还是更新下。  
 旁白君：哎哟哟，哎哟喂。
 
-![](http://www.yunai.me/images/Elastic-Job/2018_01_03/02.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2018_01_03/02.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

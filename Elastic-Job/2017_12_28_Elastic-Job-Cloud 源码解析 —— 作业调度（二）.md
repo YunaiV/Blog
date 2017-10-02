@@ -26,9 +26,20 @@ permalink: Elastic-Job/cloud-job-scheduler-and-executor-second
 
 -------
 
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+
+> 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
+> 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
+> 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
+> 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
+> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。  
+> 5. **认真的**源码交流微信群。
+
+-------
+
 # 1. 概述
 
-本文主要分享 **Elastic-Job-Cloud 云作业应用配置和云作业配置变更对作业调度的影响**，作为[《Elastic-Job-Cloud 源码分析 —— 作业调度（一）》](http://www.yunai.me/Elastic-Job/cloud-job-scheduler-and-executor-first/?self)的补充内容。所以需要你对**作业调度**已经有一定了解的基础上。
+本文主要分享 **Elastic-Job-Cloud 云作业应用配置和云作业配置变更对作业调度的影响**，作为[《Elastic-Job-Cloud 源码分析 —— 作业调度（一）》](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-first/?self)的补充内容。所以需要你对**作业调度**已经有一定了解的基础上。
 
 🙂 如果你做作业调度有任何想交流，欢迎加我的公众号( 芋道源码 ) 或 微信( wangwenbin-server ) 交流。
 
@@ -40,11 +51,11 @@ permalink: Elastic-Job/cloud-job-scheduler-and-executor-second
 
 我们可以使用**运维平台**或 Restful API 对云作业进行操作。前者是对后者的界面包装，如下图所示：
 
-![](http://www.yunai.me/images/Elastic-Job/2017_12_28/01.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_12_28/01.png)
 
 ## 2.1 注册云作业配置
 
-[《Elastic-Job-Cloud 源码分析 —— 作业配置》「3.1.1 操作云作业配置」](http://www.yunai.me/Elastic-Job/cloud-job-config/?self)有详细解析。
+[《Elastic-Job-Cloud 源码分析 —— 作业配置》「3.1.1 操作云作业配置」](http://www.iocoder.cn/Elastic-Job/cloud-job-config/?self)有详细解析。
 
 ## 2.2 禁用云作业
 
@@ -256,7 +267,7 @@ public void update(final CloudJobConfiguration jobConfig) {
     }
     ```
 
-* 调用 `#reschedule(...)` 方法，重新调度作业。
+* 调用 `#reschedule(...)` 方法，重新调度作业。此处的调用是重复的，实际只需 CloudJobConfigurationListener 监听到配置变化，调用 `#reschedule(...)` 方法即可。
 
 存储在注册中心( Zookeeper )的 云作业配置被更新时，云作业配置变更监听( CloudJobConfigurationListener )会监听到，并执行更新相应逻辑，实现代码如下：
 
@@ -293,8 +304,19 @@ public final class CloudJobConfigurationListener implements TreeCacheListener {
 
 * CloudJobConfigurationListener 实现 TreeCacheListener 实现对 Zookeeper 数据变更的监听。对 TreeCacheListener 感兴趣的同学，可以查看 [Apache Curator](https://curator.apache.org/) 相关知识。
 * 调用 `ReadyService#remove(...)` 方法，将作业从**待运行队列**删除。TODO，为啥要删除？
-* 调用 `ReadyService#setMisfireDisabled(...)` 方法，设置禁用错过重执行。TODO misfired
-* 调用 `ProducerManager#reschedule(...)` 方法，重新调度作业。TODO，为啥要重复调用这个方法？
+* 调用 `ReadyService#setMisfireDisabled(...)` 方法，设置禁用错过重执行。实现代码如下：
+
+    ```Java
+    public void setMisfireDisabled(final String jobName) {
+       Optional<CloudJobConfiguration> cloudJobConfig = configService.load(jobName);
+       if (cloudJobConfig.isPresent() && null != regCenter.getDirectly(ReadyNode.getReadyJobNodePath(jobName))) {
+           regCenter.persist(ReadyNode.getReadyJobNodePath(jobName), "1");
+       }
+    }
+    ```
+    * **瞬时作业**开启 `misfire` 功能时，当任务执行过久触发 `misifre` 会不断累积待执行次数。如果关闭 `misfire` 功能，需要将多次执行次数归 `"1"`。
+
+* 调用 `ProducerManager#reschedule(...)` 方法，重新调度作业。
 
 ## 2.5 注销云作业
 
@@ -395,11 +417,11 @@ public void trigger(final String jobName) {
 
 我们可以使用**运维平台**或 Restful API 对云作业应用进行操作。前者是对后者的界面包装，如下图所示：
 
-![](http://www.yunai.me/images/Elastic-Job/2017_12_28/02.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_12_28/02.png)
 
 ## 3.1 注册云作业应用
 
-[《Elastic-Job-Cloud 源码分析 —— 作业配置》「2.2 操作云作业App配置」](http://www.yunai.me/Elastic-Job/cloud-job-config/?self)有详细解析。
+[《Elastic-Job-Cloud 源码分析 —— 作业配置》「2.2 操作云作业App配置」](http://www.iocoder.cn/Elastic-Job/cloud-job-config/?self)有详细解析。
 
 ## 3.2 更新云作业应用配置
 
@@ -572,9 +594,9 @@ public void deregister(@PathParam("appName") final String appName) {
 
 # 666. 彩蛋
 
-Elastic-Job-Cloud 作业调度两篇内容到此就结束啦。后续我们会更新大家关心的[《Elastic-Job-Cloud 源码分析 —— 高可用》](http://www.yunai.me?todo)是如何实现的噢。
+Elastic-Job-Cloud 作业调度两篇内容到此就结束啦。后续我们会更新大家关心的[《Elastic-Job-Cloud 源码分析 —— 高可用》](http://www.iocoder.cn/Elastic-Job/cloud-high-availability/?self)是如何实现的噢。
 
-![](http://www.yunai.me/images/Elastic-Job/2017_12_28/03.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_12_28/03.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

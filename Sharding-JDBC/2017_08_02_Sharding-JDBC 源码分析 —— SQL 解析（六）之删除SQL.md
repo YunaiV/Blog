@@ -7,7 +7,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 -------
 
-![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -34,12 +34,12 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 本文前置阅读：
 
-* [《SQL 解析（一）之词法解析》](http://www.yunai.me/Sharding-JDBC/sql-parse-1/?self)
-* [《SQL 解析（二）之SQL解析》](http://www.yunai.me/Sharding-JDBC/sql-parse-2/?self)
+* [《SQL 解析（一）之词法解析》](http://www.iocoder.cn/Sharding-JDBC/sql-parse-1/?self)
+* [《SQL 解析（二）之SQL解析》](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/?self)
 
 本文分享**删除SQL解析**的源码实现。
 
-🙂 如果你已经理解[《SQL 解析（三）之查询SQL》](http://www.yunai.me/Sharding-JDBC/sql-parse-3/?self)，那本文会是一篇水文，当成一种放松吧。还是跟前文一样，以 MySQL 举例子。我们来一起看看 MySQLDeleteParser。
+🙂 如果你已经理解[《SQL 解析（三）之查询SQL》](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/?self)，那本文会是一篇水文，当成一种放松吧。还是跟前文一样，以 MySQL 举例子。我们来一起看看 MySQLDeleteParser。
 
 MySQL DELETE 语法一共有 2 种 ：
 
@@ -73,7 +73,7 @@ Sharding-JDBC 目前仅支持第一种。业务场景上使用第二种的很少
 
 Sharding-JDBC 更新SQL解析主流程如下：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_02/01.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_02/01.png)
 
 ```Java
 // AbstractDeleteParser.java
@@ -106,7 +106,7 @@ public final class UpdateStatement extends AbstractSQLStatement {
 
 我们来看下 `DELETE IGNORE FROM t_user WHERE user_id = ?` 的**解析结果**：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_08_02/02.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_02/02.png)
 
 # 3. #parse()
 
@@ -132,11 +132,11 @@ protected void skipBetweenDeleteAndTable() {
 
 ## 3.2 #parseSingleTable()
 
-解析**表**，请看[《SQL 解析（二）之SQL解析》的 `#parseSingleTable()` 小节](http://www.yunai.me/Sharding-JDBC/sql-parse-2/?self)。
+解析**表**，请看[《SQL 解析（二）之SQL解析》的 `#parseSingleTable()` 小节](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/?self)。
 
 ## 3.3 #parseWhere()
 
-解析 WHERE 条件。解析代码：[《SQL 解析（二）之SQL解析》的#parseWhere()小节](http://www.yunai.me/Sharding-JDBC/sql-parse-2/?self)。
+解析 WHERE 条件。解析代码：[《SQL 解析（二）之SQL解析》的#parseWhere()小节](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/?self)。
 
 # 666. 彩蛋
 

@@ -17,7 +17,7 @@ permalink: Elastic-Job/reg-center-zookeeper-listener
 
 -------
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -34,11 +34,11 @@ permalink: Elastic-Job/reg-center-zookeeper-listener
 
 建议前置阅读：
 
-* [《Elastic-Job-Lite 源码分析 —— 注册中心》](http://www.yunai.me/Elastic-Job/reg-center-zookeeper/?self)
+* [《Elastic-Job-Lite 源码分析 —— 注册中心》](http://www.iocoder.cn/Elastic-Job/reg-center-zookeeper/?self)
 
-涉及到主要类的类图如下( [打开大图](http://www.yunai.me/images/Elastic-Job/2017_10_14/01.png) )：
+涉及到主要类的类图如下( [打开大图](http://www.iocoder.cn/images/Elastic-Job/2017_10_14/01.png) )：
 
-![](http://www.yunai.me/images/Elastic-Job/2017_10_14/01.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_10_14/01.png)
 
 > 你行好事会因为得到赞赏而愉悦  
 > 同理，开源项目贡献者会因为 Star 而更加有动力  
@@ -102,7 +102,7 @@ public final class ListenerManager {
     * ShardingListenerManager 内部管理了 ShardingTotalCountChangedJobListener / ListenServersChangedJobListener 两个作业注册中心监听器。具体作业注册中心监听器是什么，有什么用途，下文会详细解析。
 * 第二类：`regCenterConnectionStateListener` 是注册中心连接状态监听器。下文也会详细解析。
 
-在[《Elastic-Job-Lite 源码分析 —— 作业初始化》「3.2.4」注册作业启动信息](http://www.yunai.me/Elastic-Job/job-init?self)，我们看到作业初始化时，会开启所有注册中心监听器：
+在[《Elastic-Job-Lite 源码分析 —— 作业初始化》「3.2.4」注册作业启动信息](http://www.iocoder.cn/Elastic-Job/job-init?self)，我们看到作业初始化时，会开启所有注册中心监听器：
 
 ```Java
 // SchedulerFacade.java
@@ -165,7 +165,7 @@ public abstract class AbstractListenerManager {
 }
 ```
 
-* `#addDataListener()`，将作业注册中心的监听器添加到注册中心 TreeCache 的监听者里。`JobNodeStorage#addDataListener(...)` 在[《Elastic-Job-Lite 源码分析 —— 作业初始化》「2.2」缓存](http://www.yunai.me/Elastic-Job/reg-center-zookeeper/?self)已经详细解析。
+* `#addDataListener()`，将作业注册中心的监听器添加到注册中心 TreeCache 的监听者里。`JobNodeStorage#addDataListener(...)` 在[《Elastic-Job-Lite 源码分析 —— 作业初始化》「2.2」缓存](http://www.iocoder.cn/Elastic-Job/reg-center-zookeeper/?self)已经详细解析。
 * 子类实现 `#start()` 方法实现监听器初始化。目前所有子类的实现都是将自己管理的注册中心监听器调用 `#addDataListener(...)`，还是以 ShardingListenerManager 举例子：
 
     ```Java
@@ -255,7 +255,7 @@ public final class ShardingListenerManager extends AbstractListenerManager {
 }
 ```
 
-* 在[《Elastic-Job-Lite 源码解析 —— 任务分片》](http://www.yunai.me/Elastic-Job/job-sharding/?self)详细解析。
+* 在[《Elastic-Job-Lite 源码解析 —— 任务分片》](http://www.iocoder.cn/Elastic-Job/job-sharding/?self)详细解析。
 
 # 5. RegistryCenterConnectionStateListener
 
@@ -324,7 +324,7 @@ public final class RegistryCenterConnectionStateListener implements ConnectionSt
 旁白君：芋道君，你又水更了！  
 芋道君：是是是，是是是！
 
-![](http://www.yunai.me/images/Elastic-Job/2017_10_14/02.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_10_14/02.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

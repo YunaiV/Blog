@@ -28,7 +28,7 @@ permalink: Elastic-Job/reg-center-zookeeper
 
 -------
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -43,12 +43,12 @@ permalink: Elastic-Job/reg-center-zookeeper
 
 本文主要分享 **Elastic-Job-Lite 注册中心**。
 
-涉及到主要类的类图如下( [打开大图](http://www.yunai.me/images/Elastic-Job/2017_09_30/01.png) )：
+涉及到主要类的类图如下( [打开大图](http://www.iocoder.cn/images/Elastic-Job/2017_09_30/01.png) )：
 
-![](http://www.yunai.me/images/Elastic-Job/2017_09_30/01.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_09_30/01.png)
 
 * **黄色**的类在 `elastic-job-common-core` 项目里，为 Elastic-Job-Lite、Elastic-Job-Cloud **公用**注册中心类。
-* 作业节点数据访问类( JobNodeStorage )的**在主节点执行操作**、**在事务中执行操作**两个方法和注册中心**协调分布式服务**有关系，从[《Elastic-Job-Lite 源码解析 —— 作业数据存储》](http://www.yunai.me/Elastic-Job/job-storage/?self)摘出来，放本文解析。
+* 作业节点数据访问类( JobNodeStorage )的**在主节点执行操作**、**在事务中执行操作**两个方法和注册中心**协调分布式服务**有关系，从[《Elastic-Job-Lite 源码解析 —— 作业数据存储》](http://www.iocoder.cn/Elastic-Job/job-storage/?self)摘出来，放本文解析。
 
 > 你行好事会因为得到赞赏而愉悦  
 > 同理，开源项目贡献者会因为 Star 而更加有动力  
@@ -175,14 +175,14 @@ public void close() {
    CloseableUtils.closeQuietly(client);
 }
     
-/* TODO 等待500ms, cache先关闭再关闭client, 否则会抛异常
+/* 
 * 因为异步处理, 可能会导致client先关闭而cache还未关闭结束.
 * 等待Curator新版本解决这个bug.
 * BUG地址：https://issues.apache.org/jira/browse/CURATOR-157
 */
 private void waitForCacheClose() {
    try {
-       Thread.sleep(500L);
+       Thread.sleep(500L); // 等待500ms, cache先关闭再关闭client, 否则会抛异常
    } catch (final InterruptedException ex) {
        Thread.currentThread().interrupt();
    }
@@ -426,7 +426,7 @@ public void executeInLeader(Lock lock) {
 }
 ```
 
-[《官方文档 —— LeaderLatch》](https://github.com/Netflix/curator/wiki/Leader-Latch)，有兴趣的同学可以看看。在[《Elastic-Job-Lite 源码解析 —— 主节点选举》](http://www.yunai.me/Elastic-Job/election/?self)中，我们会看到 `#executeInLeader(...)` 的使用。
+[《官方文档 —— LeaderLatch》](https://github.com/Netflix/curator/wiki/Leader-Latch)，有兴趣的同学可以看看。在[《Elastic-Job-Lite 源码解析 —— 主节点选举》](http://www.iocoder.cn/Elastic-Job/election/?self)中，我们会看到 `#executeInLeader(...)` 的使用。
 
 另一种分布式锁实现，[《官方文档 —— LeaderElection》](https://github.com/Netflix/curator/wiki/Leader-Election)，有兴趣也可以看看。在 Elastic-Job-Cloud 中使用到了，后续进行解析。
 

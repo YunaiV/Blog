@@ -24,7 +24,7 @@ permalink: Elastic-Job/job-config
 
 -------
 
-![](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -39,9 +39,9 @@ permalink: Elastic-Job/job-config
 
 本文主要分享 **Elastic-Job-Lite 作业配置**。
 
-涉及到主要类的类图如下( [打开大图](http://www.yunai.me/images/Elastic-Job/2017_09_09/01.png) )：
+涉及到主要类的类图如下( [打开大图](http://www.iocoder.cn/images/Elastic-Job/2017_09_09/01.png) )：
 
-![](http://www.yunai.me/images/Elastic-Job/2017_09_09/01.png)
+![](http://www.iocoder.cn/images/Elastic-Job/2017_09_09/01.png)
 
 * **黄色**的类在 `elastic-job-common-core` 项目里，为 Elastic-Job-Lite、Elastic-Job-Cloud **公用**作业配置类。
 
@@ -71,7 +71,7 @@ Elastic-Job 抽象了**注册中心接口( RegistryCenter )**，并提供了默�
 
 ZookeeperRegistryCenter 对应配置类为 ZookeeperConfiguration。该类注释很完整，可以点击[链接](https://github.com/dangdangdotcom/elastic-job/blob/7dc099541a16de49f024fc59e46377a726be7f6b/elastic-job-common/elastic-job-common-core/src/main/java/com/dangdang/ddframe/job/reg/zookeeper/ZookeeperConfiguration.java)直接查看源码，这里我们重点说下 `namespace` 属性。如果你有多个**不同** Elastic-Job集群 时，使用相同 Zookeeper，可以配置不同的 `namespace` 进行隔离。
 
-注册中心的**初始化**，我们会在[《Elastic-Job-Lite 源码解析 —— 注册中心》](http://www.yunai.me/Elastic-Job/reg-center-zookeeper/?self)详细分享。
+注册中心的**初始化**，我们会在[《Elastic-Job-Lite 源码解析 —— 注册中心》](http://www.iocoder.cn/Elastic-Job/reg-center-zookeeper/?self)详细分享。
 
 ## 2.2 Lite作业配置
 
@@ -103,19 +103,19 @@ public final class LiteJobConfiguration implements JobRootConfiguration {
 ```
 
 * `typeConfig`：作业类型配置。**必填**。
-* `monitorExecution`：监控作业运行时状态。默认为 `false`。选填。在[《Elastic-Job-Lite 源码解析 —— 作业执行》](http://www.yunai.me/Elastic-Job/job-execute/?self)详细分享。
+* `monitorExecution`：监控作业运行时状态。默认为 `false`。选填。在[《Elastic-Job-Lite 源码解析 —— 作业执行》](http://www.iocoder.cn/Elastic-Job/job-execute/?self)详细分享。
 
     > 每次作业执行时间和间隔时间均**非常短**的情况，建议不监控作业运行时状态以提升效率。因为是瞬时状态，所以无必要监控。请用户自行增加数据堆积监控。并且不能保证数据重复选取，应在作业中实现幂等性。  
     每次作业执行时间和间隔时间均**较长的**情况，建议监控作业运行时状态，可保证数据不会重复选取。
 
-* `monitorPort`：作业监控端口。默认为 `-1`，不开启作业监控端口。选填。在[《Elastic-Job-Lite 源码解析 —— 作业监控服务》](http://www.yunai.me/Elastic-Job/job-monitor/?self)详细分享。
+* `monitorPort`：作业监控端口。默认为 `-1`，不开启作业监控端口。选填。在[《Elastic-Job-Lite 源码解析 —— 作业监控服务》](http://www.iocoder.cn/Elastic-Job/job-monitor/?self)详细分享。
 
     > 建议配置作业监控端口, 方便开发者dump作业信息。  
     使用方法: echo “dump” | nc 127.0.0.1 9888
 
 * `maxTimeDiffSeconds`：设置最大容忍的本机与注册中心的时间误差秒数。默认为 `-1`，不检查时间误差。选填。
-* `jobShardingStrategyClass`：作业分片策略实现类全路径。默认为使用分配侧路。选填。在[《Elastic-Job-Lite 源码解析 —— 作业分片策略》](http://www.yunai.me/Elastic-Job/job-sharding-strategy/?self)详细分享。
-* `reconcileIntervalMinutes`：修复作业服务器不一致状态服务调度间隔时间，配置为小于1的任意值表示不执行修复。默认为 `10`。在[《Elastic-Job-Lite 源码解析 —— 自诊断修复 》](http://www.yunai.me/Elastic-Job/reconcile/?self)详细分享。
+* `jobShardingStrategyClass`：作业分片策略实现类全路径。默认为使用分配侧路。选填。在[《Elastic-Job-Lite 源码解析 —— 作业分片策略》](http://www.iocoder.cn/Elastic-Job/job-sharding-strategy/?self)详细分享。
+* `reconcileIntervalMinutes`：修复作业服务器不一致状态服务调度间隔时间，配置为小于1的任意值表示不执行修复。默认为 `10`。在[《Elastic-Job-Lite 源码解析 —— 自诊断修复 》](http://www.iocoder.cn/Elastic-Job/reconcile/?self)详细分享。
 
 * `disabled`：作业是否禁用执行。默认为 `false`。选填。
 * `overwrite`：设置使用本地作业配置覆盖注册中心的作业配置。默认为 `false`。选填。建议使用**运维平台( console )**配置作业配置，统一管理。
@@ -177,7 +177,7 @@ public final class JobCoreConfiguration {
 
 * `jobName`：作业名称。**必填。**
 * `cron`：cron表达式，用于控制作业触发时间。**必填。**
-* `shardingTotalCount`：作业分片总数。如果一个作业启动超过作业分片总数的节点，只有 `shardingTotalCount` 会执行作业。**必填。**在[《Elastic-Job-Lite 源码解析 —— 作业分片策略 》](http://www.yunai.me/Elastic-Job/job-sharding-strategy/?self)详细分享。
+* `shardingTotalCount`：作业分片总数。如果一个作业启动超过作业分片总数的节点，只有 `shardingTotalCount` 会执行作业。**必填。**在[《Elastic-Job-Lite 源码解析 —— 作业分片策略 》](http://www.iocoder.cn/Elastic-Job/job-sharding-strategy/?self)详细分享。
 * `shardingItemParameters`：分片序列号和参数。选填。
 
     > 分片序列号和参数用等号分隔，多个键值对用逗号分隔  
@@ -190,10 +190,10 @@ public final class JobCoreConfiguration {
     > 作业自定义参数，可通过传递该参数为作业调度的业务方法传参，用于实现带参数的作业  
     例：每次获取的数据量、作业实例从数据库读取的主键等
 
-* `failover`：是否开启作业执行失效转移。**开启表示如果作业在一次作业执行中途宕机，允许将该次未完成的作业在另一作业节点上补偿执行**。默认为 `false`。选填。在[《Elastic-Job-Lite 源码解析 —— 作业失效转移 》](http://www.yunai.me/Elastic-Job/job-failover/?self)详细分享。
-* `misfire`：是否开启错过作业重新执行。默认为 `true`。选填。在[《Elastic-Job-Lite 源码解析 —— 作业执行 》](http://www.yunai.me/Elastic-Job/job-execute/?self)详细分享。
+* `failover`：是否开启作业执行失效转移。**开启表示如果作业在一次作业执行中途宕机，允许将该次未完成的作业在另一作业节点上补偿执行**。默认为 `false`。选填。在[《Elastic-Job-Lite 源码解析 —— 作业失效转移 》](http://www.iocoder.cn/Elastic-Job/job-failover/?self)详细分享。
+* `misfire`：是否开启错过作业重新执行。默认为 `true`。选填。在[《Elastic-Job-Lite 源码解析 —— 作业执行 》](http://www.iocoder.cn/Elastic-Job/job-execute/?self)详细分享。
 * `description`：作业描述。选填。
-* `jobProperties`：作业属性配置。选填。在[《Elastic-Job-Lite 源码解析 —— 作业执行 》](http://www.yunai.me/Elastic-Job/job-execute/?self)详细分享。
+* `jobProperties`：作业属性配置。选填。在[《Elastic-Job-Lite 源码解析 —— 作业执行 》](http://www.iocoder.cn/Elastic-Job/job-execute/?self)详细分享。
 
     ```Java
     public final class JobProperties {
@@ -226,11 +226,11 @@ public final class JobCoreConfiguration {
 
 ## 2.3 作业事件配置
 
-通过作业事件配置( JobEventConfiguration )，实现对作业事件的**异步**监听、处理。在[《Elastic-Job-Lite 源码解析 —— 作业事件追踪》](http://www.yunai.me/Elastic-Job/job-event-trace/?self)详细分享。
+通过作业事件配置( JobEventConfiguration )，实现对作业事件的**异步**监听、处理。在[《Elastic-Job-Lite 源码解析 —— 作业事件追踪》](http://www.iocoder.cn/Elastic-Job/job-event-trace/?self)详细分享。
 
 ## 2.4 作业监听器
 
-通过配置作业监听器( ElasticJobListener )，实现对作业执行的**同步**监听、处理。在[《Elastic-Job-Lite 源码解析 —— 作业监听器》](http://www.yunai.me/Elastic-Job/job-listener/?self)详细分享。
+通过配置作业监听器( ElasticJobListener )，实现对作业执行的**同步**监听、处理。在[《Elastic-Job-Lite 源码解析 —— 作业监听器》](http://www.iocoder.cn/Elastic-Job/job-listener/?self)详细分享。
 
 # 3. 作业配置服务
 
@@ -255,7 +255,7 @@ public final class ConfigurationService {
 }
 ```
 
-* JobNodeStorage，封装注册中心，提供存储服务。在[《Elastic-Job-Lite 源码解析 —— 作业数据存储》](http://www.yunai.me/Elastic-Job/job-storage/?self)详细分享。
+* JobNodeStorage，封装注册中心，提供存储服务。在[《Elastic-Job-Lite 源码解析 —— 作业数据存储》](http://www.iocoder.cn/Elastic-Job/job-storage/?self)详细分享。
 * TimeService，时间服务，提供当前时间查询。
 
     ```Java

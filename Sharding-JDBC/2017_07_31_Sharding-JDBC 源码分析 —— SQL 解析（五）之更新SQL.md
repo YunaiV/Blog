@@ -7,7 +7,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 -------
 
-![](https://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -35,8 +35,8 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 本文前置阅读：
 
-* [《SQL 解析（一）之词法解析》](http://www.yunai.me/Sharding-JDBC/sql-parse-1/?self)
-* [《SQL 解析（二）之SQL解析》](http://www.yunai.me/Sharding-JDBC/sql-parse-2/?self)
+* [《SQL 解析（一）之词法解析》](http://www.iocoder.cn/Sharding-JDBC/sql-parse-1/?self)
+* [《SQL 解析（二）之SQL解析》](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/?self)
 
 本文分享**更新SQL解析**的源码实现。
 
@@ -66,7 +66,7 @@ Sharding-JDBC 目前仅支持第一种。业务场景上使用第二种的很少
 
 Sharding-JDBC 更新SQL解析主流程如下：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_07_31/01.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_07_31/01.png)
 
 ```Java
 // AbstractUpdateParser.java
@@ -101,7 +101,7 @@ public final class UpdateStatement extends AbstractSQLStatement {
 
 我们来看下 `UPDATE t_user SET nickname = ?, age = ? WHERE user_id = ?` 的**解析结果**：
 
-![](http://www.yunai.me/images/Sharding-JDBC/2017_07_31/02.png)
+![](http://www.iocoder.cn/images/Sharding-JDBC/2017_07_31/02.png)
 
 # 3. #parse()
 
@@ -125,7 +125,7 @@ protected void skipBetweenUpdateAndTable() {
 
 ## 3.2 #parseSingleTable()
 
-解析**表**，请看[《SQL 解析（二）之SQL解析》的 `#parseSingleTable()` 小节](http://www.yunai.me/Sharding-JDBC/sql-parse-2/?self)。
+解析**表**，请看[《SQL 解析（二）之SQL解析》的 `#parseSingleTable()` 小节](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/?self)。
 
 ## 3.3 #parseSetItems()
 
@@ -180,11 +180,11 @@ private void parseSetValue() {
 
 ## 3.4 #parseWhere()
 
-解析 WHERE 条件。解析代码：[《SQL 解析（二）之SQL解析》的#parseWhere()小节](http://www.yunai.me/Sharding-JDBC/sql-parse-2/?self)。
+解析 WHERE 条件。解析代码：[《SQL 解析（二）之SQL解析》的#parseWhere()小节](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/?self)。
 
 # 666. 彩蛋
 
-😝 比更新SQL解析是不是简单，更不用对比查询SQL解析。😳有一种在水更的感觉。嘿嘿，下一篇（[《删除SQL解析》](http://www.yunai.me/images/common/wechat_mp_2017_07_31.jpg)）会更加容易。
+😝 比更新SQL解析是不是简单，更不用对比查询SQL解析。😳有一种在水更的感觉。嘿嘿，下一篇（[《删除SQL解析》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)）会更加容易。
 
 道友，帮我分享一波怎么样？
 
