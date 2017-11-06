@@ -6,19 +6,21 @@ permalink: Elastic-Job/job-init
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Elastic-Job/job-init/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
 **本文基于 Elastic-Job V2.1.5 版本分享**
 
-- [1. 概述](#)
-- [2. 作业注册表](#)
-- [3. 作业调度器](#)
-	- [3.1 创建](#)
-	- [3.2 初始化](#)
-		- [3.2.1 更新作业配置](#)
-		- [3.2.2 设置当前作业分片总数](#)
-		- [3.2.3 创建作业调度控制器](#)
-		- [3.2.4 注册作业启动信息](#)
-		- [3.2.5 调度作业](#)
-- [666. 彩蛋](#)
+- [1. 概述](http://www.iocoder.cn/Elastic-Job/job-init/)
+- [2. 作业注册表](http://www.iocoder.cn/Elastic-Job/job-init/)
+- [3. 作业调度器](http://www.iocoder.cn/Elastic-Job/job-init/)
+  - [3.1 创建](http://www.iocoder.cn/Elastic-Job/job-init/)
+  - [3.2 初始化](http://www.iocoder.cn/Elastic-Job/job-init/)
+    - [3.2.1 更新作业配置](http://www.iocoder.cn/Elastic-Job/job-init/)
+    - [3.2.2 设置当前作业分片总数](http://www.iocoder.cn/Elastic-Job/job-init/)
+    - [3.2.3 创建作业调度控制器](http://www.iocoder.cn/Elastic-Job/job-init/)
+    - [3.2.4 注册作业启动信息](http://www.iocoder.cn/Elastic-Job/job-init/)
+    - [3.2.5 调度作业](http://www.iocoder.cn/Elastic-Job/job-init/)
+- [666. 彩蛋](http://www.iocoder.cn/Elastic-Job/job-init/)
 
 -------
 

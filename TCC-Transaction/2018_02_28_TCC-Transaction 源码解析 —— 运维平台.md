@@ -6,18 +6,20 @@ permalink: TCC-Transaction/console
 
 ---
 
+摘要: 原创出处 http://www.iocoder.cn/TCC-Transaction/console/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
 **本文主要基于 TCC-Transaction 1.2.3.3 正式版**  
 
-- [1. 概述](#)
-- [2. 数据访问层](#)
-	- [2.1 JDBC 事务 DAO](#)
-	- [2.2 Redis 事务 DAO](#)
-- [3. 控制层](#)
-	- [3.1 查看未完成的事务列表](#)
-	- [3.2 重置事务恢复重试次数](#)
-- [666. 彩蛋](#)
+- [1. 概述](http://www.iocoder.cn/TCC-Transaction/console/)
+- [2. 数据访问层](http://www.iocoder.cn/TCC-Transaction/console/)
+  - [2.1 JDBC 事务 DAO](http://www.iocoder.cn/TCC-Transaction/console/)
+  - [2.2 Redis 事务 DAO](http://www.iocoder.cn/TCC-Transaction/console/)
+- [3. 控制层](http://www.iocoder.cn/TCC-Transaction/console/)
+  - [3.1 查看未完成的事务列表](http://www.iocoder.cn/TCC-Transaction/console/)
+  - [3.2 重置事务恢复重试次数](http://www.iocoder.cn/TCC-Transaction/console/)
+- [666. 彩蛋](http://www.iocoder.cn/TCC-Transaction/console/)
 
----
+-------
 
 ![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
@@ -25,7 +27,7 @@ permalink: TCC-Transaction/console
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
 > 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
-> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。
+> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。  
 > 5. **认真的**源码交流微信群。
 
 ---

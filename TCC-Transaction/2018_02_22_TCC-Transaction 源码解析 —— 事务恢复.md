@@ -6,17 +6,19 @@ permalink: TCC-Transaction/transaction-recovery
 
 ---
 
+摘要: 原创出处 http://www.iocoder.cn/TCC-Transaction/transaction-recovery/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
 **本文主要基于 TCC-Transaction 1.2.3.3 正式版**  
 
-- [1. 概述](#)
-- [2. 事务重试配置](#)
-- [3. 事务重试定时任务](#)
-- [4. 异常事务恢复](#)
-	- [4.1 加载异常事务集合](#)
-	- [4.2 恢复异常事务集合](#)
-- [666. 彩蛋](#)
+- [1. 概述](http://www.iocoder.cn/TCC-Transaction/transaction-recovery/)
+- [2. 事务重试配置](http://www.iocoder.cn/TCC-Transaction/transaction-recovery/)
+- [3. 事务重试定时任务](http://www.iocoder.cn/TCC-Transaction/transaction-recovery/)
+- [4. 异常事务恢复](http://www.iocoder.cn/TCC-Transaction/transaction-recovery/)
+  - [4.1 加载异常事务集合](http://www.iocoder.cn/TCC-Transaction/transaction-recovery/)
+  - [4.2 恢复异常事务集合](http://www.iocoder.cn/TCC-Transaction/transaction-recovery/)
+- [666. 彩蛋](http://www.iocoder.cn/TCC-Transaction/transaction-recovery/)
 
----
+-------
 
 ![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
@@ -24,7 +26,7 @@ permalink: TCC-Transaction/transaction-recovery
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
 > 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
-> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。  
+> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。    
 > 5. **认真的**源码交流微信群。
 
 ---

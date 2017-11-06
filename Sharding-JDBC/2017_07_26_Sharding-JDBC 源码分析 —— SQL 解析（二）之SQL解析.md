@@ -7,6 +7,27 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
+**本文主要基于 Sharding-JDBC 1.5.0 正式版**  
+
+- [1. 概述](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/)
+- [2. SQLParsingEngine](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/)
+- [3. SQLParser SQL解析器](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/)
+	- [3.1 AbstractParser](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/)
+	- [3.2 SQLParser](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/)
+		- [3.2.1 #parseExpression() 和 SQLExpression](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/)
+		- [3.2.2 #parseAlias()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/)
+		- [3.2.3 #parseSingleTable()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/)
+		- [3.2.4 #skipJoin()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/)
+		- [3.2.5 #parseWhere()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/)
+- [4. StatementParser SQL语句解析器](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/)
+	- [4.1 StatementParser](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/)
+	- [4.2 Statement](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/)
+- [5. 彩蛋](http://www.iocoder.cn/Sharding-JDBC/sql-parse-2/)
+
+-------
+
 ![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：[【芋道源码】](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)**有福利：  
@@ -15,25 +36,6 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
 > 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。  
 > 5. **认真的**源码交流微信群。
-
--------
-
-**本文主要基于 Sharding-JDBC 1.5.0 正式版**  
-
-- [1. 概述](#)
-- [2. SQLParsingEngine](#)
-- [3. SQLParser SQL解析器](#)
-	- [3.1 AbstractParser](#)
-	- [3.2 SQLParser](#)
-		- [3.2.1 #parseExpression() 和 SQLExpression](#)
-		- [3.2.2 #parseAlias()](#)
-		- [3.2.3 #parseSingleTable()](#)
-		- [3.2.4 #skipJoin()](#)
-		- [3.2.5 #parseWhere()](#)
-- [4. StatementParser SQL语句解析器](#)
-	- [4.1 StatementParser](#)
-	- [4.2 Statement](#)
-- [5. 彩蛋](#)
 
 -------
 

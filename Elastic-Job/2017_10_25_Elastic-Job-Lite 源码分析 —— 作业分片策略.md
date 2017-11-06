@@ -6,15 +6,17 @@ permalink: Elastic-Job/job-sharding-strategy
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Elastic-Job/job-sharding-strategy/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
 **本文基于 Elastic-Job V2.1.5 版本分享**
 
-- [1. 概述](#)
-- [2. 自带作业分片策略](#)
-	- [2.1 AverageAllocationJobShardingStrategy](#)
-	- [2.2 OdevitySortByNameJobShardingStrategy](#)
-	- [2.3 RotateServerByNameJobShardingStrategy](#)
-- [3. 自定义作业分片策略](#)
-- [666. 彩蛋](#)
+- [1. 概述](http://www.iocoder.cn/Elastic-Job/job-sharding-strategy/)
+- [2. 自带作业分片策略](http://www.iocoder.cn/Elastic-Job/job-sharding-strategy/)
+  - [2.1 AverageAllocationJobShardingStrategy](http://www.iocoder.cn/Elastic-Job/job-sharding-strategy/)
+  - [2.2 OdevitySortByNameJobShardingStrategy](http://www.iocoder.cn/Elastic-Job/job-sharding-strategy/)
+  - [2.3 RotateServerByNameJobShardingStrategy](http://www.iocoder.cn/Elastic-Job/job-sharding-strategy/)
+- [3. 自定义作业分片策略](http://www.iocoder.cn/Elastic-Job/job-sharding-strategy/)
+- [666. 彩蛋](http://www.iocoder.cn/Elastic-Job/job-sharding-strategy/)
 
 -------
 

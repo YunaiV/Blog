@@ -6,30 +6,36 @@ permalink: RocketMQ/message-store
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/RocketMQ/message-store/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
+**本文主要基于 RocketMQ 4.0.x 正式版**  
+
+- [1、概述](http://www.iocoder.cn/RocketMQ/message-store/)
+- [2、CommitLog 结构](http://www.iocoder.cn/RocketMQ/message-store/)
+- [3、CommitLog 存储消息](http://www.iocoder.cn/RocketMQ/message-store/)
+	- [CommitLog#putMessage(...)](http://www.iocoder.cn/RocketMQ/message-store/)
+	- [MappedFileQueue#getLastMappedFile(...)](http://www.iocoder.cn/RocketMQ/message-store/)
+	- [MappedFile#appendMessage(...)](http://www.iocoder.cn/RocketMQ/message-store/)
+	- [DefaultAppendMessageCallback#doAppend(...)](http://www.iocoder.cn/RocketMQ/message-store/)
+	- [FlushCommitLogService](http://www.iocoder.cn/RocketMQ/message-store/)
+		- [MappedFile#落盘](http://www.iocoder.cn/RocketMQ/message-store/)
+		- [FlushRealTimeService](http://www.iocoder.cn/RocketMQ/message-store/)
+		- [CommitRealTimeService](http://www.iocoder.cn/RocketMQ/message-store/)
+		- [GroupCommitService](http://www.iocoder.cn/RocketMQ/message-store/)
+- [结尾](http://www.iocoder.cn/RocketMQ/message-store/)
+
+-------
+
 ![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
 > 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
-> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。
+> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。  
 > 5. **认真的**源码交流微信群。
 
 -------
-
-- [1、概述](#)
-- [2、CommitLog 结构](#)
-- [3、CommitLog 存储消息](#)
-	- [CommitLog#putMessage(...)](#)
-	- [MappedFileQueue#getLastMappedFile(...)](#)
-	- [MappedFile#appendMessage(...)](#)
-	- [DefaultAppendMessageCallback#doAppend(...)](#)
-	- [FlushCommitLogService](#)
-		- [MappedFile#落盘](#)
-		- [FlushRealTimeService](#)
-		- [CommitRealTimeService](#)
-		- [GroupCommitService](#)
-- [结尾](#)
 
 # 1、概述
 

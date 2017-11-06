@@ -7,6 +7,25 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL 改写,SQL 优化
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Sharding-JDBC/sql-rewrite/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
+**本文主要基于 Sharding-JDBC 1.5.0 正式版**  
+
+- [1. 概述](http://www.iocoder.cn/Sharding-JDBC/sql-rewrite/)
+- [2. SQLToken](http://www.iocoder.cn/Sharding-JDBC/sql-rewrite/)
+- [3.SQL 改写](http://www.iocoder.cn/Sharding-JDBC/sql-rewrite/)
+  - [3.1 TableToken](http://www.iocoder.cn/Sharding-JDBC/sql-rewrite/)
+  - [3.2 ItemsToken](http://www.iocoder.cn/Sharding-JDBC/sql-rewrite/)
+  - [3.3 OffsetToken](http://www.iocoder.cn/Sharding-JDBC/sql-rewrite/)
+  - [3.4 RowCountToken](http://www.iocoder.cn/Sharding-JDBC/sql-rewrite/)
+    - [3.4.1 分页补充](http://www.iocoder.cn/Sharding-JDBC/sql-rewrite/)
+  - [3.5 OrderByToken](http://www.iocoder.cn/Sharding-JDBC/sql-rewrite/)
+  - [3.6 GeneratedKeyToken](http://www.iocoder.cn/Sharding-JDBC/sql-rewrite/)
+- [4. SQL 生成](http://www.iocoder.cn/Sharding-JDBC/sql-rewrite/)
+- [666. 彩蛋](http://www.iocoder.cn/Sharding-JDBC/sql-rewrite/)
+
+-------
+
 ![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
@@ -15,23 +34,6 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL 改写,SQL 优化
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
 > 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。  
 > 5. **认真的**源码交流微信群。
-
--------
-
-**本文主要基于 Sharding-JDBC 1.5.0 正式版**  
-
-- [1. 概述](#)
-- [2. SQLToken](#)
-- [3.SQL 改写](#)
-	- [3.1 TableToken](#)
-	- [3.2 ItemsToken](#)
-	- [3.3 OffsetToken](#)
-	- [3.4 RowCountToken](#)
-		- [3.4.1 分页补充](#)
-	- [3.5 OrderByToken](#)
-	- [3.6 GeneratedKeyToken](#)
-- [4. SQL 生成](#)
-- [666. 彩蛋](#)
 
 -------
 

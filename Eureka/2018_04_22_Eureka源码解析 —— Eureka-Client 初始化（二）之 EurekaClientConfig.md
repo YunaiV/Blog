@@ -10,18 +10,18 @@ permalink: Eureka/eureka-client-init-second
 
 **本文主要基于 Eureka 1.8.X 版本** 
 
-- [1. 概述](#)
-- [2. EurekaClientConfig](#)
-	- [2.1 类关系图](#)
-	- [2.2 配置属性](#)
-	- [2.3 DefaultEurekaClientConfig](#)
-	- [2.4 DefaultEurekaClientConfigProvider](#)
-	- [2.5 小结](#)
-- [3. EurekaTransportConfig](#)
-	- [3.1 类关系图](#)
-	- [3.2 配置属性](#)
-	- [3.3 DefaultEurekaTransportConfig](#)
-- [666. 彩蛋](#)
+- [1. 概述](http://www.iocoder.cn/Eureka/eureka-client-init-second/)
+- [2. EurekaClientConfig](http://www.iocoder.cn/Eureka/eureka-client-init-second/)
+	- [2.1 类关系图](http://www.iocoder.cn/Eureka/eureka-client-init-second/)
+	- [2.2 配置属性](http://www.iocoder.cn/Eureka/eureka-client-init-second/)
+	- [2.3 DefaultEurekaClientConfig](http://www.iocoder.cn/Eureka/eureka-client-init-second/)
+	- [2.4 DefaultEurekaClientConfigProvider](http://www.iocoder.cn/Eureka/eureka-client-init-second/)
+	- [2.5 小结](http://www.iocoder.cn/Eureka/eureka-client-init-second/)
+- [3. EurekaTransportConfig](http://www.iocoder.cn/Eureka/eureka-client-init-second/)
+	- [3.1 类关系图](http://www.iocoder.cn/Eureka/eureka-client-init-second/)
+	- [3.2 配置属性](http://www.iocoder.cn/Eureka/eureka-client-init-second/)
+	- [3.3 DefaultEurekaTransportConfig](http://www.iocoder.cn/Eureka/eureka-client-init-second/)
+- [666. 彩蛋](http://www.iocoder.cn/Eureka/eureka-client-init-second/)
 
 ---
 
@@ -80,12 +80,33 @@ EurekaClientConfig 整体类关系如下图：
 
 ## 2.2 配置属性
 
-点击 [EurekaClientConfig](TODOTODO) 查看配置属性简介，已经添加中文注释，可以对照着英文注释一起理解。这里笔者摘出部分较为重要的属性：
+点击 [EurekaClientConfig](https://github.com/YunaiV/eureka/blob/8b0f67ac33116ee05faad1ff5125034cfcf573bf/eureka-client/src/main/java/com/netflix/discovery/EurekaClientConfig.java) 查看配置属性简介，已经添加中文注释，可以对照着英文注释一起理解。这里笔者摘出部分较为重要的属性：
 
 * **Region、Zone 相关**
     * `#getRegion()` ：Eureka-Client 所在区域( `region` )。
-    * `#getAvailabilityZones()` ：Eureka-Client 所在地区( `region` ) 可用区( `zone` )集合。
-    * 进步一步理解 Region、Zone 查看[《周立 —— Region、Zone解析》](http://www.itmuch.com/spring-cloud-1/?from=www.iocoder.cn)。
+    * `#getAvailabilityZones()` ：Eureka-Client 所在地区( `region` ) 可用区( `zone` )集合。**该参数虽然是数组，第一个元素代表其所在的可用区**。实现代码如下：
+    
+        ```Java
+        // InstanceInfo.java
+        public static String getZone(String[] availZones, InstanceInfo myInfo) {
+            String instanceZone = ((availZones == null || availZones.length == 0) ? "default"
+                    : availZones[0]);
+            if (myInfo != null
+                    && myInfo.getDataCenterInfo().getName() == DataCenterInfo.Name.Amazon) {
+    
+                String awsInstanceZone = ((AmazonInfo) myInfo.getDataCenterInfo())
+                        .get(AmazonInfo.MetaDataKey.availabilityZone);
+                if (awsInstanceZone != null) {
+                    instanceZone = awsInstanceZone;
+                }
+    
+            }
+            return instanceZone;
+        }
+        ```
+        * x
+    
+   * 进步一步理解 Region、Zone 查看[《周立 —— Region、Zone解析》](http://www.itmuch.com/spring-cloud-1/?from=www.iocoder.cn)。
 * **使用 DNS 获取 Eureka-Server URL 相关**
     * `#shouldUseDnsForFetchingServiceUrls()` ：是否使用 DNS 方式获取 Eureka-Server URL 地址。
     * `#getEurekaServerDNSName()` ：Eureka-Server 的 DNS 名。
@@ -98,15 +119,17 @@ EurekaClientConfig 整体类关系如下图：
 * **发现：从 Eureka-Server 获取注册信息相关**
     * `#shouldFetchRegistry()` ：是否从 Eureka-Server 拉取注册信息。
     * `#getRegistryFetchIntervalSeconds()` ：从 Eureka-Server 拉取注册信息频率，单位：秒。默认：30 秒。
-    * `#shouldFilterOnlyUpInstances()` ：是否过滤，只获取状态为开启( Up )的应用对象集合。
-    * `#fetchRegistryForRemoteRegions()` ：获取哪些区域( `region` )集合的注册信息。
+    * `#shouldFilterOnlyUpInstances()` ：是否过滤，只获取状态为开启( Up )的应用实例集合。
+    * `#fetchRegistryForRemoteRegions()` ：TODO[0009]：RemoteRegionRegistry
     * `#getCacheRefreshExecutorThreadPoolSize()` ：注册信息缓存刷新线程池大小。
     * `#getCacheRefreshExecutorExponentialBackOffBound()` ：注册信息缓存刷新执行超时后的延迟重试的时间。
-    * `#getRegistryRefreshSingleVipAddress()` ：TODO【1】vip
+    * `#getRegistryRefreshSingleVipAddress()` ：只获得一个 `vipAddress` 对应的应用实例们的注册信息。
+        * 实现逻辑和 [《Eureka 源码解析 —— 应用实例注册发现 （六）之全量获取》](http://www.iocoder.cn/Eureka/instance-registry-fetch-all/?self)
+        * 本系列暂时写对它的源码解析，感兴趣的同学可以看 `com.netflix.discovery.shared.transport.EurekaHttpClient#getVip(String, String...)` 和 `com.netflix.eureka.resources.AbstractVIPResource` 。
 * **注册：向 Eureka-Server 注册自身服务**
     * `#shouldRegisterWithEureka()` ：是否向 Eureka-Server 注册自身服务。
     * `#shouldUnregisterOnShutdown()` ：是否向 Eureka-Server 取消注册自身服务，当进程关闭时。
-    * `#getInstanceInfoReplicationIntervalSeconds()` ：向 Eureka-Server 同步应用对象信息变化频率，单位：秒。
+    * `#getInstanceInfoReplicationIntervalSeconds()` ：向 Eureka-Server 同步应用实例信息变化频率，单位：秒。
     * `#getInitialInstanceInfoReplicationIntervalSeconds()` ：向 Eureka-Server 同步应用信息变化初始化延迟，单位：秒。
     * `#getBackupRegistryImpl()` ：获取备份注册中心实现类。当 Eureka-Client 启动时，无法从 Eureka-Server 读取注册信息（可能挂了），从备份注册中心读取注册信息。目前 Eureka-Client 未提供合适的实现。
     * `#getHeartbeatExecutorThreadPoolSize()` ：心跳执行线程池大小。
@@ -201,7 +224,22 @@ EurekaTransportConfig 整体类关系如下图：
 
 ## 3.2 配置属性
 
-TODO 后面看到那部分源码在补充，没理顺。
+点击 [EurekaTransportConfig](https://github.com/YunaiV/eureka/blob/3a65b471526e4912829bbfedc29822ba93ef42bb/eureka-client/src/main/java/com/netflix/discovery/shared/transport/EurekaTransportConfig.java) 查看配置属性简介，已经添加中文注释，可以对照着英文注释一起理解。这里笔者摘出部分较为重要的属性：
+
+* `#getSessionedClientReconnectIntervalSeconds()` ：EurekaHttpClient 会话周期性重连时间，单位：秒。在 [《Eureka 源码解析 —— 网络通信》「5.4 SessionedEurekaHttpClient」》](http://www.iocoder.cn/Eureka/transport/?self) 有详细解析。
+* `#getRetryableClientQuarantineRefreshPercentage()` ：重试 EurekaHttpClient ，请求失败的 Eureka-Server 隔离集合占比 Eureka-Server 全量集合占比，超过该比例，进行清空。在 [《Eureka 源码解析 —— 网络通信》「5.3 RetryableEurekaHttpClient」》](http://www.iocoder.cn/Eureka/transport/?self) 有详细解析。
+* **异步 EndPoint 集群解析器** ：
+    * 在 [《Eureka 源码解析 —— EndPoint 与 解析器》「3.6 AsyncResolver」》](http://www.iocoder.cn/Eureka/end-point-and-resolver/?self) 有详细解析。
+    * `#getAsyncResolverRefreshIntervalMs()` ：异步解析 EndPoint 集群频率，单位：毫秒。
+    * `#getAsyncResolverWarmUpTimeoutMs()` ：异步解析器预热解析 EndPoint 集群超时时间，单位：毫秒。
+    * `#getAsyncExecutorThreadPoolSize()` ：异步解析器线程池大小。
+* TODO[0028]：写入集群和读取集群。Eureka 2.x 兼容 ：
+    * `#getApplicationsResolverDataStalenessThresholdSeconds()`
+    * `#applicationsResolverUseIp()`
+    * `#getWriteClusterVip()`
+    * `#getReadClusterVip()`
+    * `#getBootstrapResolverStrategy()`
+    * `#useBootstrapResolverForQuery()`
 
 ## 3.3 DefaultEurekaTransportConfig
 

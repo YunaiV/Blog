@@ -6,20 +6,24 @@ permalink: TCC-Transaction/http-sample
 
 ---
 
+摘要: 原创出处 http://www.iocoder.cn/TCC-Transaction/http-sample/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
 **本文主要基于 TCC-Transaction 1.2.3.3 正式版**  
 
-- [1. 概述](#1-%E6%A6%82%E8%BF%B0)
-- [2. 实体结构](#2-%E5%AE%9E%E4%BD%93%E7%BB%93%E6%9E%84)
-  - [2.1 商城服务](#21-%E5%95%86%E5%9F%8E%E6%9C%8D%E5%8A%A1)
-  - [2.2 资金服务](#22-%E8%B5%84%E9%87%91%E6%9C%8D%E5%8A%A1)
-  - [2.3 红包服务](#23-%E7%BA%A2%E5%8C%85%E6%9C%8D%E5%8A%A1)
-- [3. 服务调用](#3-%E6%9C%8D%E5%8A%A1%E8%B0%83%E7%94%A8)
-- [4. 下单支付流程](#4-%E4%B8%8B%E5%8D%95%E6%94%AF%E4%BB%98%E6%B5%81%E7%A8%8B)
-  - [4.1 Try 阶段](#41-try-%E9%98%B6%E6%AE%B5)
-  - [4.2 Confirm / Cancel 阶段](#42-confirm--cancel-%E9%98%B6%E6%AE%B5)
-- [666. 彩蛋](#666-%E5%BD%A9%E8%9B%8B)
+- [1. 概述](http://www.iocoder.cn/TCC-Transaction/http-sample/)
+- [2. 实体结构](http://www.iocoder.cn/TCC-Transaction/http-sample/)
+  - [2.1 商城服务](http://www.iocoder.cn/TCC-Transaction/http-sample/)
+  - [2.2 资金服务](http://www.iocoder.cn/TCC-Transaction/http-sample/)
+  - [2.3 红包服务](http://www.iocoder.cn/TCC-Transaction/http-sample/)
+- [3. 服务调用](http://www.iocoder.cn/TCC-Transaction/http-sample/)
+- [4. 下单支付流程](http://www.iocoder.cn/TCC-Transaction/http-sample/)
+  - [4.1 Try 阶段](http://www.iocoder.cn/TCC-Transaction/http-sample/)
+  - [4.2 Confirm / Cancel 阶段](http://www.iocoder.cn/TCC-Transaction/http-sample/)
+    - [4.2.1 Confirm](http://www.iocoder.cn/TCC-Transaction/http-sample/)
+    - [4.2.2 Cancel](http://www.iocoder.cn/TCC-Transaction/http-sample/)
+- [666. 彩蛋](http://www.iocoder.cn/TCC-Transaction/http-sample/)
 
----
+-------
 
 ![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
@@ -27,7 +31,7 @@ permalink: TCC-Transaction/http-sample
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
 > 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
-> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。
+> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。  
 > 5. **认真的**源码交流微信群。
 
 ---

@@ -6,17 +6,19 @@ permalink: Elastic-Job/job-event-trace
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Elastic-Job/job-event-trace/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
 **本文基于 Elastic-Job V2.1.5 版本分享**
 
-- [1. 概述](#)
-- [2. 作业事件总线](#)
-- [3. 作业事件](#)
-  - [3.1 作业状态追踪事件](#)
-  - [3.2 作业执行追踪事件](#)
-  - [3.3 作业事件数据库存储](#)
-  - [3.4 作业事件数据库查询](#)
-- [4. 作业监听器](#)
-- [666. 彩蛋](#)
+- [1. 概述](http://www.iocoder.cn/Elastic-Job/job-event-trace/)
+- [2. 作业事件总线](http://www.iocoder.cn/Elastic-Job/job-event-trace/)
+- [3. 作业事件](http://www.iocoder.cn/Elastic-Job/job-event-trace/)
+  - [3.1 作业状态追踪事件](http://www.iocoder.cn/Elastic-Job/job-event-trace/)
+  - [3.2 作业执行追踪事件](http://www.iocoder.cn/Elastic-Job/job-event-trace/)
+  - [3.3 作业事件数据库存储](http://www.iocoder.cn/Elastic-Job/job-event-trace/)
+  - [3.4 作业事件数据库查询](http://www.iocoder.cn/Elastic-Job/job-event-trace/)
+- [4. 作业监听器](http://www.iocoder.cn/Elastic-Job/job-event-trace/)
+- [666. 彩蛋](http://www.iocoder.cn/Elastic-Job/job-event-trace/)
 
 -------
 

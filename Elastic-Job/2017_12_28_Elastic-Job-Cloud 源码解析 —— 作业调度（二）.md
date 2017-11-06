@@ -6,23 +6,25 @@ permalink: Elastic-Job/cloud-job-scheduler-and-executor-second
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-second/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
 **本文基于 Elastic-Job V2.1.5 版本分享**
 
-- [1. 概述](#)
-- [2. 云作业操作](#)
-	- [2.1 注册云作业配置](#)
-	- [2.2 禁用云作业](#)
-	- [2.3 启动云作业](#)
-	- [2.4 更新云作业配置](#)
-	- [2.5 注销云作业](#)
-	- [2.6 触发一次云作业](#)
-- [3. 云作业应用操作](#)
-	- [3.1 注册云作业应用](#)
-	- [3.2 更新云作业应用配置](#)
-	- [3.3 禁用云作业应用](#)
-	- [3.4 启用云作业应用](#)
-	- [3.5 注销云作业应用](#)
-- [666. 彩蛋](#)
+- [1. 概述](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-second/)
+- [2. 云作业操作](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-second/)
+  - [2.1 注册云作业配置](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-second/)
+  - [2.2 禁用云作业](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-second/)
+  - [2.3 启动云作业](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-second/)
+  - [2.4 更新云作业配置](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-second/)
+  - [2.5 注销云作业](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-second/)
+  - [2.6 触发一次云作业](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-second/)
+- [3. 云作业应用操作](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-second/)
+  - [3.1 注册云作业应用](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-second/)
+  - [3.2 更新云作业应用配置](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-second/)
+  - [3.3 禁用云作业应用](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-second/)
+  - [3.4 启用云作业应用](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-second/)
+  - [3.5 注销云作业应用](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-second/)
+- [666. 彩蛋](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-second/)
 
 -------
 

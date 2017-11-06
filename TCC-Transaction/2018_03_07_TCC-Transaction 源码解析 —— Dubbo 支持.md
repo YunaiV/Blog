@@ -6,24 +6,26 @@ permalink: TCC-Transaction/dubbo-support
 
 ---
 
+摘要: 原创出处 http://www.iocoder.cn/TCC-Transaction/dubbo-support/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
 **本文主要基于 TCC-Transaction 1.2.3.3 正式版**  
 
-- [1. 概述](#1-%E6%A6%82%E8%BF%B0)
-- [2. Dubbo 代理](#2-dubbo-%E4%BB%A3%E7%90%86)
-  - [2.1 JavassistProxyFactory](#21-javassistproxyfactory)
-    - [2.1.1 Javassist](#211-javassist)
-    - [2.1.2 TccJavassistProxyFactory](#212-tccjavassistproxyfactory)
-    - [2.1.3 TccProxy & TccClassGenerator](#213-tccproxy--tccclassgenerator)
-    - [2.1.4 配置 Dubbo Proxy](#214-%E9%85%8D%E7%BD%AE-dubbo-proxy)
-  - [2.2 JdkProxyFactory](#22-jdkproxyfactory)
-    - [2.2.1 JDK Proxy](#221-jdk-proxy)
-    - [2.2.2 TccJdkProxyFactory](#222-tccjdkproxyfactory)
-    - [2.2.3 TccInvokerInvocationHandler](#223-tccinvokerinvocationhandler)
-    - [2.2.4 配置 Dubbo Proxy](#224-%E9%85%8D%E7%BD%AE-dubbo-proxy)
-- [3. Dubbo 事务上下文编辑器](#3-dubbo-%E4%BA%8B%E5%8A%A1%E4%B8%8A%E4%B8%8B%E6%96%87%E7%BC%96%E8%BE%91%E5%99%A8)
-- [666. 彩蛋](#666-%E5%BD%A9%E8%9B%8B)
+- [1. 概述](http://www.iocoder.cn/TCC-Transaction/dubbo-support/)
+- [2. Dubbo 代理](http://www.iocoder.cn/TCC-Transaction/dubbo-support/)
+  - [2.1 JavassistProxyFactory](http://www.iocoder.cn/TCC-Transaction/dubbo-support/)
+    - [2.1.1 Javassist](http://www.iocoder.cn/TCC-Transaction/dubbo-support/)
+    - [2.1.2 TccJavassistProxyFactory](http://www.iocoder.cn/TCC-Transaction/dubbo-support/)
+    - [2.1.3 TccProxy & TccClassGenerator](http://www.iocoder.cn/TCC-Transaction/dubbo-support/)
+    - [2.1.4 配置 Dubbo Proxy](http://www.iocoder.cn/TCC-Transaction/dubbo-support/)
+  - [2.2 JdkProxyFactory](http://www.iocoder.cn/TCC-Transaction/dubbo-support/)
+    - [2.2.1 JDK Proxy](http://www.iocoder.cn/TCC-Transaction/dubbo-support/)
+    - [2.2.2 TccJdkProxyFactory](http://www.iocoder.cn/TCC-Transaction/dubbo-support/)
+    - [2.2.3 TccInvokerInvocationHandler](http://www.iocoder.cn/TCC-Transaction/dubbo-support/)
+    - [2.2.4 配置 Dubbo Proxy](http://www.iocoder.cn/TCC-Transaction/dubbo-support/)
+- [3. Dubbo 事务上下文编辑器](http://www.iocoder.cn/TCC-Transaction/dubbo-support/)
+- [666. 彩蛋](http://www.iocoder.cn/TCC-Transaction/dubbo-support/)
 
----
+-------
 
 ![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
@@ -31,7 +33,7 @@ permalink: TCC-Transaction/dubbo-support
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
 > 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
-> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。
+> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。  
 > 5. **认真的**源码交流微信群。
 
 ---

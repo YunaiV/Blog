@@ -6,20 +6,22 @@ permalink: Elastic-Job/cloud-high-availability
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Elastic-Job/cloud-high-availability/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
 **本文基于 Elastic-Job V2.1.5 版本分享**
 
-- [1. 概述](#)
-- [2. Scheduler 集群](#)
-- [3. Scheduler 部署](#)
-- [4. Scheduler 故障转移](#)
-- [5. Scheduler 数据存储](#)
-	- [5.1 RunningService](#)
-	- [5.2 ProducerManager](#)
-	- [5.3 TaskScheduler](#)
-- [6. Mesos Master 崩溃](#)
-- [7. Mesos Slave 崩溃](#)
-- [8. Scheduler 核对](#)
-- [666. 彩蛋](#)
+- [1. 概述](http://www.iocoder.cn/Elastic-Job/cloud-high-availability/)
+- [2. Scheduler 集群](http://www.iocoder.cn/Elastic-Job/cloud-high-availability/)
+- [3. Scheduler 部署](http://www.iocoder.cn/Elastic-Job/cloud-high-availability/)
+- [4. Scheduler 故障转移](http://www.iocoder.cn/Elastic-Job/cloud-high-availability/)
+- [5. Scheduler 数据存储](http://www.iocoder.cn/Elastic-Job/cloud-high-availability/)
+  - [5.1 RunningService](http://www.iocoder.cn/Elastic-Job/cloud-high-availability/)
+  - [5.2 ProducerManager](http://www.iocoder.cn/Elastic-Job/cloud-high-availability/)
+  - [5.3 TaskScheduler](http://www.iocoder.cn/Elastic-Job/cloud-high-availability/)
+- [6. Mesos Master 崩溃](http://www.iocoder.cn/Elastic-Job/cloud-high-availability/)
+- [7. Mesos Slave 崩溃](http://www.iocoder.cn/Elastic-Job/cloud-high-availability/)
+- [8. Scheduler 核对](http://www.iocoder.cn/Elastic-Job/cloud-high-availability/)
+- [666. 彩蛋](http://www.iocoder.cn/Elastic-Job/cloud-high-availability/)
 
 -------
 

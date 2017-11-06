@@ -6,13 +6,34 @@ permalink: Docker/docker-network-flannel
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Docker/docker-network-flannel/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
+  - [A. 安装Etcd](http://www.iocoder.cn/Docker/docker-network-flannel/)
+  - [B. 安装Flannel](http://www.iocoder.cn/Docker/docker-network-flannel/)
+    - [1. 下载Flannel](http://www.iocoder.cn/Docker/docker-network-flannel/)
+    - [2. 启动Flannel](http://www.iocoder.cn/Docker/docker-network-flannel/)
+- [说明：http://10.29.76.96:2379 为etcd请求地址，需要改成你自己的噢](http://www.iocoder.cn/Docker/docker-network-flannel/)
+    - [3. 配置Docker](http://www.iocoder.cn/Docker/docker-network-flannel/)
+- [说明：DOCKER_NETWORK_OPTIONS=' --bip=10.1.77.1/24 --mtu=1472 '](http://www.iocoder.cn/Docker/docker-network-flannel/)
+- [说明：bip为subnet.env里的FLANNEL_SUBNET，mtu为subnet.env里的FLANNEL_MTU](http://www.iocoder.cn/Docker/docker-network-flannel/)
+    - [4. 验证网络是否通畅](http://www.iocoder.cn/Docker/docker-network-flannel/)
+- [假设ip为10.1.97.2](http://www.iocoder.cn/Docker/docker-network-flannel/)
+- [假设ip为10.1.77.2](http://www.iocoder.cn/Docker/docker-network-flannel/)
+- [ping通即配置成功！](http://www.iocoder.cn/Docker/docker-network-flannel/)
+  - [C. 原理](http://www.iocoder.cn/Docker/docker-network-flannel/)
+  - [D. 性能](http://www.iocoder.cn/Docker/docker-network-flannel/)
+  - [E. 碰到的问题](http://www.iocoder.cn/Docker/docker-network-flannel/)
+  - [F. 参考文章列表](http://www.iocoder.cn/Docker/docker-network-flannel/)
+
+-------
+
 ![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
 > 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
-> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。
+> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。  
 > 5. **认真的**源码交流微信群。
 
 -------

@@ -6,13 +6,15 @@ permalink: Elastic-Job/election
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Elastic-Job/election/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
 **本文基于 Elastic-Job V2.1.5 版本分享**
 
-- [1. 概述]()
-- [2. 为什么需要选举主节点]()
-- [3. 选举主节点]()
-- [4. 删除主节点]()
-- [666. 彩蛋]()
+- [1. 概述](http://www.iocoder.cn/Elastic-Job/election/)
+- [2. 为什么需要选举主节点](http://www.iocoder.cn/Elastic-Job/election/)
+- [3. 选举主节点](http://www.iocoder.cn/Elastic-Job/election/)
+- [4. 删除主节点](http://www.iocoder.cn/Elastic-Job/election/)
+- [666. 彩蛋](http://www.iocoder.cn/Elastic-Job/election/)
 
 -------
 

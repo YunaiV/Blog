@@ -6,18 +6,20 @@ permalink: Elastic-Job/cloud-job-config
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Elastic-Job/cloud-job-config/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
 **本文基于 Elastic-Job V2.1.5 版本分享**
 
-- [1. 概述](#)
-- [2. 云作业App](#)
-  - [2.1 云作业App配置类](#)
-  - [2.2 操作云作业App配置](#)
-- [3. 云作业](#3)
-  - [3.1 云作业配置](#)
-    - [3.1.1 操作云作业配置](#)
-  - [3.2 本地云作业配置](#)
-  - [3.3 云作业配置总结](#)
-- [666. 彩蛋](#)
+- [1. 概述](http://www.iocoder.cn/Elastic-Job/cloud-job-config/)
+- [2. 云作业App](http://www.iocoder.cn/Elastic-Job/cloud-job-config/)
+  - [2.1 云作业App配置类](http://www.iocoder.cn/Elastic-Job/cloud-job-config/)
+  - [2.2 操作云作业App配置](http://www.iocoder.cn/Elastic-Job/cloud-job-config/)
+- [3. 云作业](http://www.iocoder.cn/Elastic-Job/cloud-job-config/)
+  - [3.1 云作业配置](http://www.iocoder.cn/Elastic-Job/cloud-job-config/)
+    - [3.1.1 操作云作业配置](http://www.iocoder.cn/Elastic-Job/cloud-job-config/)
+  - [3.2 本地云作业配置](http://www.iocoder.cn/Elastic-Job/cloud-job-config/)
+  - [3.3 云作业配置总结](http://www.iocoder.cn/Elastic-Job/cloud-job-config/)
+- [666. 彩蛋](http://www.iocoder.cn/Elastic-Job/cloud-job-config/)
 
 -------
 

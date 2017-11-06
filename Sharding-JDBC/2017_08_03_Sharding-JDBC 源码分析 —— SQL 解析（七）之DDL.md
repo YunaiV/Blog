@@ -7,6 +7,12 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Sharding-JDBC/sql-parse-7/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
+抱歉，站坑文。近期看情况更新。
+
+-------
+
 ![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
@@ -17,5 +23,3 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 > 5. **认真的**源码交流微信群。
 
 -------
-
-抱歉，站坑文。近期看情况更新。

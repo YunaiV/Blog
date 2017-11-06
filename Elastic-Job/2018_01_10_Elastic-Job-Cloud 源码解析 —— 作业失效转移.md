@@ -6,12 +6,14 @@ permalink: Elastic-Job/cloud-job-failover
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Elastic-Job/cloud-job-failover/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
 **本文基于 Elastic-Job V2.1.5 版本分享**
 
-- [1. 概述](#)
-- [2. 记录作业失效转移](#)
-- [3. 提交失效转移作业](#)
-- [666. 彩蛋](#)
+- [1. 概述](http://www.iocoder.cn/Elastic-Job/cloud-job-failover/)
+- [2. 记录作业失效转移](http://www.iocoder.cn/Elastic-Job/cloud-job-failover/)
+- [3. 提交失效转移作业](http://www.iocoder.cn/Elastic-Job/cloud-job-failover/)
+- [666. 彩蛋](http://www.iocoder.cn/Elastic-Job/cloud-job-failover/)
 
 -------
 

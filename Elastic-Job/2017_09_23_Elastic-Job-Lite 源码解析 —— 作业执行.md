@@ -6,28 +6,30 @@ permalink: Elastic-Job/job-execute
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Elastic-Job/job-execute/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
 **本文基于 Elastic-Job V2.1.5 版本分享**
 
-- [1. 概述](#1-%E6%A6%82%E8%BF%B0)
-- [2. Lite调度作业](#2-lite%E8%B0%83%E5%BA%A6%E4%BD%9C%E4%B8%9A)
-- [3. 执行器创建](#3-%E6%89%A7%E8%A1%8C%E5%99%A8%E5%88%9B%E5%BB%BA)
-  - [3.1 加载作业配置](#31-%E5%8A%A0%E8%BD%BD%E4%BD%9C%E4%B8%9A%E9%85%8D%E7%BD%AE)
-  - [3.2 获取作业执行线程池](#32-%E8%8E%B7%E5%8F%96%E4%BD%9C%E4%B8%9A%E6%89%A7%E8%A1%8C%E7%BA%BF%E7%A8%8B%E6%B1%A0)
-  - [3.3 获取作业异常执行器](#33-%E8%8E%B7%E5%8F%96%E4%BD%9C%E4%B8%9A%E5%BC%82%E5%B8%B8%E6%89%A7%E8%A1%8C%E5%99%A8)
-- [4. 执行器执行](#4-%E6%89%A7%E8%A1%8C%E5%99%A8%E6%89%A7%E8%A1%8C)
-  - [4.1 检查作业执行环境](#41-%E6%A3%80%E6%9F%A5%E4%BD%9C%E4%B8%9A%E6%89%A7%E8%A1%8C%E7%8E%AF%E5%A2%83)
-  - [4.2 获取当前作业服务器的分片上下文](#42-%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E4%BD%9C%E4%B8%9A%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E5%88%86%E7%89%87%E4%B8%8A%E4%B8%8B%E6%96%87)
-  - [4.3 发布作业状态追踪事件](#43-%E5%8F%91%E5%B8%83%E4%BD%9C%E4%B8%9A%E7%8A%B6%E6%80%81%E8%BF%BD%E8%B8%AA%E4%BA%8B%E4%BB%B6)
-  - [4.4 跳过正在运行中的被错过执行的作业](#44-%E8%B7%B3%E8%BF%87%E6%AD%A3%E5%9C%A8%E8%BF%90%E8%A1%8C%E4%B8%AD%E7%9A%84%E8%A2%AB%E9%94%99%E8%BF%87%E6%89%A7%E8%A1%8C%E7%9A%84%E4%BD%9C%E4%B8%9A)
-  - [4.5 执行作业执行前的方法](#45-%E6%89%A7%E8%A1%8C%E4%BD%9C%E4%B8%9A%E6%89%A7%E8%A1%8C%E5%89%8D%E7%9A%84%E6%96%B9%E6%B3%95)
-  - [4.6 执行普通触发的作业](#46-%E6%89%A7%E8%A1%8C%E6%99%AE%E9%80%9A%E8%A7%A6%E5%8F%91%E7%9A%84%E4%BD%9C%E4%B8%9A)
-    - [4.6.1 简单作业执行器](#461-%E7%AE%80%E5%8D%95%E4%BD%9C%E4%B8%9A%E6%89%A7%E8%A1%8C%E5%99%A8)
-    - [4.6.2 数据流作业执行器](#462-%E6%95%B0%E6%8D%AE%E6%B5%81%E4%BD%9C%E4%B8%9A%E6%89%A7%E8%A1%8C%E5%99%A8)
-    - [4.6.3 脚本作业执行器](#463-%E8%84%9A%E6%9C%AC%E4%BD%9C%E4%B8%9A%E6%89%A7%E8%A1%8C%E5%99%A8)
-  - [4.7 执行被错过触发的作业](#47-%E6%89%A7%E8%A1%8C%E8%A2%AB%E9%94%99%E8%BF%87%E8%A7%A6%E5%8F%91%E7%9A%84%E4%BD%9C%E4%B8%9A)
-  - [4.8 执行作业失效转移](#48-%E6%89%A7%E8%A1%8C%E4%BD%9C%E4%B8%9A%E5%A4%B1%E6%95%88%E8%BD%AC%E7%A7%BB)
-  - [4.9 执行作业执行后的方法](#49-%E6%89%A7%E8%A1%8C%E4%BD%9C%E4%B8%9A%E6%89%A7%E8%A1%8C%E5%90%8E%E7%9A%84%E6%96%B9%E6%B3%95)
-- [666. 彩蛋](#666-%E5%BD%A9%E8%9B%8B)
+- [1. 概述](http://www.iocoder.cn/Elastic-Job/job-execute/)
+- [2. Lite调度作业](http://www.iocoder.cn/Elastic-Job/job-execute/)
+- [3. 执行器创建](http://www.iocoder.cn/Elastic-Job/job-execute/)
+  - [3.1 加载作业配置](http://www.iocoder.cn/Elastic-Job/job-execute/)
+  - [3.2 获取作业执行线程池](http://www.iocoder.cn/Elastic-Job/job-execute/)
+  - [3.3 获取作业异常执行器](http://www.iocoder.cn/Elastic-Job/job-execute/)
+- [4. 执行器执行](http://www.iocoder.cn/Elastic-Job/job-execute/)
+  - [4.1 检查作业执行环境](http://www.iocoder.cn/Elastic-Job/job-execute/)
+  - [4.2 获取当前作业服务器的分片上下文](http://www.iocoder.cn/Elastic-Job/job-execute/)
+  - [4.3 发布作业状态追踪事件](http://www.iocoder.cn/Elastic-Job/job-execute/)
+  - [4.4 跳过正在运行中的被错过执行的作业](http://www.iocoder.cn/Elastic-Job/job-execute/)
+  - [4.5 执行作业执行前的方法](http://www.iocoder.cn/Elastic-Job/job-execute/)
+  - [4.6 执行普通触发的作业](http://www.iocoder.cn/Elastic-Job/job-execute/)
+    - [4.6.1 简单作业执行器](http://www.iocoder.cn/Elastic-Job/job-execute/)
+    - [4.6.2 数据流作业执行器](http://www.iocoder.cn/Elastic-Job/job-execute/)
+    - [4.6.3 脚本作业执行器](http://www.iocoder.cn/Elastic-Job/job-execute/)
+  - [4.7 执行被错过触发的作业](http://www.iocoder.cn/Elastic-Job/job-execute/)
+  - [4.8 执行作业失效转移](http://www.iocoder.cn/Elastic-Job/job-execute/)
+  - [4.9 执行作业执行后的方法](http://www.iocoder.cn/Elastic-Job/job-execute/)
+- [666. 彩蛋](http://www.iocoder.cn/Elastic-Job/job-execute/)
 
 -------
 

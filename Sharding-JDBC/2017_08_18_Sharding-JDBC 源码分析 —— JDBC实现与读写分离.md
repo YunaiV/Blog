@@ -7,6 +7,26 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,JDBC,读写分离
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Sharding-JDBC/jdbc-implement-and-read-write-splitting/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
+**本文主要基于 Sharding-JDBC 1.5.0 正式版**  
+
+- [1. 概述](http://www.iocoder.cn/Sharding-JDBC/jdbc-implement-and-read-write-splitting/)
+- [2. unspported 包](http://www.iocoder.cn/Sharding-JDBC/jdbc-implement-and-read-write-splitting/)
+- [3. adapter 包](http://www.iocoder.cn/Sharding-JDBC/jdbc-implement-and-read-write-splitting/)
+  - [3.1 WrapperAdapter](http://www.iocoder.cn/Sharding-JDBC/jdbc-implement-and-read-write-splitting/)
+  - [3.2 AbstractDataSourceAdapter](http://www.iocoder.cn/Sharding-JDBC/jdbc-implement-and-read-write-splitting/)
+  - [3.3 AbstractConnectionAdapter](http://www.iocoder.cn/Sharding-JDBC/jdbc-implement-and-read-write-splitting/)
+  - [3.4 AbstractStatementAdapter](http://www.iocoder.cn/Sharding-JDBC/jdbc-implement-and-read-write-splitting/)
+  - [3.5 AbstractPreparedStatementAdapter](http://www.iocoder.cn/Sharding-JDBC/jdbc-implement-and-read-write-splitting/)
+  - [3.6 AbstractResultSetAdapter](http://www.iocoder.cn/Sharding-JDBC/jdbc-implement-and-read-write-splitting/)
+- [4. 插入流程](http://www.iocoder.cn/Sharding-JDBC/jdbc-implement-and-read-write-splitting/)
+- [5. 查询流程](http://www.iocoder.cn/Sharding-JDBC/jdbc-implement-and-read-write-splitting/)
+- [6. 读写分离](http://www.iocoder.cn/Sharding-JDBC/jdbc-implement-and-read-write-splitting/)
+- [666. 彩蛋](http://www.iocoder.cn/Sharding-JDBC/jdbc-implement-and-read-write-splitting/)
+
+-------
+
 ![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
@@ -15,24 +35,6 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,JDBC,读写分离
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
 > 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。  
 > 5. **认真的**源码交流微信群。
-
--------
-
-**本文主要基于 Sharding-JDBC 1.5.0 正式版**  
-
-- [1. 概述](#)
-- [2. unspported 包](#)
-- [3. adapter 包](#)
-	- [3.1 WrapperAdapter](#)
-	- [3.2 AbstractDataSourceAdapter](#)
-	- [3.3 AbstractConnectionAdapter](#)
-	- [3.4 AbstractStatementAdapter](#)
-	- [3.5 AbstractPreparedStatementAdapter](#)
-	- [3.6 AbstractResultSetAdapter](#)
-- [4. 插入流程](#)
-- [5. 查询流程](#)
-- [6. 读写分离](#)
-- [666. ~~彩蛋~~](#)
 
 -------
 

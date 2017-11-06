@@ -10,13 +10,13 @@ permalink: Eureka/eureka-client-init-third
 
 **本文主要基于 Eureka 1.8.X 版本** 
 
-- [1. 概述](#1-%E6%A6%82%E8%BF%B0)
-- [2. EurekaClient](#2-eurekaclient)
-  - [2.1 LookupService](#21-lookupservice)
-- [3. DiscoveryClient](#3-discoveryclient)
-  - [3.1 构造方法参数](#31-%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%8F%82%E6%95%B0)
-  - [3.2 构造方法](#32-%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95)
-- [666. 彩蛋](#666-%E5%BD%A9%E8%9B%8B)
+- [1. 概述](http://www.iocoder.cn/Eureka/eureka-client-init-third/)
+- [2. EurekaClient](http://www.iocoder.cn/Eureka/eureka-client-init-third/)
+  - [2.1 LookupService](http://www.iocoder.cn/Eureka/eureka-client-init-third/)
+- [3. DiscoveryClient](http://www.iocoder.cn/Eureka/eureka-client-init-third/)
+  - [3.1 构造方法参数](http://www.iocoder.cn/Eureka/eureka-client-init-third/)
+  - [3.2 构造方法](http://www.iocoder.cn/Eureka/eureka-client-init-third/)
+- [666. 彩蛋](http://www.iocoder.cn/Eureka/eureka-client-init-third/)
 
 ---
 
@@ -64,7 +64,7 @@ Eureka-Client 自身初始化过程中，涉及到主要对象如下图：
 
 [`com.netflix.discovery.EurekaClient`](https://github.com/YunaiV/eureka/blob/3ef162f20a28c75de84321b69412c4ef138ad55a/eureka-client/src/main/java/com/netflix/discovery/EurekaClient.java)，Eureka-Client **接口**，声明如下方法：
 
-* 提供**多种**方法获取应用集合(`com.netflix.discovery.shared.Applications`) 和 应用对象信息集合( `com.netflix.appinfo.InstanceInfo` )。
+* 提供**多种**方法获取应用集合(`com.netflix.discovery.shared.Applications`) 和 应用实例信息集合( `com.netflix.appinfo.InstanceInfo` )。
 * 提供方法获取**本地**客户端信息，例如，应用管理器( `com.netflix.appinfo.ApplicationInfoManager` )和 Eureka-Client 配置( `com.netflix.discovery.EurekaClientConfig` )。
 * 提供方法**注册**本地客户端的健康检查和 Eureka 事件监听器。
 
@@ -74,7 +74,7 @@ Eureka-Client 自身初始化过程中，涉及到主要对象如下图：
 
 ## 2.1 LookupService
 
-[`com.netflix.discovery.shared.LookupService`](https://github.com/YunaiV/eureka/blob/3ef162f20a28c75de84321b69412c4ef138ad55a/eureka-client/src/main/java/com/netflix/discovery/shared/LookupService.java)，查找服务**接口**，提供**简单单一**的方式获取应用集合(`com.netflix.discovery.shared.Applications`) 和 应用对象信息集合( `com.netflix.appinfo.InstanceInfo` )。
+[`com.netflix.discovery.shared.LookupService`](https://github.com/YunaiV/eureka/blob/3ef162f20a28c75de84321b69412c4ef138ad55a/eureka-client/src/main/java/com/netflix/discovery/shared/LookupService.java)，查找服务**接口**，提供**简单单一**的方式获取应用集合(`com.netflix.discovery.shared.Applications`) 和 应用实例信息集合( `com.netflix.appinfo.InstanceInfo` )。
 
 ![](http://www.iocoder.cn/images/Eureka/2018_04_29/01.png)
 
@@ -88,7 +88,7 @@ Eureka-Client 自身初始化过程中，涉及到主要对象如下图：
 * 向 Eureka-Server **注册**自身服务
 * 向 Eureka-Server **续约**自身服务
 * 向 Eureka-Server **取消**自身服务，当关闭时
-* 从 Eureka-Server **查询**应用集合和应用对象信息
+* 从 Eureka-Server **查询**应用集合和应用实例信息
 * *简单来理解，对 Eureka-Server 服务的增删改查*
 
 ## 3.1 构造方法参数
@@ -202,7 +202,7 @@ DiscoveryClient(ApplicationInfoManager applicationInfoManager, EurekaClientConfi
         
         }
         ```
-        * 在 Spring-Cloud-Eureka-Client，提供了默认实现 [`org.springframework.cloud.netflix.eureka.EurekaHealthCheckHandler`](https://github.com/spring-cloud/spring-cloud-netflix/blob/82991a7fc2859b6345b7f67e2461dbf5d7663836/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaHealthCheckHandler.java)，需要结合 [`spirng-boot-actuate`](https://github.com/spring-projects/spring-boot/tree/c79568886406662736dcdce78f65e7f46dd62696/spring-boot-actuator/) 使用，感兴趣的同学可以看看。本文暂不拓展开，后面另开文章分享。（TODO 后文超链）
+        * 在 Spring-Cloud-Eureka-Client，提供了默认实现 [`org.springframework.cloud.netflix.eureka.EurekaHealthCheckHandler`](https://github.com/spring-cloud/spring-cloud-netflix/blob/82991a7fc2859b6345b7f67e2461dbf5d7663836/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaHealthCheckHandler.java)，需要结合 [`spirng-boot-actuate`](https://github.com/spring-projects/spring-boot/tree/c79568886406662736dcdce78f65e7f46dd62696/spring-boot-actuator/) 使用，感兴趣的同学可以看看。本文暂不拓展开，后面另开文章分享。（TODO[0004]：健康检查）
 
     * `com.netflix.discovery.PreRegistrationHandler`，向 Eureka-Server 注册之前的处理器**接口**，目前暂未提供默认实现。通过实现该接口，可以在注册前做一些自定义的处理。实现代码如下：
 
@@ -231,7 +231,7 @@ DiscoveryClient(ApplicationInfoManager applicationInfoManager, EurekaClientConfi
 
        }
        ```
-       * Jersey 1.X 使用 ClientFilter 。ClientFilter 目前有两个过滤器实现：EurekaIdentityHeaderFilter 、DynamicGZIPContentEncodingFilter，本文暂不拓展开，后面另开文章分享。（TODO 后文超链）
+       * Jersey 1.X 使用 ClientFilter 。ClientFilter 目前有两个过滤器实现：EurekaIdentityHeaderFilter 、DynamicGZIPContentEncodingFilter 。
        * Jersey 2.X 使用 ClientRequestFilter 。
        * DiscoveryClient 使用 DiscoveryClientOptionalArgs，即 Jersey 1.X 。
 
@@ -280,8 +280,8 @@ DiscoveryClient(ApplicationInfoManager applicationInfoManager, EurekaClientConfi
      
      }
      ```
-     * StatusChangeEvent （TODO 后文超链）
-     * CacheRefreshedEvent （TODO 后文超链）
+     * `com.netflix.discovery.StatusChangeEvent`，应用实例状态变更事件，在[《Eureka 源码解析 —— 应用实例注册发现 （一）之注册》「2.1 应用实例信息复制器」](http://www.iocoder.cn/Eureka/instance-registry-register/?self) 有详细解析。
+     * `com.netflix.discovery.CacheRefreshedEvent`，在[《Eureka 源码解析 —— 应用实例注册发现 （六）之全量获取》「2.4 发起获取注册信息」](http://www.iocoder.cn/Eureka/instance-registry-fetch-all/?self) 有详细解析。
 
 ## 3.2 构造方法
 
@@ -329,7 +329,7 @@ this.backupRegistryProvider = backupRegistryProvider;
 
 ### 3.2.4 初始化 InstanceInfoBasedUrlRandomizer
 
-TODO 没弄懂
+TODO[0016]：InstanceInfoBasedUrlRandomizer
 
 ```Java
 this.urlRandomizer = new EndpointUtils.InstanceInfoBasedUrlRandomizer(instanceInfo);
@@ -356,7 +356,7 @@ fetchRegistryGeneration = new AtomicLong(0);
 ```
 
 * 在创建 DiscoveryClient 时，`localRegionApps` 为空。
-* 定时任务**间隔**从 Eureka-Server 拉取注册应用信息到本地缓存，在 (TODO 后文链接)详细解析。
+* 定时任务**间隔**从 Eureka-Server 拉取注册应用信息到本地缓存，在 [《Eureka 源码解析 —— 应用实例注册发现 （六）之全量获取》](http://www.iocoder.cn/Eureka/instance-registry-fetch-all/?self) 有详细解析。
 
 ### 3.2.6 获取哪些 Region 集合的注册信息
 
@@ -413,7 +413,7 @@ if (config.shouldRegisterWithEureka()) {
 
 * 每次成功向 Eureka-Serve 心跳或者从从 Eureka-Server 拉取注册信息后，都会更新相应时间戳。
 * 配合 [Netflix Servo](https://github.com/Netflix/servo) 实现监控信息采集。
-* 对 [`com.netflix.discovery.util.ThresholdLevelsMetric`](https://github.com/YunaiV/eureka/blob/3ef162f20a28c75de84321b69412c4ef138ad55a/eureka-client/src/main/java/com/netflix/discovery/util/ThresholdLevelsMetric.java) 感兴趣的同学可以点击链接查看。本文暂不拓展开，后面另开文章分享。（TODO 后文超链）
+* 对 [`com.netflix.discovery.util.ThresholdLevelsMetric`](https://github.com/YunaiV/eureka/blob/3ef162f20a28c75de84321b69412c4ef138ad55a/eureka-client/src/main/java/com/netflix/discovery/util/ThresholdLevelsMetric.java) 感兴趣的同学可以点击链接查看。本文暂不拓展开，后面另开文章分享。（TODO[0012]：监控相关）
 
 ### 3.2.8 结束初始化，当无需和 Eureka-Server 交互
 
@@ -500,7 +500,7 @@ eurekaTransport = new EurekaTransport();
 scheduleServerEndpointTask(eurekaTransport, args);
 ```
 
-* 本文暂不拓展开，后面另开文章分享。（TODO 后文超链）
+* 本文暂不拓展开，在 [《Eureka 源码解析 —— EndPoint 与 解析器》](http://www.iocoder.cn/Eureka/end-point-and-resolver/?self) 和 [《Eureka 源码解析 —— 网络通信》](http://www.iocoder.cn/Eureka/transport/?self) 详细解析。
 
 ### 3.2.11 初始化 InstanceRegionChecker
 
@@ -519,7 +519,7 @@ instanceRegionChecker = new InstanceRegionChecker(azToRegionMapper, clientConfig
 ```
 
 * `com.netflix.discovery.AzToRegionMapper`，主要用于亚马逊 AWS，跳过。
-* `com.netflix.discovery.InstanceRegionChecker`，应用对象信息区域( `region` )校验，实现代码如下：
+* `com.netflix.discovery.InstanceRegionChecker`，应用实例信息区域( `region` )校验，实现代码如下：
 
     ```Java
     public class InstanceRegionChecker {
@@ -682,8 +682,8 @@ private void initScheduledTasks() {
 }
 ```
 
-* **初始化**从 Eureka-Server 拉取注册信息执行器，在（TODOTODO）详细解析。
-* **初始化**向 Eureka-Server 心跳（续租）执行器，在（TODOTODO）详细解析。
+* **初始化**从 Eureka-Server 拉取注册信息执行器，在 [《Eureka 源码解析 —— 应用实例注册发现 （六）之全量获取》](http://www.iocoder.cn/Eureka/instance-registry-fetch-all/?self) 详细解析。
+* **初始化**向 Eureka-Server 心跳（续租）执行器，在 [《Eureka 源码解析 —— 应用实例注册发现（二）之续租》](http://www.iocoder.cn/Eureka/instance-registry-renew/?self) 详细解析。
 
 ### 3.2.15 向 Servo 注册监控
 
@@ -722,7 +722,7 @@ logger.info("Discovery Client initialized at timestamp {} with initial instances
 
 由于笔者是边理解源码边输出博客内容，如果有错误或者不清晰的地方，**欢迎**微笑给我的微信公众号( **芋道源码** ) 留言，我会**仔细**回复。感谢 + 1024。
 
-后面文章不断更新，会慢慢完善本文中的 TODO。
+后面文章不断更新，会慢慢完善本文中的。
 
 推荐参考阅读：
 

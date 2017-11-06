@@ -6,19 +6,21 @@ permalink: Elastic-Job/job-storage
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Elastic-Job/job-storage/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
 **本文基于 Elastic-Job V2.1.5 版本分享**
 
-- [1. 概述](#1-%E6%A6%82%E8%BF%B0)
-- [2. JobNodePath](#2-jobnodepath)
-- [3. JobNodeStorage](#3-jobnodestorage)
-- [4. ConfigurationNode](#4-configurationnode)
-- [5. ServerNode](#5-servernode)
-- [6. InstanceNode](#6-instancenode)
-- [7. ShardingNode](#7-shardingnode)
-- [8. LeaderNode](#8-leadernode)
-- [9. FailoverNode](#9-failovernode)
-- [10. GuaranteeNode](#10-guaranteenode)
-- [666. 彩蛋](#666-%E5%BD%A9%E8%9B%8B)
+- [1. 概述](http://www.iocoder.cn/Elastic-Job/job-storage/)
+- [2. JobNodePath](http://www.iocoder.cn/Elastic-Job/job-storage/)
+- [3. JobNodeStorage](http://www.iocoder.cn/Elastic-Job/job-storage/)
+- [4. ConfigurationNode](http://www.iocoder.cn/Elastic-Job/job-storage/)
+- [5. ServerNode](http://www.iocoder.cn/Elastic-Job/job-storage/)
+- [6. InstanceNode](http://www.iocoder.cn/Elastic-Job/job-storage/)
+- [7. ShardingNode](http://www.iocoder.cn/Elastic-Job/job-storage/)
+- [8. LeaderNode](http://www.iocoder.cn/Elastic-Job/job-storage/)
+- [9. FailoverNode](http://www.iocoder.cn/Elastic-Job/job-storage/)
+- [10. GuaranteeNode](http://www.iocoder.cn/Elastic-Job/job-storage/)
+- [666. 彩蛋](http://www.iocoder.cn/Elastic-Job/job-storage/)
 
 -------
 

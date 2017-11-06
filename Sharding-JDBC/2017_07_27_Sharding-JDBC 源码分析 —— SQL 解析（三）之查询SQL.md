@@ -7,6 +7,33 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
+**本文主要基于 Sharding-JDBC 1.5.0 正式版**  
+
+- [1. 概述](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+- [2. SelectStatement](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+	- [2.1 AbstractSQLStatement](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+	- [2.2 SQLToken](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+- [3. #query()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+	- [3.1 #parseDistinct()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+	- [3.2 #parseSelectList()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+	- [3.3 #skipToFrom()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+	- [3.4 #parseFrom()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+	- [3.5 #parseWhere()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+	- [3.6 #parseGroupBy()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+	- [3.7 #parseOrderBy()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+	- [3.8 #parseLimit()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+	- [3.9 #queryRest()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+- [4. appendDerived等方法](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+	- [4.1 appendAvgDerivedColumns](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+	- [4.2 appendDerivedOrderColumns](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+	- [4.3 ItemsToken](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+	- [4.4 appendDerivedOrderBy()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+- [666. 彩蛋](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/)
+
+-------
+
 ![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
@@ -15,31 +42,6 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
 > 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。  
 > 5. **认真的**源码交流微信群。
-
--------
-
-**本文主要基于 Sharding-JDBC 1.5.0 正式版**  
-
-- [1. 概述](#)
-- [2. SelectStatement](#)
-	- [2.1 AbstractSQLStatement](#)
-	- [2.2 SQLToken](#)
-- [3. #query()](#)
-	- [3.1 #parseDistinct()](#)
-	- [3.2 #parseSelectList()](#)
-	- [3.3 #skipToFrom()](#)
-	- [3.4 #parseFrom()](#)
-	- [3.5 #parseWhere()](#)
-	- [3.6 #parseGroupBy()](#)
-	- [3.7 #parseOrderBy()](#)
-	- [3.8 #parseLimit()](#)
-	- [3.9 #queryRest()](#)
-- [4. appendDerived等方法](#)
-	- [4.1 appendAvgDerivedColumns](#)
-	- [4.2 appendDerivedOrderColumns](#)
-	- [4.3 ItemsToken](#)
-	- [4.4 appendDerivedOrderBy()](#)
-- [666. 彩蛋](#)
 
 -------
 

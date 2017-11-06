@@ -18,15 +18,17 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Sharding-JDBC/sql-parse-6/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
 **本文主要基于 Sharding-JDBC 1.5.0 正式版**  
 
-- [1. 概述](#)
-- [2. DeleteStatement](#)
-- [3. #parse()](#)
-	- [3.1 #skipBetweenDeleteAndTable()](#)
-	- [3.2 #parseSingleTable()](#)
-	- [3.3 #parseWhere()](#)
-- [666. 彩蛋](#)
+- [1. 概述](http://www.iocoder.cn/Sharding-JDBC/sql-parse-6/)
+- [2. DeleteStatement](http://www.iocoder.cn/Sharding-JDBC/sql-parse-6/)
+- [3. #parse()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-6/)
+	- [3.1 #skipBetweenDeleteAndTable()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-6/)
+	- [3.2 #parseSingleTable()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-6/)
+	- [3.3 #parseWhere()](http://www.iocoder.cn/Sharding-JDBC/sql-parse-6/)
+- [666. 彩蛋](http://www.iocoder.cn/Sharding-JDBC/sql-parse-6/)
 
 -------
 

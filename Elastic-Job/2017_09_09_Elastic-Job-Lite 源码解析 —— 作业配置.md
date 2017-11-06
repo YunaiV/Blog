@@ -6,21 +6,23 @@ permalink: Elastic-Job/job-config
 
 -------
 
+摘要: 原创出处 http://www.iocoder.cn/Elastic-Job/job-config/ 「芋道源码」欢迎转载，保留摘要，谢谢！
+
 **本文基于 Elastic-Job V2.1.5 版本分享**
 
-- [1. 概述](#)
-- [2. 作业配置](#)
-	- [2.1 注册中心配置](#)
-	- [2.2 Lite作业配置](#)
-		- [2.2.1 作业类型配置](#)
-		- [2.2.2 作业核心配置](#)
-	- [2.3 作业事件配置](#)
-	- [2.4 作业监听器](#)
-- [3. 作业配置服务](#)
-	- [3.1 读取作业配置](#)
-	- [3.2 持久化作业配置](#)
-	- [3.3 校验本机时间是否合法](#)
-- [666. 彩蛋](#)
+- [1. 概述](http://www.iocoder.cn/Elastic-Job/job-config/)
+- [2. 作业配置](http://www.iocoder.cn/Elastic-Job/job-config/)
+  - [2.1 注册中心配置](http://www.iocoder.cn/Elastic-Job/job-config/)
+  - [2.2 Lite作业配置](http://www.iocoder.cn/Elastic-Job/job-config/)
+    - [2.2.1 作业类型配置](http://www.iocoder.cn/Elastic-Job/job-config/)
+    - [2.2.2 作业核心配置](http://www.iocoder.cn/Elastic-Job/job-config/)
+  - [2.3 作业事件配置](http://www.iocoder.cn/Elastic-Job/job-config/)
+  - [2.4 作业监听器](http://www.iocoder.cn/Elastic-Job/job-config/)
+- [3. 作业配置服务](http://www.iocoder.cn/Elastic-Job/job-config/)
+  - [3.1 读取作业配置](http://www.iocoder.cn/Elastic-Job/job-config/)
+  - [3.2 持久化作业配置](http://www.iocoder.cn/Elastic-Job/job-config/)
+  - [3.3 校验本机时间是否合法](http://www.iocoder.cn/Elastic-Job/job-config/)
+- [666. 彩蛋](http://www.iocoder.cn/Elastic-Job/job-config/)
 
 -------
 
