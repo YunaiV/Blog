@@ -32,7 +32,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,结果归并
 
 -------
 
-![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -999,6 +999,8 @@ public final class LimitDecoratorResultSetMerger extends AbstractDecoratorResult
 * LimitDecoratorResultSetMerger 可以对其他 ResultSetMerger 进行装饰，调用其他 ResultSetMerger 的 `#next()` 不断获得下一条记录。
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 诶？应该是有蛮多地方解释的不是很清晰，如果让您阅读误解或是阻塞，非常抱歉。代码读起来比较易懂，使用文字来解释，对表述能力较差的自己，可能就绞尽脑汁，一脸懵逼。
 

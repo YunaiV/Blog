@@ -17,7 +17,7 @@ permalink: Elastic-Job/job-listener
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -292,10 +292,10 @@ public final void beforeJobExecuted(final ShardingContexts shardingContexts) {
 
 # 666. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 旁白君：哎哟喂，AbstractDistributeOnceElasticJobListener 还不错哟。  
 芋道君：那必须必的。
-
-![](http://www.iocoder.cn/images/Elastic-Job/2017_11_21/03.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

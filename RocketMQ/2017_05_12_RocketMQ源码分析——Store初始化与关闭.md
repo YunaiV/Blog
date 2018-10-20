@@ -14,7 +14,7 @@ permalink: RocketMQ/store-init-and-shutdown
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -24,3 +24,6 @@ permalink: RocketMQ/store-init-and-shutdown
 > 5. **认真的**源码交流微信群。
 
 -------
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+

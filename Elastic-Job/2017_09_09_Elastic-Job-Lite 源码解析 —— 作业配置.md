@@ -3,6 +3,7 @@ date: 2017-09-09
 tags:
 categories: Elastic-Job-Lite
 permalink: Elastic-Job/job-config
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247484974&idx=2&sn=fd06cfac76c77ed7c1e7db8e83e6287c&chksm=fa49799fcd3ef0896fb0b2ed44d45d0b615fda865a34d5b76c8b125c71e3c251424d0fe37e8a&token=1460889491&lang=zh_CN#rd
 
 -------
 
@@ -26,7 +27,7 @@ permalink: Elastic-Job/job-config
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -352,6 +353,8 @@ public void checkMaxTimeDiffSecondsTolerable() throws JobExecutionEnvironmentExc
 * Elastic-Job-Lite 作业触发是**依赖本机时间**，相同集群使用注册中心时间为基准，校验本机与注册中心的时间误差是否在允许范围内( `LiteJobConfiguration.maxTimeDiffSeconds` )。
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 Elastic-Job-Lite 源码解析系列第一篇文章，希望大家多多支持，预计全部更新完会有 15+ 篇。Elastic-Job-Cloud 源码系列后续也会更新。
 

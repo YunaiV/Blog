@@ -26,7 +26,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL 改写,SQL 优化
 
 -------
 
-![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -50,7 +50,7 @@ SQLRewriteEngine，SQL重写引擎，实现 SQL 改写、生成功能。从 Shar
 
 > 1.4.x及之前版本，SQL改写是在SQL路由之前完成的，在1.5.x中调整为SQL路由之后，因为SQL改写可以根据路由至单库表还是多库表而进行进一步优化。
 
-😆 很多同学看完[《SQL 解析-系列》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) 可能是一脸懵逼，特别对**“SQL 半理解”**。![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_10/01.png)希望本文能给你一些启发。
+😆 很多同学看完[《SQL 解析-系列》](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg) 可能是一脸懵逼，特别对**“SQL 半理解”**。![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_10/01.png)希望本文能给你一些启发。
 
 > **Sharding-JDBC 正在收集使用公司名单：[传送门](https://github.com/dangdangdotcom/sharding-jdbc/issues/234)。  
 > 🙂 你的登记，会让更多人参与和使用 Sharding-JDBC。[传送门](https://github.com/dangdangdotcom/sharding-jdbc/issues/234)  
@@ -59,7 +59,7 @@ SQLRewriteEngine，SQL重写引擎，实现 SQL 改写、生成功能。从 Shar
 
 # 2. SQLToken
 
-😁 SQLToken 在本文中很重要，所以即使在[《SQL 解析-系列》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)已经分享过，我们也换个姿势，再来一次。
+😁 SQLToken 在本文中很重要，所以即使在[《SQL 解析-系列》](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)已经分享过，我们也换个姿势，再来一次。
 
 SQLToken，SQL标记对象**接口**。SQLRewriteEngine 基于 SQLToken 实现 **SQL改写**。SQL解析器在 SQL解析过程中，很重要的一个目的是**标记需要SQL改写的部分**，也就是 SQLToken。
 
@@ -756,15 +756,15 @@ public String getBindingActualTable(final String dataSource, final String logicT
 
 # 666. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 哈哈哈，看完**SQL改写**后，**SQL解析**是不是清晰多了！嘿嘿嘿，反正我现在有点嗨。恩，蛮嗨的。
 
-当然，如果**SQL解析**理解上有点疑惑的你，**欢迎**加我的微信，咱 **1对1** 搞基。关注我的微信公众号：[【芋道源码】](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) 即可获得。
-
-![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+当然，如果**SQL解析**理解上有点疑惑的你，**欢迎**加我的微信，咱 **1对1** 搞基。关注我的微信公众号：[【芋道源码】](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg) 即可获得。
 
 道友，转发一波朋友圈可好？
 
-Let's Go! [《分布式主键》](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)、[《SQL 执行》](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)、[《结果聚合》](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) 继续。
+Let's Go! [《分布式主键》](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)、[《SQL 执行》](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)、[《结果聚合》](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg) 继续。
 
 _感谢技术牛逼如你耐心的阅读本文。_
 

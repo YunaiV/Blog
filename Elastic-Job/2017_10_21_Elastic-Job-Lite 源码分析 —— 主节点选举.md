@@ -18,7 +18,7 @@ permalink: Elastic-Job/election
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -337,6 +337,8 @@ public void shutdownInstance() {
         ![](http://www.iocoder.cn/images/Elastic-Job/2017_10_21/04.png)
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 旁白君：哎哟，这次竟然分享了点干货 😈  
 芋道君：嘿呀嘿呀，必须的啊，虽然有点焦头烂额啦。  

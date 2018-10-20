@@ -17,7 +17,7 @@ permalink: Spring-Cloud-Gateway/filter-netty-routing
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -50,6 +50,12 @@ NettyWriteResponseFilter ，与 NettyRoutingFilter **成对使用**的网关过�
 * 程序猿DD —— [《Spring Cloud微服务实战》](https://union-click.jd.com/jdc?d=505Twi)
 * 周立 —— [《Spring Cloud与Docker微服务架构实战》](https://union-click.jd.com/jdc?d=k3sAaK)
 * 两书齐买，京东包邮。
+
+**推荐 Spring Cloud 视频**：
+
+* [Java 微服务实践 - Spring Boot](https://segmentfault.com/ls/1650000011063780?r=bPN0Ir)
+* [Java 微服务实践 - Spring Cloud](https://segmentfault.com/ls/1650000011386794?r=bPN0Ir)
+* [Java 微服务实践 - Spring Boot / Spring Cloud](https://segmentfault.com/ls/1650000011387052?r=bPN0Ir)
 
 # 2. NettyRoutingFilter
 
@@ -271,9 +277,9 @@ public int getOrder() {
 
 # 666. 彩蛋
 
-下一篇 [《Spring-Cloud-Gateway 源码解析 —— 过滤器 (4.8) 之 WebClientHttpRoutingFilter》](http://www.iocoder.cn/Spring-Cloud-Gateway/filter-web-client-http-routing) 走起！
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
-![](http://www.iocoder.cn/images/Spring-Cloud-Gateway/2020_03_28/02.png)
+下一篇 [《Spring-Cloud-Gateway 源码解析 —— 过滤器 (4.8) 之 WebClientHttpRoutingFilter》](http://www.iocoder.cn/Spring-Cloud-Gateway/filter-web-client-http-routing) 走起！
 
 胖友，分享一波朋友圈可好！
 

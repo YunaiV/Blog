@@ -16,7 +16,7 @@ permalink: RocketMQ/namesrv-intro
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -34,4 +34,8 @@ permalink: RocketMQ/namesrv-intro
 * RouteInfoManager：路由信息管理
    * 注册Broker，提供Broker信息（名字、角色编号、地址、集群名）
    * 注册Topic，提供Topic信息（Topic名、读写权限、队列情况）
+
+## 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 

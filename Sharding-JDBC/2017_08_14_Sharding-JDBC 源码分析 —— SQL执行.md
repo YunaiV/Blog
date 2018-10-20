@@ -27,7 +27,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL 执行
 
 -------
 
-![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -44,7 +44,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL 执行
 
 ![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_14/01.png)
 
-本文主要分享**SQL 执行**的过程，不包括**结果聚合**。[《结果聚合》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) **东半球第二良心笔者**会更新，关注微信公众号[【芋道源码】](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)完稿后**第一时间**通知您哟。
+本文主要分享**SQL 执行**的过程，不包括**结果聚合**。[《结果聚合》](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg) **东半球第二良心笔者**会更新，关注微信公众号[【芋道源码】](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)完稿后**第一时间**通知您哟。
 
 ![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_14/06.png)
 
@@ -271,7 +271,7 @@ private <T> ListenableFuture<List<T>> asyncExecute(
 
 ![](http://www.iocoder.cn/images/Sharding-JDBC/2017_08_14/03.gif)
 
-_😮 Guava 真她喵神器，公众号：[【芋道源码】](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)会更新 Guava 源码分享的一个系列哟！老司机还不赶紧上车？_
+_😮 Guava 真她喵神器，公众号：[【芋道源码】](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)会更新 Guava 源码分享的一个系列哟！老司机还不赶紧上车？_
 
 * 为什么会分同步执行和异步执行呢？猜测，当**SQL 执行是单表时**，只要进行第一个任务的同步调用，性能更加优秀。等跟张亮大神请教确认原因后，咱会进行更新。
 
@@ -344,7 +344,7 @@ public interface ExecuteCallback<T> {
 同时jdk1.7版本的同步采用了锁升级技术，在碰撞较低的情况下开销也是很小的。
       
 * ExecutionEvent 这里先不解释，在本文第四节【EventBus】分享。
-* ExecutorExceptionHandler、ExecutorDataMap 和 柔性事务 ( AbstractSoftTransaction )，放在[《柔性事务》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)分享。
+* ExecutorExceptionHandler、ExecutorDataMap 和 柔性事务 ( AbstractSoftTransaction )，放在[《柔性事务》](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)分享。
 
 # 3. Executor
 
@@ -627,7 +627,7 @@ EventBusInstance.getInstance().register(new Runnable() {
 
 BestEffortsDeliveryListener，最大努力送达型事务监听器。
 
-本文暂时暂时不分析其实现，仅仅作为另外一个**订阅者**的例子。我们会在[《柔性事务》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)进行分享。
+本文暂时暂时不分析其实现，仅仅作为另外一个**订阅者**的例子。我们会在[《柔性事务》](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)进行分享。
 
 ```Java
 public final class BestEffortsDeliveryListener {
@@ -689,6 +689,8 @@ public final class BestEffortsDeliveryListener {
 
 # 666. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 本文完，但也未完。
 
 **跨分片事务问题**。例如：
@@ -698,7 +700,7 @@ UPDATE t_order SET nickname = ? WHERE user_id = ?
 ```
 
 A 节点 `connection.commit()` 时，应用突然挂了！B节点 `connection.commit()` 还来不及执行。  
-我们一起去[《柔性事务》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)寻找答案。
+我们一起去[《柔性事务》](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)寻找答案。
 
 **道友，分享一波朋友圈可好？**
 

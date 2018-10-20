@@ -20,7 +20,7 @@ permalink: TCC-Transaction/transaction-recovery
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -304,11 +304,11 @@ private void recoverErrorTransactions(List<Transaction> transactions) {
 
 # 666. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 在写本文的过程中，无意中翻到蚂蚁云的文档，分享给看到此处的真爱们。
 
 真爱们，请猛击[《AntCloudPayPublic》](https://git.cloud.alipay.com/dx/AntCloudPayPublic)跳转。
-
-![](http://www.iocoder.cn/images/TCC-Transaction/2018_02_22/02.png)
 
 胖友，分享一个朋友圈可好？
 

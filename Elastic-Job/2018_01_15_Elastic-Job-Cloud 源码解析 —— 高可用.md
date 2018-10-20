@@ -25,7 +25,7 @@ permalink: Elastic-Job/cloud-high-availability
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -669,6 +669,8 @@ Elastic-Job-Lite 也会存在作业节点 和 Zookeeper 数据不一致的情况
 
 # 666. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 给英文和我一样半斤八两的同学一本葵花宝典+辟邪剑谱：
 
 * [《Mesos中文手册》](https://mesos-cn.gitbooks.io/mesos-cn/content/)。
@@ -685,8 +687,6 @@ Elastic-Job-Lite 也会存在作业节点 和 Zookeeper 数据不一致的情况
 后面会继续更新源码解析系列，下一个系列应该是[《tcc-transaction 源码解析》](https://github.com/changmingxie/tcc-transaction)。在选择要研究的 tcc 中间件还是蛮纠结的，哈哈，这里听从 [zhisheng](http://www.54tianzhisheng.cn/) 的建议。如果不好，我保证会打死你的。
 
 希望坚持不懈的分享源码解析会有更多的同行者阅读。确实，源码解析的受众略小。
-
-![](http://www.iocoder.cn/images/Elastic-Job/2018_01_15/04.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

@@ -3,6 +3,7 @@ date: 2017-10-07
 tags:
 categories: Elastic-Job-Lite
 permalink: Elastic-Job/job-storage
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485241&idx=2&sn=878308ce0067d2c833b86720bd7f6d30&chksm=fa497888cd3ef19e7e3ce029a1754413fd5adf46eca65cb0cf4a72c19c564c590dec3c3b9c38&token=688747549&lang=zh_CN#rd
 
 -------
 
@@ -24,7 +25,7 @@ permalink: Elastic-Job/job-storage
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -384,6 +385,8 @@ public final class FailoverNode {
 GuaranteeNode，保证分布式任务全部开始和结束状态节点路径。在[《Elastic-Job-Lite 源码分析 —— 作业监听器》](http://www.iocoder.cn/Elastic-Job/job-listener/?self)详细解析。
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 旁白君：芋道君，你又水更了！  
 芋道君：屁屁屁，劳资怼死你！如下是作业数据存储整理，哼哼哈兮！

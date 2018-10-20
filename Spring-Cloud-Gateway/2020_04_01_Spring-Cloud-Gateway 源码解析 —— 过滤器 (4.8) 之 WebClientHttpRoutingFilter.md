@@ -19,7 +19,7 @@ permalink: Spring-Cloud-Gateway/filter-web-client-http-routing
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -41,6 +41,21 @@ WebClientWriteResponseFilter ，与 WebClientHttpRoutingFilter **成对使用**�
 大体流程如下 ：
 
 ![](http://www.iocoder.cn/images/Spring-Cloud-Gateway/2020_04_01/01.png)
+
+-------
+
+**推荐 Spring Cloud 书籍**：
+
+* 请支持正版。下载盗版，**等于主动编写低级 BUG** 。
+* 程序猿DD —— [《Spring Cloud微服务实战》](https://union-click.jd.com/jdc?d=505Twi)
+* 周立 —— [《Spring Cloud与Docker微服务架构实战》](https://union-click.jd.com/jdc?d=k3sAaK)
+* 两书齐买，京东包邮。
+
+**推荐 Spring Cloud 视频**：
+
+* [Java 微服务实践 - Spring Boot](https://segmentfault.com/ls/1650000011063780?r=bPN0Ir)
+* [Java 微服务实践 - Spring Cloud](https://segmentfault.com/ls/1650000011386794?r=bPN0Ir)
+* [Java 微服务实践 - Spring Boot / Spring Cloud](https://segmentfault.com/ls/1650000011387052?r=bPN0Ir)
 
 # 2. 环境配置
 
@@ -231,9 +246,9 @@ TODO 【3001】
 
 # 666. 彩蛋
 
-呼呼，主要的过滤器已经写完，后面熔断、限流过滤器的实现。
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
-![](http://www.iocoder.cn/images/Spring-Cloud-Gateway/2020_04_01/02.png)
+呼呼，主要的过滤器已经写完，后面熔断、限流过滤器的实现。
 
 胖友，分享一波朋友圈可好！
 

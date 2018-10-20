@@ -3,6 +3,7 @@ date: 2017-10-14
 tags:
 categories: Elastic-Job-Lite
 permalink: Elastic-Job/reg-center-zookeeper-listener
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485306&idx=2&sn=9325dd5784bf6867546f15e27044a5fc&chksm=fa4978cbcd3ef1dd1980c47586835dd9cbad8afc6c969cdde3f3957a64841b6b80ef894469f2&token=688747549&lang=zh_CN#rd
 
 -------
 
@@ -19,7 +20,7 @@ permalink: Elastic-Job/reg-center-zookeeper-listener
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -323,10 +324,10 @@ public final class RegistryCenterConnectionStateListener implements ConnectionSt
 
 # 666. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 旁白君：芋道君，你又水更了！  
 芋道君：是是是，是是是！
-
-![](http://www.iocoder.cn/images/Elastic-Job/2017_10_14/02.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

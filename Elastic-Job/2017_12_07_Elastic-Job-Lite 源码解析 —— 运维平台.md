@@ -24,7 +24,7 @@ permalink: Elastic-Job/job-console
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -114,10 +114,10 @@ permalink: Elastic-Job/job-console
 
 # 666. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 旁白君：这写的... 略飘逸（随意）  
 芋道君：哈哈哈，我要开始 Elastic-Job-Cloud 啦啦啦啦。
-
-![](http://www.iocoder.cn/images/Elastic-Job/2017_12_07/08.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

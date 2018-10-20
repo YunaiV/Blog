@@ -20,7 +20,7 @@ permalink: Eureka/eureka-client-init-third
 
 ---
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -59,6 +59,12 @@ Eureka-Client 自身初始化过程中，涉及到主要对象如下图：
 * 程序猿DD —— [《Spring Cloud微服务实战》](https://union-click.jd.com/jdc?d=505Twi)
 * 周立 —— [《Spring Cloud与Docker微服务架构实战》](https://union-click.jd.com/jdc?d=k3sAaK)
 * 两书齐买，京东包邮。
+
+**推荐 Spring Cloud 视频**：
+
+* [Java 微服务实践 - Spring Boot](https://segmentfault.com/ls/1650000011063780?r=bPN0Ir)
+* [Java 微服务实践 - Spring Cloud](https://segmentfault.com/ls/1650000011386794?r=bPN0Ir)
+* [Java 微服务实践 - Spring Boot / Spring Cloud](https://segmentfault.com/ls/1650000011387052?r=bPN0Ir)
 
 # 2. EurekaClient
 
@@ -719,6 +725,8 @@ logger.info("Discovery Client initialized at timestamp {} with initial instances
 ```
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 由于笔者是边理解源码边输出博客内容，如果有错误或者不清晰的地方，**欢迎**微笑给我的微信公众号( **芋道源码** ) 留言，我会**仔细**回复。感谢 + 1024。
 

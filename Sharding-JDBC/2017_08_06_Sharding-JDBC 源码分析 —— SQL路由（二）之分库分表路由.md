@@ -25,7 +25,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL 路由,路由,路�
 
 -------
 
-![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -525,7 +525,7 @@ public SQLStatement parse(final String logicSQL, final int parametersSize) {
 }
 ```
 
-* `#appendGenerateKeyToken()` 会在[《SQL 改写》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)分享
+* `#appendGenerateKeyToken()` 会在[《SQL 改写》](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)分享
 
 -------
 
@@ -725,7 +725,7 @@ private Collection<DataNode> getStaticDataNodes(final Collection<String> targetD
 }
 ```
 
-* 在 SimpleRoutingEngine 只生成了当前表的 TableUnits。如果存在**与其互为BindingTable关系**的表的 TableUnits 怎么获得？你可以想想噢，当然在后文[《SQL 改写》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)也会给出答案，看看和你想的是否一样。
+* 在 SimpleRoutingEngine 只生成了当前表的 TableUnits。如果存在**与其互为BindingTable关系**的表的 TableUnits 怎么获得？你可以想想噢，当然在后文[《SQL 改写》](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)也会给出答案，看看和你想的是否一样。
 
 ## 6.2 ComplexRoutingEngine
 
@@ -970,10 +970,12 @@ public SQLRouteResult route(final String logicSQL, final List<Object> parameters
 ```
 
 * `RoutingResult routingResult = route(parameters, sqlStatement);` **调用**的就是上文分析的 SimpleRoutingEngine、ComplexRoutingEngine、CartesianRoutingEngine 的 `#route()` 方法。
-* `#processGeneratedKey()`、`#processLimit()`、`#rewrite()`、`#generateSQL()` 等会放在[《SQL 改写》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) 分享。
+* `#processGeneratedKey()`、`#processLimit()`、`#rewrite()`、`#generateSQL()` 等会放在[《SQL 改写》](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg) 分享。
 
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 篇幅有些长，希望能让大家对**路由**有比较完整的认识。  
 如果内容有错误，烦请您指正，我会**认真**修改。  

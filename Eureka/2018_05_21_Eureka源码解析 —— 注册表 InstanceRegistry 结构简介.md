@@ -22,6 +22,17 @@ permalink: Eureka/instance-registry-class-diagram
 
 ---
 
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
+
+> 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：
+> 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表
+> 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**
+> 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。
+> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。
+> 5. **认真的**源码交流微信群。
+
+-------
+
 # 1. 概述
 
 本文主要简介 **注册表 InstanceRegistry 的类关系**，为后文的**应用实例注册发现**、**Eureka-Server 集群复制**做整体的铺垫。
@@ -32,6 +43,12 @@ permalink: Eureka/instance-registry-class-diagram
 * 程序猿DD —— [《Spring Cloud微服务实战》](https://union-click.jd.com/jdc?d=505Twi)
 * 周立 —— [《Spring Cloud与Docker微服务架构实战》](https://union-click.jd.com/jdc?d=k3sAaK)
 * 两书齐买，京东包邮。
+
+**推荐 Spring Cloud 视频**：
+
+* [Java 微服务实践 - Spring Boot](https://segmentfault.com/ls/1650000011063780?r=bPN0Ir)
+* [Java 微服务实践 - Spring Cloud](https://segmentfault.com/ls/1650000011386794?r=bPN0Ir)
+* [Java 微服务实践 - Spring Boot / Spring Cloud](https://segmentfault.com/ls/1650000011387052?r=bPN0Ir)
 
 # 2. 类图
 
@@ -166,6 +183,8 @@ public interface PeerAwareInstanceRegistry extends InstanceRegistry {
 这里先不拓展开，[《Eureka 源码解析 —— Eureka-Server 集群》系列](http://www.iocoder.cn/categories/Eureka/?self) 逐篇分享。
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 本文是一篇**简介**( 啪啪啪，打脸 )，如果胖友比较着急想了解原理，可以阅读 [携程 ——《深度剖析服务发现组件Netflix Eureka》](http://techshow.ctrip.com/archives/1699.html?from=www.iocoder.cn) 先，写的非常非常非常不错。
 

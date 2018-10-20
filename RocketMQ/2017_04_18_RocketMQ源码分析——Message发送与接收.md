@@ -29,7 +29,7 @@ permalink: RocketMQ/message-send-and-receive
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -1126,6 +1126,9 @@ permalink: RocketMQ/message-send-and-receive
 * 第 47 行 ：调用 `CommitLong` 进行存储，详细逻辑见：[《RocketMQ 源码分析 —— Message 存储》](http://www.iocoder.cn/RocketMQ/message-store/)
 
 # 4、某种结尾
+
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 感谢阅读、收藏、点赞本文的工程师同学。
 

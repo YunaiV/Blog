@@ -28,7 +28,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -626,7 +626,9 @@ Assist 词法辅助标记，一共分成 2 种：
 * END ：分析结束
 * ERROR ：分析错误。
 
-# 4. 彩蛋
+# 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 老铁，是不是比想象中简单一些？！继续加油写 Parser 相关的文章！来一波微信公众号关注吧。
 

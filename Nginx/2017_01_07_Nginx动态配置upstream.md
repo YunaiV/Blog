@@ -1,7 +1,7 @@
 title: Nginx 动态配置 upstream
 date: 2017-01-07
 tags:
-categories: Nginx
+categories:
 permalink: Nginx/nginx-dynamic-upstream
 
 -------
@@ -13,7 +13,7 @@ permalink: Nginx/nginx-dynamic-upstream
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表
@@ -71,6 +71,8 @@ TODO
 2. Zookeeper的支持：目前官方暂时未提供相应的支持。考虑到很多团队是使用Zookeeper作为服务发现，另外维护一个etcd、consul集群是有相应学习成本和运维成本的。那么怎么办？我们可以封装Zookeeper提供http接口给`nginx-upsync-module`使用，当然接口形式得满足consual或者etcd提供的http接口。
 
 ## 参考文章 ##
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 1. nginx动态配置及服务发现那些事：http://xiaorui.cc/2016/10/16/nginx动态配置及服务发现那些事/
 

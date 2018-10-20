@@ -36,7 +36,7 @@ permalink: Elastic-Job/cloud-job-scheduler-and-executor-first
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -1745,10 +1745,10 @@ public void statusUpdate(final SchedulerDriver schedulerDriver, final Protos.Tas
     
 # 666. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 旁白君：真的真的真的，好长好长好长啊。但是真的真的真的，干货！  
 芋道君：那必须的！
-
-![](http://www.iocoder.cn/images/Elastic-Job/2017_12_21/12.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

@@ -22,7 +22,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 -------
 
-![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -186,7 +186,9 @@ private void parseSetValue() {
 
 # 666. 彩蛋
 
-😝 比更新SQL解析是不是简单，更不用对比查询SQL解析。😳有一种在水更的感觉。嘿嘿，下一篇（[《删除SQL解析》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)）会更加容易。
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
+😝 比更新SQL解析是不是简单，更不用对比查询SQL解析。😳有一种在水更的感觉。嘿嘿，下一篇（[《删除SQL解析》](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)）会更加容易。
 
 道友，帮我分享一波怎么样？
 

@@ -1,7 +1,7 @@
 title: Docker 网络 —— Flannel 配置
 date: 2017-02-04
 tags:
-categories: Docker
+categories:
 permalink: Docker/docker-network-flannel
 
 -------
@@ -27,7 +27,7 @@ permalink: Docker/docker-network-flannel
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -151,4 +151,5 @@ kubernetes在阿里云已经有host-gw + vpc的支持。
 2. [kubernetes入门1：kubernetes+flannel+etcd环境搭建(通用安装)](http://zdevops.blog.51cto.com/2579684/1735492)
 3. [用 Flannel 配置 Kubernetes 网络](http://dockone.io/article/1186)
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 

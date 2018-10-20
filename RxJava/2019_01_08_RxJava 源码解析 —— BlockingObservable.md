@@ -14,7 +14,7 @@ permalink: RxJava/blocking-observable
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -81,3 +81,8 @@ public class Observable<T> {
     * `#onCompleted()` 方法，CountDownLatch (`finished`) 减一。
     * `#onError()` 方法，设置执行时发生的异常( `error` )，并 CountDownLatch (`finished`) 减一。
 * 返回的 Future ，通过 CountDownLatch ( `error` ) 判断是否执行完成；通过 `value` ， `error` 获得执行的结果。
+
+# 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+

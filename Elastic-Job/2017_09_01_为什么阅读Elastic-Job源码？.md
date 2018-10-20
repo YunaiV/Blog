@@ -16,7 +16,7 @@ permalink: Elastic-Job/why-read-Elastic-Job-source-code
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -100,3 +100,6 @@ permalink: Elastic-Job/why-read-Elastic-Job-source-code
 * [ ] 22、失败处理策略；调度失败时的处理策略，策略包括：失败告警（默认）、失败重试；
 * [ ] 23、分片广播任务：执行器集群部署时，任务路由策略选择"分片广播"情况下，一次任务调度将会广播触发对应集群中所有执行器执行一次任务，同时传递分片参数；可根据分片参数开发分片任务；
 * [ ] 24、动态分片：分片广播任务以执行器为维度进行分片，支持动态扩容执行器集群从而动态增加分片数量，协同进行业务处理；在进行大数据量业务操作时可显著提升任务处理能力和速度。
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+

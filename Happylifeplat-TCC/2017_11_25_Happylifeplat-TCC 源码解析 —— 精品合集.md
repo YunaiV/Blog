@@ -1,7 +1,7 @@
-title: Happylifeplat-TCC 源码解析 —— 精品合集
+title: Happylifeplat-TCC 实现原理与源码解析系列 —— 精品合集
 date: 2017-11-15
 tags:
-categories: Happylifeplat-TCC
+categories: 
 permalink: Happylifeplat-TCC/good-collection
 
 -------
@@ -10,7 +10,7 @@ permalink: Happylifeplat-TCC/good-collection
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表
@@ -32,3 +32,8 @@ permalink: Happylifeplat-TCC/good-collection
  * [《tcc源码解析系列(四)之项目实战》](https://yu199195.github.io/2017/10/12/TCC/tcc-four/)
  * [《tcc源码解析系列(五)之项目实战》](https://yu199195.github.io/2017/10/12/TCC/tcc-five/)
  * [《tcc源码解析系列之tcc-admin事务管理后台》](https://yu199195.github.io/2017/10/13/tcc/tcc-seven/)
+
+ # 666. 彩蛋
+ 
+ ![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+

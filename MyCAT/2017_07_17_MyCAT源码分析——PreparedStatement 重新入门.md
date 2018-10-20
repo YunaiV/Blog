@@ -19,7 +19,7 @@ permalink: MyCAT/what-is-PreparedStatement
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -299,6 +299,8 @@ private String prepareStmtBindValue(PreparedStatement pstmt, BindValue[] bindVal
 
 # 4. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 💯 看到此处是不是真爱？！反正我信了。  
 给老铁们额外加个🍗。
 
@@ -341,8 +343,6 @@ public void recachePreparedStatement(ServerPreparedStatement pstmt) throws SQLEx
 为什么要这么实现？`PreparedStatement` 是有状态的变量，我们会去 `setXXX(pos, value)`，一旦多线程共享，会导致错乱。
 
 🗿 这个“彩蛋”还满意么？**请关注我的公众号：芋道源码**。下一篇更新：《MyCAT源码解析 —— MongoDB》，极大可能就在本周噢。
-
-![wechat_mp](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
 
 另外推荐一篇文章：[《JDBC PreparedStatement》](https://www.zybuluo.com/stefanlu/note/254899)。
 

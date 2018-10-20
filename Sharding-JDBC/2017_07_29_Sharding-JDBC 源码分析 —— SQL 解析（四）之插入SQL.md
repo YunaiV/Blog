@@ -23,7 +23,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL解析, SQL 解析
 
 -------
 
-![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -299,7 +299,7 @@ public final class GeneratedKey {
 
 ### 3.4.2 Condition
 
-条件对象，**属于分片上下文信息**。在**插入SQL解析**里存储**影响分片的值字段**。后续[《SQL 路由》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) 会专门分享这块。
+条件对象，**属于分片上下文信息**。在**插入SQL解析**里存储**影响分片的值字段**。后续[《SQL 路由》](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg) 会专门分享这块。
 
 ```Java
 public final class Condition {
@@ -380,7 +380,7 @@ private void parseInsertSet() {
 INSERT INTO t_user(nickname, age) VALUES (?, ?)
 ```
 
-后续 SQL 改写会生成该自增编号，并改写该 SQL。后续[《SQL 改写》](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) 会专门分享这块。
+后续 SQL 改写会生成该自增编号，并改写该 SQL。后续[《SQL 改写》](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg) 会专门分享这块。
 
 ```Java
 private void appendGenerateKey() {
@@ -414,6 +414,8 @@ public final class GeneratedKeyToken implements SQLToken {
 ```
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 😈 是不是比[《SQL 解析（三）之插入SQL》](http://www.iocoder.cn/Sharding-JDBC/sql-parse-3/?self)简单很多。
 

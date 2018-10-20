@@ -22,7 +22,7 @@ permalink: Elastic-Job/job-event-trace
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -740,6 +740,8 @@ public final class JobEventRdbListener extends JobEventRdbIdentity implements Jo
     ```
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 旁白君：瞎比比了这么长，能不能简单粗暴一点。  
 芋道君：是是是。

@@ -27,7 +27,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,JDBC,读写分离
 
 -------
 
-![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -958,6 +958,8 @@ private static boolean isMasterRoute(final SQLType sqlType) {
     * RoundRobinSlaveLoadBalanceStrategy，轮询负载均衡策略，**每个从节点访问次数均衡，暂不支持数据源故障移除**
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 没有彩蛋  
 没有彩  

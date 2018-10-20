@@ -21,7 +21,7 @@ permalink: RxJava/scheduler
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -128,6 +128,8 @@ Worker 实现 `rx.Subscription` **接口**，但是并未实现对应的方法�
 可能你会觉得示例有丢丢“奇怪”，在 [《RxJava 源码解析 —— Observable#subscribeOn(Scheduler)》](http://www.iocoder.cn/RxJava/observable-subscribe-on-scheduler/) 你将获得答案。
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 本文偏介绍性，大量内容引用 [《ReactiveX文档中文翻译 —— Scheduler》](https://mcxiaoke.gitbooks.io/rxdocs/content/Scheduler.html) 。
 

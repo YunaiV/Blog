@@ -16,7 +16,7 @@ permalink: Elastic-Job/reconcile
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -112,10 +112,10 @@ protected void runOneIteration() throws Exception {
 
 # 666. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 芋道君：【动作：一脚踢开旁白君】，这是对前面解析的主节点选举和作业分片的复习！不是水更！  
 旁白君：你承认水...【动作：芋道君又来一记千年杀】
-
-![](http://www.iocoder.cn/images/Elastic-Job/2017_11_28/02.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

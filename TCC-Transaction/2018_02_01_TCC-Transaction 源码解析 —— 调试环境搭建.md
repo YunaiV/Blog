@@ -20,7 +20,7 @@ permalink: TCC-Transaction/build-debugging-environment
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -54,7 +54,9 @@ permalink: TCC-Transaction/build-debugging-environment
 * tcc-transaction-dubbo-sample
 * tcc-transaction-http-sample
 
-考虑到不是所有所有同学都使用过 Dubbo 服务化框架，我们以 tcc-transaction-http-sample 项为例子。
+考虑到不是所有所有同学都使用过 Dubbo 服务化框架，我们以 tcc-transaction-http-sample 项目为例子。
+
+> 旁白君，一定注意，是 tcc-transaction-http-sample 项目，千万千万千万不要用错了！！！
 
 打开 tcc-transaction-http-sample/src/main/dbscripts 目录，有四个 SQL 脚本文件：
 
@@ -109,11 +111,11 @@ USE `tcc_cap`;
 
 # 666. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 调试环境搭建是阅读源码的第一步，如果你碰到无法搭建成功的情况，请给笔者公众号( **芋道源码** )留言。笔者会给你 1:1 的高级( **搞基** )支持。
 
 另外这是一个系列文，本系列更新 TCC-Transaction ，下一个系列更新 ByteTCC 。嗨皮不？！
-
-![](http://www.iocoder.cn/images/TCC-Transaction/2018_02_01/01.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

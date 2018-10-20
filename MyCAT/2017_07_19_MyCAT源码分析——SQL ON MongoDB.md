@@ -18,7 +18,7 @@ permalink: MyCAT/connect-mongodb
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -433,9 +433,9 @@ private int InsertData(SQLInsertStatement state) {
 
 # 5. 彩蛋
 
-老铁，看到这里，来一波微信公众号关注吧？！
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
-![wechat_mp](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+老铁，看到这里，来一波微信公众号关注吧？！
 
 **1、支持多 MongoDB ，并使用 MyCAT 进行分片。**
 

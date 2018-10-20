@@ -3,6 +3,7 @@ date: 2018-08-21
 tags:
 categories: Eureka
 permalink: Eureka/string-cache
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247484932&idx=2&sn=a8f524d2c6cfa535f5668105a1e78115&chksm=fa4979b5cd3ef0a305248fcda5465e74afb1b9e2735ac919b1f1fd267b93d4d1552bc555ab3a&token=1051140534&lang=zh_CN#rd
 
 ---
 
@@ -15,7 +16,7 @@ permalink: Eureka/string-cache
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -73,6 +74,12 @@ OK，下面我们来看看 Eureka 是如何实现自定义的 StringCache 类。
 * 程序猿DD —— [《Spring Cloud微服务实战》](https://union-click.jd.com/jdc?d=505Twi)
 * 周立 —— [《Spring Cloud与Docker微服务架构实战》](https://union-click.jd.com/jdc?d=k3sAaK)
 * 两书齐买，京东包邮。
+
+**推荐 Spring Cloud 视频**：
+
+* [Java 微服务实践 - Spring Boot](https://segmentfault.com/ls/1650000011063780?r=bPN0Ir)
+* [Java 微服务实践 - Spring Cloud](https://segmentfault.com/ls/1650000011386794?r=bPN0Ir)
+* [Java 微服务实践 - Spring Boot / Spring Cloud](https://segmentfault.com/ls/1650000011387052?r=bPN0Ir)
 
 # 2. StringCache
 
@@ -162,6 +169,8 @@ OK，下面我们来看看 Eureka 是如何实现自定义的 StringCache 类。
 在 Application 下的使用，点击 [链接](https://github.com/YunaiV/eureka/blob/7f868f9ca715a8862c0c10cac04e238bbf371db0/eureka-client/src/main/java/com/netflix/discovery/shared/Application.java#L95) 查看。
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 又 Get 新姿势了，好开森。
 

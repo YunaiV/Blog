@@ -3,6 +3,7 @@ date: 2017-09-23
 tags:
 categories: Elastic-Job-Lite
 permalink: Elastic-Job/job-execute
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485053&idx=2&sn=04f492c2dc60432813e0dc2b17136390&chksm=fa4979cccd3ef0da90a8a68499740da00b24640934f51f3df491bd10c14fd3471b09c4712f6c&token=313177037&lang=zh_CN#rd
 
 -------
 
@@ -33,7 +34,7 @@ permalink: Elastic-Job/job-execute
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -1043,6 +1044,8 @@ public void afterJobExecuted(final ShardingContexts shardingContexts) {
 * 调用作业监听器执行作业**执行后**的方法，在[《Elastic-Job-Lite 源码解析 —— 作业监听器》](http://www.iocoder.cn/Elastic-Job/job-listener/?self)详细分享。
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 呼！略长略长略长！
 

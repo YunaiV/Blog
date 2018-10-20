@@ -18,7 +18,7 @@ permalink: Spring-Cloud-Gateway/route-locator-route-custom-java
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -83,6 +83,12 @@ import static org.springframework.tuple.TupleBuilder.tuple;
 * 程序猿DD —— [《Spring Cloud微服务实战》](https://union-click.jd.com/jdc?d=505Twi)
 * 周立 —— [《Spring Cloud与Docker微服务架构实战》](https://union-click.jd.com/jdc?d=k3sAaK)
 * 两书齐买，京东包邮。
+
+**推荐 Spring Cloud 视频**：
+
+* [Java 微服务实践 - Spring Boot](https://segmentfault.com/ls/1650000011063780?r=bPN0Ir)
+* [Java 微服务实践 - Spring Cloud](https://segmentfault.com/ls/1650000011386794?r=bPN0Ir)
+* [Java 微服务实践 - Spring Boot / Spring Cloud](https://segmentfault.com/ls/1650000011387052?r=bPN0Ir)
 
 # 2. Routes
 
@@ -168,9 +174,9 @@ RouteSpec / PredicateSpec / GatewayFilterSpec 实现上就是常见的 Builder �
 
 # 666. 彩蛋
 
-原先还在纠结 Routes 怎么解释合适，画了个图，满意。
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
-![](http://www.iocoder.cn/images/Spring-Cloud-Gateway/2020_02_05/02.png)
+原先还在纠结 Routes 怎么解释合适，画了个图，满意。
 
 胖友，分享一波朋友圈可好！
 

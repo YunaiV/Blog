@@ -75,7 +75,7 @@ permalink: RocketMQ/message-pull-and-consume-second
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -2565,6 +2565,8 @@ Yunai-MacdeMacBook-Pro-2:config yunai$ cat /Users/yunai/.rocketmq_offsets/192.16
     * **消费进度持久化不仅仅只有定时持久化，拉取消息、分配消息队列等等操作，都会进行消费进度持久化。** 
 
 # 9、结尾
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 😈可能是本系列最长的一篇文章，如有表达错误和不清晰，请多多见谅。  
 感谢对本系列的阅读、收藏、点赞、分享，特别是翻到结尾。😜真的有丢丢长。

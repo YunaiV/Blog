@@ -23,7 +23,7 @@ permalink: Elastic-Job/cloud-job-config
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -362,16 +362,15 @@ public final class LocalCloudJobConfiguration implements JobRootConfiguration {
 
 # 666. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 芋道君：本文主要为[《Elastic-Job-Cloud 源码解析 —— 作业调度（一）》](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-first/?self)做铺垫，这会是一篇长文。读懂 Elastic-Job-Cloud 作业调度后，整个人脑洞又开的不行不行的！  
 旁白君：支持+1024。
-
-![](http://www.iocoder.cn/images/Elastic-Job/2017_12_14/04.png)
 
 另外，推荐资料如下，对理解 Elastic-Job-Cloud 很有帮助。
 
 * [《基于Mesos的当当作业云Elastic Job Cloud》](http://www.infoq.com/cn/news/2016/09/Mesos-Elastic-Job-Cloud)
 * [《如何从0到1搭建弹性作业云Elastic-Job-Cloud》](http://www.infoq.com/cn/presentations/how-to-build-elastic-job-cloud)
-
 
 道友，赶紧上车，分享一波朋友圈！
 

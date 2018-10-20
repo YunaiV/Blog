@@ -25,7 +25,7 @@ permalink: TCC-Transaction/http-sample
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -874,13 +874,13 @@ public void cancelRecord(TransactionContext transactionContext, CapitalTradeOrde
 
 # 666. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 嘿嘿，代码只是看起来比较多，实际不多。
 
 蚂蚁金融云提供了银行间转账的 TCC 过程例子，有兴趣的同学可以看看：[《蚂蚁金融云 —— 分布式事务服务（DTS） —— 场景介绍》](https://www.cloud.alipay.com/docs/2/46886)。
 
 本系列 EOF ~撒花
-
-![](http://www.iocoder.cn/images/TCC-Transaction/2018_03_15/05.png)
 
 胖友，分享个朋友圈，可好？！
 

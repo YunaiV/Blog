@@ -3,6 +3,7 @@ date: 2018-07-24
 tags:
 categories: Eureka
 permalink: Eureka/end-point-and-resolver
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247484787&idx=2&sn=671a9cad9c2a6fe9c865dcb6ad729dfa&chksm=fa497ac2cd3ef3d4130f664ebff7efa77636cc0d3fe9ab92318409b80b9d4a0c648fced271fd#rd
 
 ---
 
@@ -29,7 +30,7 @@ permalink: Eureka/end-point-and-resolver
 
 ---
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -65,6 +66,12 @@ permalink: Eureka/end-point-and-resolver
 * 程序猿DD —— [《Spring Cloud微服务实战》](https://union-click.jd.com/jdc?d=505Twi)
 * 周立 —— [《Spring Cloud与Docker微服务架构实战》](https://union-click.jd.com/jdc?d=k3sAaK)
 * 两书齐买，京东包邮。
+
+**推荐 Spring Cloud 视频**：
+
+* [Java 微服务实践 - Spring Boot](https://segmentfault.com/ls/1650000011063780?r=bPN0Ir)
+* [Java 微服务实践 - Spring Cloud](https://segmentfault.com/ls/1650000011386794?r=bPN0Ir)
+* [Java 微服务实践 - Spring Boot / Spring Cloud](https://segmentfault.com/ls/1650000011387052?r=bPN0Ir)
 
 # 2. EndPoint
 
@@ -952,6 +959,8 @@ private void scheduleServerEndpointTask(EurekaTransport eurekaTransport,
        * x
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 T T  一开始看解析器，没反应过来是委托设计模式，一脸懵逼+一脸懵逼+一脸懵逼。后面理顺了，发现超级奈斯( Nice ) 啊 ！！！！
 

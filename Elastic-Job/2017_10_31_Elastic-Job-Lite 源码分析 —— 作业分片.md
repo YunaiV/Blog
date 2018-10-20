@@ -18,7 +18,7 @@ permalink: Elastic-Job/job-sharding
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -315,7 +315,7 @@ public void shardingIfNecessary() {
     192.168.3.2@-@31492
     ```
 
-**作业分片项分配整体流程有点长，耐着心看，毕竟是核心代码哟。如果中间有任何疑问，欢迎给我公众号：[芋道源码](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) 留言。**
+**作业分片项分配整体流程有点长，耐着心看，毕竟是核心代码哟。如果中间有任何疑问，欢迎给我公众号：[芋道源码](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg) 留言。**
 
 # 4. 获取作业分片上下文集合
 
@@ -538,10 +538,10 @@ public ShardingContexts getJobShardingContext(final List<Integer> shardingItems)
 
 # 666. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 旁白君：小伙伴，更新了干货嘛，双击 666。  
 芋道君：那必须的嘛，而且这么勤快更新！是不是应该分享一波朋友圈。
-
-![](http://www.iocoder.cn/images/Elastic-Job/2017_10_31/05.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

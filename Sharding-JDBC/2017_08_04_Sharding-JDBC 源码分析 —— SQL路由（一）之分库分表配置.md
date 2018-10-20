@@ -29,7 +29,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL 路由,路由,路�
 
 -------
 
-![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -42,15 +42,15 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,SQL 路由,路由,路�
 
 # 1. 概述
 
-😆[《SQL 解析》](http://www.iocoder.cn/categories/Sharding-JDBC/?self) 已经告于段落，我们要开始新的旅程：[《SQL 路由》](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)。相比**SQL解析**，路由会容易理解很多，骗人是小🐷。整个系列预计会拆分成**三小篇**文章：
+😆[《SQL 解析》](http://www.iocoder.cn/categories/Sharding-JDBC/?self) 已经告于段落，我们要开始新的旅程：[《SQL 路由》](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)。相比**SQL解析**，路由会容易理解很多，骗人是小🐷。整个系列预计会拆分成**三小篇**文章：
 
 1. 《分库分表配置》
 2. 《分表分库路由》
 3. 《Spring与YAML配置》
 
-第一、二篇会在**近期**更新。第三篇会在[《SQL 改写》](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)、[《SQL 执行》](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)完成后进行更新。😈改写和执行相对有趣。
+第一、二篇会在**近期**更新。第三篇会在[《SQL 改写》](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)、[《SQL 执行》](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)完成后进行更新。😈改写和执行相对有趣。
 
-👼道友，您看，逗比博主**“很有规划”**，是关注公众号一波[【芋道源码】](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)还是分享朋友圈。
+👼道友，您看，逗比博主**“很有规划”**，是关注公众号一波[【芋道源码】](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)还是分享朋友圈。
 
 -------
 
@@ -235,7 +235,7 @@ private List<DataNode> generateDataNodes(final DataSourceRule dataSourceRule) {
 }
 ```
 
-😂 从代码上看，貌似和**动态**分库分表数据单元没一毛钱关系？！别捉鸡，答案在[《分表分库路由》](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) 上。
+😂 从代码上看，貌似和**动态**分库分表数据单元没一毛钱关系？！别捉鸡，答案在[《分表分库路由》](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg) 上。
 
 ## 2.3 分库/分表策略
 
@@ -273,7 +273,7 @@ ShardingRule，分库分表规则配置对象，内嵌 ShardingRuleBuilder 对�
 > 例：订单表和订单项表，均按照订单ID分片，则此两张表互为BindingTable关系。  
 > BindingTable关系的多表关联查询不会出现笛卡尔积关联，关联查询效率将大大提升。
 
-😈 这么说，可能不太容易理解。[《分表分库路由》](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)，我们在源码的基础上，好好理解下。**非常重要，特别是性能优化上面**。
+😈 这么说，可能不太容易理解。[《分表分库路由》](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)，我们在源码的基础上，好好理解下。**非常重要，特别是性能优化上面**。
 
 # 4. ShardingStrategy
 
@@ -286,7 +286,7 @@ ShardingStrategy，分片策略。
 * DatabaseShardingStrategy，使用**分库**算法进行分片
 * TableShardingStrategy，使用**分表**算法进行分片
 
-[《分表分库路由》](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) 会进一步说明。
+[《分表分库路由》](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg) 会进一步说明。
 
 # 5. ShardingAlgorithm
 
@@ -311,11 +311,13 @@ public ShardingRule(
 }
 ```
 
-[《分表分库路由》](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg) 会进一步说明。
+[《分表分库路由》](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg) 会进一步说明。
 
 # 666. 彩蛋
 
-本文看似在水更，实是为[《分表分库路由》](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)做铺垫（一阵脸红😳）。
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
+本文看似在水更，实是为[《分表分库路由》](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)做铺垫（一阵脸红😳）。
 
 But，无论怎么说，道友，我做了新的关注二维码（感谢猫🐱先生），是不是可以推荐一波公众号给基佬。
 

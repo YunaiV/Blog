@@ -17,7 +17,7 @@ permalink: Elastic-Job/cloud-job-failover
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -387,9 +387,9 @@ public void remove(final Collection<TaskContext.MetaInfo> metaInfoList) {
 
 # 666. 彩蛋
 
-原本以为会是一篇水更，后面研究 TASK_LOST，发现收获大大的，干货妥妥的。
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
-![](http://www.iocoder.cn/images/Elastic-Job/2018_01_10/03.png)
+原本以为会是一篇水更，后面研究 TASK_LOST，发现收获大大的，干货妥妥的。
 
 道友，赶紧上车，分享一波朋友圈！
 

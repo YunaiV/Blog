@@ -35,7 +35,7 @@ keywords: Sharding-JDBC,ShardingJDBC,Sharding-JDBC 源码,JDBC,事务,分布式�
 
 -------
 
-![](https://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](https://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -779,6 +779,8 @@ for (TransactionLog transactionLog : transactionLogs) {
 见[《官方文档 - 事务支持》](http://dangdangdotcom.github.io/sharding-jdbc/02-guide/transaction/)。
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 哈哈哈
 

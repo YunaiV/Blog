@@ -3,6 +3,7 @@ date: 2018-08-07
 tags:
 categories: Eureka
 permalink: Eureka/server-cluster
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247484882&idx=2&sn=4c0df739dac5912ff6b8d31f0573cc23&chksm=fa497a63cd3ef3759b4e205e1744f31b7ca07763c5b57534ed98792acce4ea0b85f5747f40c8#rd
 
 ---
 
@@ -24,7 +25,7 @@ permalink: Eureka/server-cluster
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -58,6 +59,12 @@ OK，让我们开始愉快的遨游在代码的海洋。
 * 程序猿DD —— [《Spring Cloud微服务实战》](https://union-click.jd.com/jdc?d=505Twi)
 * 周立 —— [《Spring Cloud与Docker微服务架构实战》](https://union-click.jd.com/jdc?d=k3sAaK)
 * 两书齐买，京东包邮。
+
+**推荐 Spring Cloud 视频**：
+
+* [Java 微服务实践 - Spring Boot](https://segmentfault.com/ls/1650000011063780?r=bPN0Ir)
+* [Java 微服务实践 - Spring Cloud](https://segmentfault.com/ls/1650000011386794?r=bPN0Ir)
+* [Java 微服务实践 - Spring Boot / Spring Cloud](https://segmentfault.com/ls/1650000011387052?r=bPN0Ir)
 
 ps ：**注意**，本文提到的**同步**，准确来说是**复制( Replication )**。
 
@@ -832,6 +839,8 @@ OK，撒花！记住：Eureka 通过 Heartbeat 实现 Eureka-Server 集群同步
 
 # 666. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 写的比较嗨皮，所以就送胖友一只胖友
 
 ![](http://www.iocoder.cn/images/Eureka/2018_08_07/04.png)
@@ -857,3 +866,4 @@ eureka server 集群假定是 s1 s2
 
 注册，相当于 insertOrUpdate   
 心跳，附加了校验是否要发起【注册】  
+

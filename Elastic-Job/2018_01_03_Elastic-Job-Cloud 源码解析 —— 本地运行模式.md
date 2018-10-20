@@ -17,7 +17,7 @@ permalink: Elastic-Job/cloud-local-executor
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -159,10 +159,10 @@ public void execute() {
 
 # 666. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 芋道君：可能有点水更，和大家实际开发太相关，想想还是更新下。  
 旁白君：哎哟哟，哎哟喂。
-
-![](http://www.iocoder.cn/images/Elastic-Job/2018_01_03/02.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

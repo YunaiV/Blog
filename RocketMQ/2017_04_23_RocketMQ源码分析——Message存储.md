@@ -26,7 +26,7 @@ permalink: RocketMQ/message-store
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -1079,6 +1079,8 @@ total 10485760
 
 
 # 结尾
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 写的第二篇与RocketMQ源码相关的博文，看到有阅读、点赞、收藏甚至订阅，很受鼓舞。
 

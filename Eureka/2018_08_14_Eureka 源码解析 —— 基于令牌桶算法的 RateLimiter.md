@@ -3,6 +3,7 @@ date: 2018-08-14
 tags:
 categories: Eureka
 permalink: Eureka/rate-limiter
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247484900&idx=2&sn=f947661b35c325f0f6aa4f23332aed49&chksm=fa497a55cd3ef343dcaedcbda0613b98876367cd24176f638fc1074411427ff5563180d81075&token=1286521154&lang=zh_CN#rd
 
 ---
 
@@ -20,7 +21,7 @@ permalink: Eureka/rate-limiter
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -41,6 +42,12 @@ permalink: Eureka/rate-limiter
 * 程序猿DD —— [《Spring Cloud微服务实战》](https://union-click.jd.com/jdc?d=505Twi)
 * 周立 —— [《Spring Cloud与Docker微服务架构实战》](https://union-click.jd.com/jdc?d=k3sAaK)
 * 两书齐买，京东包邮。
+
+**推荐 Spring Cloud 视频**：
+
+* [Java 微服务实践 - Spring Boot](https://segmentfault.com/ls/1650000011063780?r=bPN0Ir)
+* [Java 微服务实践 - Spring Cloud](https://segmentfault.com/ls/1650000011386794?r=bPN0Ir)
+* [Java 微服务实践 - Spring Boot / Spring Cloud](https://segmentfault.com/ls/1650000011387052?r=bPN0Ir)
 
 # 2. RateLimiter
 
@@ -369,6 +376,8 @@ class InstanceInfoReplicator implements Runnable {
         * Eureka-Client 向 Eureka-Server 心跳时，Eureka-Server 会对比应用实例的 `lastDirtyTimestamp` ，若 Eureka-Client 的更大，则 Eureka-Server 返回 404 状态码。Eureka-Client 接收到 404 状态码后，发起注册同步。在 [Eureka 源码解析 —— 应用实例注册发现（二）之续租》「2.2 HeartbeatThread」](http://www.iocoder.cn/Eureka/instance-registry-renew/?self) 有详细解析。
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 后面找时间研究下 Google Guava RateLimiter 的源码实现，从功能上更加强大，感兴趣的胖友可以瞅瞅呀。
 

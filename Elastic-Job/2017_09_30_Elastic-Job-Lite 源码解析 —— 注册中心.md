@@ -3,6 +3,7 @@ date: 2017-09-30
 tags:
 categories: Elastic-Job-Lite
 permalink: Elastic-Job/reg-center-zookeeper
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485113&idx=2&sn=288a12248c4a8a275699bdd77b085483&chksm=fa497908cd3ef01edd16c13a5523e17d610f0e77c0f2c10661dc0f40cb1a65d6ae64530bb34c&token=1853993329&lang=zh_CN#rd
 
 -------
 
@@ -29,7 +30,7 @@ permalink: Elastic-Job/reg-center-zookeeper
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -449,6 +450,8 @@ public void executeInTransaction(final TransactionExecutionCallback callback) {
 * 开启事务，执行 TransactionExecutionCallback 回调逻辑，提交事务。
 
 # 666. 彩蛋
+   
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
    
 旁白君：煞笔芋道君，又在水更  
 芋道君：人艰不拆，好不好。

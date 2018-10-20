@@ -27,7 +27,7 @@ permalink: TCC-Transaction/dubbo-support
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -130,8 +130,7 @@ Dubbo 的 Invoker 模型是非常关键的概念，看下图：
 > Javassist 的主要的优点，在于简单，而且快速，直接使用 Java 编码的形式，而不需要了解虚拟机指令，就能动态改变类的结构，或者动态生成类。  
 
 * 粗略一看，可能不够形象，下面我们通过看 TCC-Transaction 如何使用来理解理解。
-* [《Java学习之javassist
-》](http://www.cnblogs.com/sunfie/p/5154246.html)
+* [《Java学习之javassist》](http://www.cnblogs.com/sunfie/p/5154246.html)
 * [《Javassist 字节码操作》](http://blog.csdn.net/qbg19881206/article/details/8993562)
 
 ### 2.1.2 TccJavassistProxyFactory
@@ -1009,14 +1008,14 @@ public class DubboTransactionContextEditor implements TransactionContextEditor {
 
 # 666. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 HOHO，对动态代理又学习了一遍，蛮 High 的。
 
 这里推荐动态代理无关，和 Dubbo 相关的文章：
 
 * [《Dubbo的服务暴露细节》](http://blog.kazaff.me/2015/01/27/dubbo%E4%B8%AD%E6%9C%8D%E5%8A%A1%E6%9A%B4%E9%9C%B2%E7%9A%84%E7%BB%86%E8%8A%82/)。
 * [《Dubbo Provider启动主流程》](http://weifuwu.io/2016/01/03/dubbo-provider-start/)
-
-![](http://www.iocoder.cn/images/TCC-Transaction/2018_03_07/06.png)
 
 胖友，分享一波朋友圈可好。
 

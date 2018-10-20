@@ -25,7 +25,7 @@ permalink: Hystrix/circuit-breaker
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -68,6 +68,12 @@ HystrixCircuitBreaker 状态变迁如下图 ：
 * 程序猿DD —— [《Spring Cloud微服务实战》](https://union-click.jd.com/jdc?d=505Twi)
 * 周立 —— [《Spring Cloud与Docker微服务架构实战》](https://union-click.jd.com/jdc?d=k3sAaK)
 * 两书齐买，京东包邮。
+
+**推荐 Spring Cloud 视频**：
+
+* [Java 微服务实践 - Spring Boot](https://segmentfault.com/ls/1650000011063780?r=bPN0Ir)
+* [Java 微服务实践 - Spring Cloud](https://segmentfault.com/ls/1650000011386794?r=bPN0Ir)
+* [Java 微服务实践 - Spring Boot / Spring Cloud](https://segmentfault.com/ls/1650000011387052?r=bPN0Ir)
 
 # 2. HystrixCircuitBreaker
 
@@ -433,6 +439,8 @@ private boolean isAfterSleepWindow() {
 `#isOpen()` 方法，比较简单，点击 [链接](https://github.com/YunaiV/Hystrix/blob/af670161ed7b452fea8243a98b3a548c60812e58/hystrix-core/src/main/java/com/netflix/hystrix/HystrixCircuitBreaker.java#L227) 查看代码实现。
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 呼呼，相对比较干净的一篇文章，满足。
 

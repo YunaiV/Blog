@@ -3,6 +3,7 @@ date: 2017-09-16
 tags:
 categories: Elastic-Job-Lite
 permalink: Elastic-Job/job-init
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485006&idx=2&sn=2b091062ee97f599f2086c88a57f314e&chksm=fa4979ffcd3ef0e90d0ffa4cc0920ba73c741c72c43423aca9ce59ac5be33b700ede458b2efb&token=380459847&lang=zh_CN#rd
 
 -------
 
@@ -24,7 +25,7 @@ permalink: Elastic-Job/job-init
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -565,6 +566,8 @@ public void scheduleJob(final String cron) {
 * 调用 `#scheduleJob()` 方法后，该 Elastic-Job 作业**开始**被调度。
 
 # 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 作业初始化，如果你对 Quartz 不是特别了解，可以再看 Quartz 再重新理解。
 

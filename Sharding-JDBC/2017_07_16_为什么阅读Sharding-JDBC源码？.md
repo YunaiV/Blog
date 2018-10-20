@@ -14,7 +14,7 @@ permalink: Sharding-JDBC/why-read-Sharding-JDBC-source-code
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -89,5 +89,9 @@ permalink: Sharding-JDBC/why-read-Sharding-JDBC-source-code
     
 * [ ] 分布式事务 ：最大努力送达型事务
 * [ ] 分布式事务 ：TCC型事务(TBD)
+
+## 666. 彩蛋
+
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
 

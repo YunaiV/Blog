@@ -20,7 +20,7 @@ permalink: Elastic-Job/job-sharding-strategy
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -273,10 +273,10 @@ public final class JobShardingStrategyFactory {
 
 # 666. 彩蛋
 
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
+
 旁白君：雾草，刚夸奖你，就又开始水更。  
 芋道君：咳咳咳，作业分片策略炒鸡重要的好不好！嘿嘿嘿，为[《Elastic-Job-Lite 源码分析 —— 作业分片》](http://www.iocoder.cn/Elastic-Job/job-sharding/?self)做个铺垫嘛。
-
-![](http://www.iocoder.cn/images/Elastic-Job/2017_10_26/02.png)
 
 道友，赶紧上车，分享一波朋友圈！
 

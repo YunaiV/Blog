@@ -18,7 +18,7 @@ permalink: Spring-Cloud-Gateway/filter-hystrix
 
 -------
 
-![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+![](http://www.iocoder.cn/images/common/wechat_mp_2018_05_18.jpg)
 
 > 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：  
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
@@ -49,6 +49,12 @@ HystrixGatewayFilter 使用 [Hystrix](https://github.com/Netflix/Hystrix) ，实
 * 程序猿DD —— [《Spring Cloud微服务实战》](https://union-click.jd.com/jdc?d=505Twi)
 * 周立 —— [《Spring Cloud与Docker微服务架构实战》](https://union-click.jd.com/jdc?d=k3sAaK)
 * 两书齐买，京东包邮。
+
+**推荐 Spring Cloud 视频**：
+
+* [Java 微服务实践 - Spring Boot](https://segmentfault.com/ls/1650000011063780?r=bPN0Ir)
+* [Java 微服务实践 - Spring Cloud](https://segmentfault.com/ls/1650000011386794?r=bPN0Ir)
+* [Java 微服务实践 - Spring Boot / Spring Cloud](https://segmentfault.com/ls/1650000011387052?r=bPN0Ir)
 
 # 2. 环境搭建
 
@@ -165,28 +171,14 @@ spring:
 # 4. 注意事项
 
 1. 目前 Hystrix Command 执行超时时，返回客户端 504 状态码，如果使用 JSON 格式作为数据返回，则需要修改下该 HystrixGatewayFilter 的代码实现。
-2. Hystrix 配置参数，目前只能**全局**配置，例如说 Hystrix 执行超时时间，配置如下 ：
-
-    ```YAML
-    hystrix:
-      command:
-        default:
-          execution:
-            isolation:
-              thread:
-                timeoutInMilliseconds: 10000
-    ```
-    * 如果想实现 Route / URL 级别的 Hystrix 配置参数，则需要修改下该 HystrixGatewayFilter 的代码实现。
-    * [《Hystrix —— Configuration》](https://github.com/Netflix/Hystrix/wiki/Configuration#contents) ，Hystrix 配置项，需要自取。
-
-3. 当 Hystrix 熔断时，最终返回客户端 200 状态码，内容为空，此处建议该 HystrixGatewayFilter 的代码实现。
+2. 当 Hystrix 熔断时，最终返回客户端 200 状态码，内容为空，此处建议该 HystrixGatewayFilter 的代码实现。
 
 # 666. 彩蛋
 
-嘿嘿嘿，写完熔断，准备限流过滤器走起。鸡冻！
+![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
-![](http://www.iocoder.cn/images/Spring-Cloud-Gateway/2020_04_05/01.png)
+嘿嘿嘿，写完熔断，准备限流过滤器走起。鸡冻！
 
 胖友，分享一波朋友圈可好！
 
-
+[《Hystrix —— Configuration》](https://github.com/Netflix/Hystrix/wiki/Configuration#contents)
