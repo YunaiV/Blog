@@ -4,7 +4,7 @@
 
 ![](http://www.yunai.me/images/common/wechat_mp.jpeg)
 
-> 🙂🙂🙂关注**微信公众号：【芋艿的后端小屋】**有福利：  
+> 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：
 > 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表  
 > 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**  
 > 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。  
@@ -14,8 +14,7 @@
 
 # 联系方式
 
-* QQ : 7685413
-* 微信 : wangwenbin-server
+* 公众号：芋道源码
 * 掘金-Java交流群 : 217878901
 * 知识星球：![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
@@ -381,3 +380,38 @@
     * [《SkyWalking 源码分析 —— Agent 插件（三）之 SpringMVC》](http://www.iocoder.cn/SkyWalking/agent-plugin-spring-mvc?github&1611)
     * [《SkyWalking 源码分析 —— Agent 插件（四）之 MongoDB》](http://www.iocoder.cn/SkyWalking/agent-plugin-mongodb?github&1611)
 
+* 数据持久层框架 **MyBatis**
+
+    * [《精尽 MyBatis 面试题》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— 调试环境搭建》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— 项目结构一览》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— 解析器模块》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— 反射模块》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— 异常模块》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— 数据源模块》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— 事务模块》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— 缓存模块》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— 类型模块》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— IO 模块》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— 日志模块》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— 注解模块》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— Binding 模块》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— MyBatis 初始化（一）之加载 mybatis-config》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— MyBatis 初始化（二）之加载 Mapper 映射配置文件》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— MyBatis 初始化（三）之加载 Statement 配置》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— MyBatis 初始化（四）之加载注解配置》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— SQL 初始化（上）之 SqlNode》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— SQL 初始化（下）之 SqlSource》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— SQL 执行（一）之 Executor》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— SQL 执行（二）之 StatementHandler》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— SQL 执行（三）之 KeyGenerator》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— SQL 执行（四）之 ResultSetHandler》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— SQL 执行（五）之延迟加载》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— 会话 SqlSession》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— 插件体系（一）之原理》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码分析 —— 插件体系（二）之 PageHelper》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码解析 —— Spring 集成（一）之调试环境搭建》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码解析 —— Spring 集成（二）之初始化》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码解析 —— Spring 集成（三）之 SqlSession》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码解析 —— Spring 集成（四）之事务》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
+    * [《精尽 MyBatis 源码解析 —— Spring 集成（五）之批处理》](http://www.iocoder.cn/MyBatis/good-collection?github&1613)
