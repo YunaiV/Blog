@@ -115,7 +115,7 @@ public int read() {
 
 > FROM [《Java并发编程的艺术》](#)
 >
-> ![happens-before](http://cmsblogs.qiniudn.com/wp-content/uploads/2017/02/happens-before_thumb.png)
+> ![happens-before](https://gitee.com/chenssy/blog-home/raw/master/image/sijava/201812083001.png)
 
 # 参考资料
 

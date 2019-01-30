@@ -1,7 +1,7 @@
 title: Nginx 动态配置 upstream
 date: 2017-01-07
 tags:
-categories:
+categories: Nginx
 permalink: Nginx/nginx-dynamic-upstream
 
 -------

@@ -563,15 +563,15 @@ public class Chapter25Application {
 
 先登录，由于 `u3` 在 `DBCache` 中拥有的角色是 `test`，只有 `user:list` 这一个权限
 
-[![登录](http://image.battcn.com/article/images/20180703/springboot/v2-other-shiro/1.png)](http://image.battcn.com/article/images/20180703/springboot/v2-other-shiro/1.png)登录
+[![登录](https://image.battcn.com/article/images/20180703/springboot/v2-other-shiro/1.png)](https://image.battcn.com/article/images/20180703/springboot/v2-other-shiro/1.png)登录
 
 访问 `/users/query` 成功，因为我们符合响应的角色/权限
 
-[![访问Query接口](http://image.battcn.com/article/images/20180703/springboot/v2-other-shiro/2.png)](http://image.battcn.com/article/images/20180703/springboot/v2-other-shiro/2.png)访问Query接口
+[![访问Query接口](https://image.battcn.com/article/images/20180703/springboot/v2-other-shiro/2.png)](https://image.battcn.com/article/images/20180703/springboot/v2-other-shiro/2.png)访问Query接口
 
 访问 `/users/find` 失败，并重定向到了 `/denied` 接口，问题来了为什么 `/users/find` 没有写注解也权限不足呢？
 
-[![权限不足](http://image.battcn.com/article/images/20180703/springboot/v2-other-shiro/3.png)](http://image.battcn.com/article/images/20180703/springboot/v2-other-shiro/3.png)权限不足
+[![权限不足](https://image.battcn.com/article/images/20180703/springboot/v2-other-shiro/3.png)](https://image.battcn.com/article/images/20180703/springboot/v2-other-shiro/3.png)权限不足
 
 细心的朋友肯定会发现 **在 ShiroConfiguration 中写了一句 permissions.put(“/users/find”, “perms[user:find]”);** 意味着我们不仅可以通过注解方式，同样可以通过初始化时加载数据库中的权限树做控制，看各位喜好了….
 

@@ -3,6 +3,7 @@ date: 2017-12-28
 tags:
 categories: Elastic-Job-Cloud
 permalink: Elastic-Job/cloud-job-scheduler-and-executor-second
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247486125&idx=2&sn=2c1066fb7f77ccabf6df0824c14e5dc8&chksm=fa49751ccd3efc0a33361e1ceb5d5659966ff789fca4779a713884ec5ea91161517757b379fc&token=1524868883&lang=zh_CN#rd
 
 -------
 
@@ -43,7 +44,7 @@ permalink: Elastic-Job/cloud-job-scheduler-and-executor-second
 
 本文主要分享 **Elastic-Job-Cloud 云作业应用配置和云作业配置变更对作业调度的影响**，作为[《Elastic-Job-Cloud 源码分析 —— 作业调度（一）》](http://www.iocoder.cn/Elastic-Job/cloud-job-scheduler-and-executor-first/?self)的补充内容。所以需要你对**作业调度**已经有一定了解的基础上。
 
-🙂 如果你做作业调度有任何想交流，欢迎加我的公众号( 芋道源码 ) 或 微信( wangwenbin-server ) 交流。
+🙂 如果你做作业调度有任何想交流，欢迎加我的公众号( 芋道源码 ) 交流。
 
 > 你行好事会因为得到赞赏而愉悦  
 > 同理，开源项目贡献者会因为 Star 而更加有动力  

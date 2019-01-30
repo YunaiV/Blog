@@ -3,6 +3,7 @@ date: 2017-10-21
 tags:
 categories: Elastic-Job-Lite
 permalink: Elastic-Job/election
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485367&idx=2&sn=4bef1385f8279ebc4f295068d3e8ed05&chksm=fa497806cd3ef1102245401a910e2645212032373191e76607b9dc66b85c32dd3c6cd1868f83&token=1125060202&lang=zh_CN#rd
 
 -------
 

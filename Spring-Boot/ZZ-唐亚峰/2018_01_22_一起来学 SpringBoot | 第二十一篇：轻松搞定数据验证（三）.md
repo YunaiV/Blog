@@ -194,11 +194,11 @@ public class Chapter20Application {
 
 > insert 接口
 
-[![错误格式](http://image.battcn.com/article/images/20180607/springboot/v2-other-validate/5.png)](http://image.battcn.com/article/images/20180607/springboot/v2-other-validate/5.png)
+[![错误格式](https://image.battcn.com/article/images/20180607/springboot/v2-other-validate/5.png)](https://image.battcn.com/article/images/20180607/springboot/v2-other-validate/5.png)
 
 > update 接口
 
-[![正确格式](http://image.battcn.com/article/images/20180607/springboot/v2-other-validate/6.png)](http://image.battcn.com/article/images/20180607/springboot/v2-other-validate/6.png)
+[![正确格式](https://image.battcn.com/article/images/20180607/springboot/v2-other-validate/6.png)](https://image.battcn.com/article/images/20180607/springboot/v2-other-validate/6.png)
 
 **两个接口参数内容一致，都缺少 id 字段 ，但 insert 是成功的，而 update 接口中提示了 id 不能为空；测试结果表明，符合我们的预期要求。**
 

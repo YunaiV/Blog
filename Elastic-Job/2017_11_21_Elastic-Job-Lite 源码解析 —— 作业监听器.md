@@ -3,6 +3,7 @@ date: 2017-11-21
 tags:
 categories: Elastic-Job-Lite
 permalink: Elastic-Job/job-listener
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485717&idx=2&sn=a3dd62a206e888af2a0fb48084494fe1&chksm=fa4976a4cd3effb22dcb4b7a5d74528ed696c23d97d4b64fe9243e2fe673b0e84d3367791bc4&token=1908850988&lang=zh_CN#rd
 
 -------
 

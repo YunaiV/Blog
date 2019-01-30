@@ -5,7 +5,7 @@ categories: Spring Boot
 permalink: Spring-Boot/battcn/v2-config-swagger/
 author: 唐亚峰
 from_url: http://blog.battcn.com/2018/05/16/springboot/v2-config-swagger/
-wechat_url: 
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485668&idx=2&sn=e87f02bdfeaff620e083ca3661f3ba0f&chksm=fa497755cd3efe4316b1dcecef1e2ad0082385b9fe3975cf42c490076dd9eca09bda0ba8c22d&token=1000113691&lang=zh_CN#rd
 
 -------
 
@@ -80,7 +80,7 @@ spring.swagger.base-package=com.battcn
 spring.swagger.enabled=true
 ```
 
-[![更多属性](http://image.battcn.com/article/images/20180516/springboot/v2-config-swagger/1.png)](http://image.battcn.com/article/images/20180516/springboot/v2-config-swagger/1.png)
+[![更多属性](https://image.battcn.com/article/images/20180516/springboot/v2-config-swagger/1.png)](https://image.battcn.com/article/images/20180516/springboot/v2-config-swagger/1.png)
 
 ## 实体类
 
@@ -227,7 +227,7 @@ public class Chapter10Application {
 
 由于上面的接口是 restful 风格的接口，添加和修改无法通过浏览器完成，以前都是自己编写`junit`或者使用`postman`之类的工具。现在只需要打开浏览器输入 <http://localhost:8080/swagger-ui.html>，更多操作请自行体验…
 
-[![渲染效果](http://image.battcn.com/article/images/20180516/springboot/v2-config-swagger/2.png)](http://image.battcn.com/article/images/20180516/springboot/v2-config-swagger/2.png)
+[![渲染效果](https://image.battcn.com/article/images/20180516/springboot/v2-config-swagger/2.png)](https://image.battcn.com/article/images/20180516/springboot/v2-config-swagger/2.png)
 
 # 总结
 

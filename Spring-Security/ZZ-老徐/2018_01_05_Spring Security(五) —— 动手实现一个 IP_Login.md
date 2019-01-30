@@ -54,7 +54,7 @@ wechat_url:  https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247483980&id
 
 我们的参考完全是表单认证，在之前章节中，已经了解了表单认证相关的核心流程，将此图再贴一遍：
 
-[![http://ov0zuistv.bkt.clouddn.com/2011121410543010.jpg](http://ov0zuistv.bkt.clouddn.com/2011121410543010.jpg)](http://ov0zuistv.bkt.clouddn.com/2011121410543010.jpg)http://ov0zuistv.bkt.clouddn.com/2011121410543010.jpg
+[![http://kirito.iocoder.cn/2011121410543010.jpg](http://kirito.iocoder.cn/2011121410543010.jpg)](http://kirito.iocoder.cn/2011121410543010.jpg)http://kirito.iocoder.cn/2011121410543010.jpg
 
 在IP登录的demo中，使用IpAuthenticationProcessingFilter拦截IP登录请求，同样使用ProviderManager作为全局AuthenticationManager接口的实现类，将ProviderManager内部的DaoAuthenticationProvider替换为IpAuthenticationProvider，而UserDetailsService则使用一个ConcurrentHashMap代替。更详细一点的设计：
 
@@ -257,29 +257,29 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
 
 - `http://127.0.0.1:8080/`访问首页，其中here链接到的地址为：`http://127.0.0.1:8080/hello`
 
-[![首页](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720171002144410.png)](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720171002144410.png)首页
+[![首页](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720171002144410.png)](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720171002144410.png)首页
 
 - 点击here，由于`http://127.0.0.1:8080/hello`是受保护资源，所以跳转到了校验IP的页面。此时若点击Sign In by IP按钮，将会提交到/ipVerify端点，进行IP的认证。
 
-[![登录](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720171002144520.png)](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720171002144520.png)登录
+[![登录](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720171002144520.png)](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720171002144520.png)登录
 
 - 登录校验成功之后，页面被成功重定向到了原先访问的
 
-[![受保护的hello页](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720171002144800.png)](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720171002144800.png)受保护的hello页
+[![受保护的hello页](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720171002144800.png)](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720171002144800.png)受保护的hello页
 
 ### 失败的流程
 
 - 注意此时已经注销了上次的登录，并且，使用了localhost(localhost和127.0.0.1是两个不同的IP地址，我们的内存中只有127.0.0.1的用户,没有localhost的用户)
 
-[![首页](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720171002144949.png)](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720171002144949.png)首页
+[![首页](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720171002144949.png)](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720171002144949.png)首页
 
 - 点击here后，由于没有认证过，依旧跳转到登录页面
 
-  [![登录](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720171002145344.png)](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720171002145344.png)登录
+  [![登录](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720171002145344.png)](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720171002145344.png)登录
 
 - 此时，我们发现使用localhost，并没有认证成功，符合我们的预期
 
-[![认证失败](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720171002145209.png)](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720171002145209.png)认证失败
+[![认证失败](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720171002145209.png)](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720171002145209.png)认证失败
 
 ### 5.9 总结
 

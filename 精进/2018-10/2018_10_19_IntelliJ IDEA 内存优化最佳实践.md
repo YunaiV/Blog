@@ -1,11 +1,11 @@
 title: IntelliJ IDEA 内存优化最佳实践
 date: 2018-10-19
-tags:
+tags: IntelliJ IDEA
 categories: 精进
 permalink: Fight/IntelliJ-IDEA-memory-optimization-best-practice
 author: OneAPM
 from_url: http://blog.oneapm.com/apm-tech/426.html
-wechat_url:
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485448&idx=1&sn=be5e8868bc5109f7b1db3ac28ed69756&chksm=fa4977b9cd3efeaf269393a46dd4bdb0a386528d5d739654a0c7fe2660ecc79b944bc8cf5f4f&token=982309024&lang=zh_CN#rd
 
 ----
 

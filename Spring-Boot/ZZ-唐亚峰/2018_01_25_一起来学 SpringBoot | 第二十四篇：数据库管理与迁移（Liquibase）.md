@@ -215,15 +215,15 @@ public class Chapter23Application {
 
 1.启动`Chapter23Application.java`中的`main`方法
 
-[![Liquibase启动日志](http://image.battcn.com/article/images/20170819/1/liquibase-1.png)](http://image.battcn.com/article/images/20170819/1/liquibase-1.png)Liquibase启动日志
+[![Liquibase启动日志](https://image.battcn.com/article/images/20170819/1/liquibase-1.png)](https://image.battcn.com/article/images/20170819/1/liquibase-1.png)Liquibase启动日志
 
 从日志中可以看到`Liquibase` 在帮我们执行定义好的SQL，如果是第一次启动，那么数据库会存在`databasechangelog` 和 `databasechangeloglock`两种表，从名字就可以看出，故而不作过多解释
 
-[![日志表](http://image.battcn.com/article/images/20170819/1/liquibase-2.png)](http://image.battcn.com/article/images/20170819/1/liquibase-2.png)日志表
+[![日志表](https://image.battcn.com/article/images/20170819/1/liquibase-2.png)](https://image.battcn.com/article/images/20170819/1/liquibase-2.png)日志表
 
 2.SQL中的语法是创建一张`person`表和 两次 `INSERT` 操作
 
-[![SQL执行记录](http://image.battcn.com/article/images/20170819/1/liquibase-3.png)](http://image.battcn.com/article/images/20170819/1/liquibase-3.png)SQL执行记录
+[![SQL执行记录](https://image.battcn.com/article/images/20170819/1/liquibase-3.png)](https://image.battcn.com/article/images/20170819/1/liquibase-3.png)SQL执行记录
 
 # 总结
 

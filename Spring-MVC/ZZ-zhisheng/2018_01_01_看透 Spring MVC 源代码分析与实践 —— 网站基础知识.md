@@ -45,7 +45,7 @@ wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247484162&idx
 - 标准的 OSI 参考模型
 - TCP/IP 参考模型
 
-![OSI-TCPIP](http://ohfk1r827.bkt.clouddn.com/OSI-TCPIP.jpg)
+![OSI-TCPIP](http://zhisheng.iocoder.cn/OSI-TCPIP.jpg)
 
 #### 海量数据的解决方案
 
@@ -72,11 +72,11 @@ wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247484162&idx
 
 - 读写分离
 
-  ![read-write](http://ohfk1r827.bkt.clouddn.com/read-write.jpg)
+  ![read-write](http://zhisheng.iocoder.cn/read-write.jpg)
 
 - 分布式数据库
 
-  ![sql-1](http://ohfk1r827.bkt.clouddn.com/sql-1.jpg)
+  ![sql-1](http://zhisheng.iocoder.cn/sql-1.jpg)
 
 - NoSQL 和 Hadoop
 
@@ -107,7 +107,7 @@ TCP 两个序号，三个标志位含义：
 - SYN：同步位，用于在建立连接时同步序号。刚开始建立连接时并没有历史接收的数据，所以 ack 也就没有办法设置，这是按照正常的机制就无法运行了，SYN 的作用就是解决这个问题的，当接收端接收到 SYN = 1 的报文时就会直接将 ack 设置为接收到的 seq + 1 的值，注意这里的值并不是检验后设置的，而是根据 SYN 直接设置的，这样正常的机制就可以运行了，所以 SYN 叫同步位。SYN 会在前两次握手时都为 1，这是因为通信的双方的 ack 都需要设置一个初始值。
 - FIN：终止位，用来在数据传输完毕后释放连接。
 
-![TCP](http://ohfk1r827.bkt.clouddn.com/TCP.jpg)
+![TCP](http://zhisheng.iocoder.cn/TCP.jpg)
 
 ### DNS 的设置
 
@@ -115,7 +115,7 @@ TCP 两个序号，三个标志位含义：
 
 参考域名设置，如下是我在腾讯云域名的设置
 
-![dns](http://ohfk1r827.bkt.clouddn.com/dns.jpg)
+![dns](http://zhisheng.iocoder.cn/dns.jpg)
 
 记录类型：
 

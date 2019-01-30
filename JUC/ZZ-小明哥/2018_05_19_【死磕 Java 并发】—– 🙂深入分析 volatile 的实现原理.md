@@ -78,7 +78,7 @@ i = i + 1;
 
 第二种方案，缓存一致性协议（MESI 协议），它确保每个缓存中使用的共享变量的副本是一致的。其核心思想如下：当某个 CPU 在写数据时，如果发现操作的变量是共享变量，则会通知其他 CPU 告知该变量的缓存行是无效的，因此其他 CPU 在读取该变量时，发现其无效会重新从主存中加载数据。
 
-[![212219343783699](http://cmsblogs.qiniudn.com/wp-content/uploads/2017/02/212219343783699_thumb-1.jpg)](http://cmsblogs.qiniudn.com/wp-content/uploads/2017/02/212219343783699-1.jpg)
+[![212219343783699](https://gitee.com/chenssy/blog-home/raw/master/image/sijava/201812082001.png)](https://gitee.com/chenssy/blog-home/raw/master/image/sijava/201812082001.png)
 
 > 老艿艿：目前新的 CPU ，增加了【**缓存锁**】来保证原子性。推荐阅读：《Java并发编程的艺术》的  [「2.3 原子操作的实现原理」](#) 的 [「2. 处理器如何实现原子操作」](#) 小节。建议反复看几次，虽然我现在理解还是有点懵着。
 
@@ -169,7 +169,7 @@ JMM 比较庞大，不是上面一点点就能够阐述的。上面简单地介�
 
 我们着重看**第三点 Volatile规则**：对 `volatile`变量的写操作，happen-before 后续的读操作。为了实现 `volatile` 内存语义，JMM会重排序，其规则如下：
 
-![volatile 重排序规则](http://cmsblogs.qiniudn.com/wp-content/uploads/2017/02/20170104-volatile_thumb-1.jpg)
+![volatile 重排序规则](https://gitee.com/chenssy/blog-home/raw/master/image/sijava/201812082003.png)
 
 * 当第二个操作是 `volatile` 写操作时，不管第一个操作是什么，都**不能**重排序。这个规则，确保 `volatile` 写操作之前的操作，都不会被编译器重排序到 `volatile` 写操作之后。
 
@@ -179,7 +179,7 @@ JMM 比较庞大，不是上面一点点就能够阐述的。上面简单地介�
 
 **观察加入 `volatile` 关键字和没有加入 `volatile` 关键字时所生成的汇编代码发现，加入`volatile` 关键字时，会多出一个 lock 前缀指令**。lock 前缀指令，其实就相当于一个内存屏障。内存屏障是一组处理指令，用来实现对内存操作的顺序限制。`volatile` 的底层就是通过内存屏障来实现的。下图是完成上述规则所需要的内存屏障：
 
-![内存屏障)](http://cmsblogs.qiniudn.com/wp-content/uploads/2017/02/20170104-volatile2-1.jpg)
+![内存屏障)](https://gitee.com/chenssy/blog-home/raw/master/image/sijava/201812082004.png)
 
 `volatile` 暂且下分析到这里，JMM 体系较为庞大，不是三言两语能够说清楚的，后面会结合 JMM 再一次对 `volatile` 深入分析。
 

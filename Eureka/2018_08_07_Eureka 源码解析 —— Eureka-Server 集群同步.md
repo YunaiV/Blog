@@ -60,11 +60,7 @@ OK，让我们开始愉快的遨游在代码的海洋。
 * 周立 —— [《Spring Cloud与Docker微服务架构实战》](https://union-click.jd.com/jdc?d=k3sAaK)
 * 两书齐买，京东包邮。
 
-**推荐 Spring Cloud 视频**：
 
-* [Java 微服务实践 - Spring Boot](https://segmentfault.com/ls/1650000011063780?r=bPN0Ir)
-* [Java 微服务实践 - Spring Cloud](https://segmentfault.com/ls/1650000011386794?r=bPN0Ir)
-* [Java 微服务实践 - Spring Boot / Spring Cloud](https://segmentfault.com/ls/1650000011387052?r=bPN0Ir)
 
 ps ：**注意**，本文提到的**同步**，准确来说是**复制( Replication )**。
 

@@ -5,7 +5,7 @@ categories: Spring Boot
 permalink: Spring-Boot/battcn/v2-other-exception/
 author: 唐亚峰
 from_url: http://blog.battcn.com/2018/06/01/springboot/v2-other-exception/
-wechat_url: 
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247486189&idx=2&sn=ee367ab66d307daca9a84ec10e687614&chksm=fa49755ccd3efc4a0631267bd4283501d5e22cb739e4d060976b5d86adc19b28aa5154c31f28&token=170674881&lang=zh_CN#rd
 
 -------
 
@@ -55,11 +55,11 @@ public String test1() {
 
 打开浏览器访问它的时候发现
 
-[![浏览器中的异常信息](http://image.battcn.com/article/images/20180601/springboot/v2-other-exception/1.png)](http://image.battcn.com/article/images/20180601/springboot/v2-other-exception/1.png)浏览器中的异常信息
+[![浏览器中的异常信息](https://image.battcn.com/article/images/20180601/springboot/v2-other-exception/1.png)](https://image.battcn.com/article/images/20180601/springboot/v2-other-exception/1.png)浏览器中的异常信息
 
 又或者是用 `postman` 等模拟工具
 
-[![postman 的异常信息](http://image.battcn.com/article/images/20180601/springboot/v2-other-exception/2.png)](http://image.battcn.com/article/images/20180601/springboot/v2-other-exception/2.png)
+[![postman 的异常信息](https://image.battcn.com/article/images/20180601/springboot/v2-other-exception/2.png)](https://image.battcn.com/article/images/20180601/springboot/v2-other-exception/2.png)
 
 如果这接口是给第三方调用或者是自己公司的系统，看到这种错误估计得暴走吧….
 

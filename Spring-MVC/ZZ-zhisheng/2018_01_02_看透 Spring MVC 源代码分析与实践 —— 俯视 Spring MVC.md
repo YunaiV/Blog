@@ -32,7 +32,7 @@ wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247484187&idx
 
 -------
 
-![spring-mvc](http://ohfk1r827.bkt.clouddn.com/spring-mvc.png)
+![spring-mvc](http://zhisheng.iocoder.cn/spring-mvc.png)
 
 ### Spring MVC 之初体验
 
@@ -244,7 +244,7 @@ public String userinfo(Model model, @PathVariable("userId") int userId,  HttpSes
 
 Spring MVC 核心 Servlet 架构图如下：
 
-![spring-mvc1](http://ohfk1r827.bkt.clouddn.com/spring-mvc1.jpg)
+![spring-mvc1](http://zhisheng.iocoder.cn/spring-mvc1.jpg)
 
 Java 中常用的 Servlet 我在另外一篇文章写的很清楚了，有兴趣的请看：[通过源码详解 Servlet](http://www.54tianzhisheng.cn/2017/07/09/servlet/) ，这里我就不再解释了。
 
@@ -498,7 +498,7 @@ protected void configureAndRefreshWebApplicationContext(ConfigurableWebApplicati
 
 DispatcherServlet 继承自 FrameworkServlet，onRefresh 方法是 DispatcherServlet 的入口方法，在 initStrategies 方法中调用了 9 个初始化的方法。
 
-![onrefresh](http://ohfk1r827.bkt.clouddn.com/onrefresh.jpg)
+![onrefresh](http://zhisheng.iocoder.cn/onrefresh.jpg)
 
 这里分析其中一个初始化方法：initLocaleResolver() 方法
 
@@ -770,7 +770,7 @@ Handler，HandlerMapping，HandlerAdapter 三个区别：
 
 另外 View 和 ViewResolver 的原理与 Handler 和 HandlerMapping 的原理类似。
 
-![doDispatcher](http://ohfk1r827.bkt.clouddn.com/doDispatcher.png)
+![doDispatcher](http://zhisheng.iocoder.cn/doDispatcher.png)
 
 #### 小结
 

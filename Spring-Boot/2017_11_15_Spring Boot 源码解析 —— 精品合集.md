@@ -80,9 +80,11 @@ permalink: Spring-Boot/good-collection
 - [《Spring Boot 两种多数据源配置：JdbcTemplate、Spring-data-jpa》](http://www.spring4all.com/article/253)
 - [《Spring Boot 使用NoSQL数据库（一）：Redis》](http://www.spring4all.com/article/254)
 - [《Spring Boot 使用NoSQL数据库（二）：MongoDB》](http://www.spring4all.com/article/255)
-- [《Spring Boot 整合 Mybatis 的完整 Web 案例》](http://www.spring4all.com/article/145)
-- [《Spring Boot 整合 Mybatis Annotation 注解案例》](http://www.spring4all.com/article/334)
-- [《Spring Boot 整合 Mybatis 实现 Druid 多数据源配置》](http://www.spring4all.com/article/272)
+* 翟永超 [《Spring Boot 整合 MyBatis》](http://www.iocoder.cn/Spring-Boot/didi/spring-boot-mybatis/)
+* 翟永超 [《Spring Boot 中使用 MyBatis 注解配置详解》](http://www.iocoder.cn/Spring-Boot/didi/spring-boot-mybatis-annotations/)
+* 泥瓦匠 [《Spring Boot 整合 Mybatis 的完整 Web 案例》](http://www.iocoder.cn/Spring-Boot/bysocket/spring-boot-mybatis-with-web-in-action/)
+* 泥瓦匠 [《Spring Boot 整合 Mybatis Annotation 注解案例》](http://www.iocoder.cn/Spring-Boot/byscoket/spring-boot-mybatis-annotations-in-action/)
+* 泥瓦匠 [《Spring Boot 整合 Mybatis 实现 Druid 多数据源配置》](http://www.iocoder.cn/Spring-Boot/byscoket/spring-boot-mybatis-with-druid/)
 
 ** Spring Boot 日志管理 **
 

@@ -3,6 +3,8 @@ date: 2018-04-05
 tags:
 categories: Apollo
 permalink: Apollo/admin-server-send-release-message
+wechat_url:
+toutiao_url: https://www.toutiao.com/i6643383570985386509/
 
 ---
 

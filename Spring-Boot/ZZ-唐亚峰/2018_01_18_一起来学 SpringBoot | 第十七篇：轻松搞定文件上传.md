@@ -5,7 +5,7 @@ categories: Spring Boot
 permalink: Spring-Boot/battcn/v2-other-upload/
 author: 唐亚峰
 from_url: http://blog.battcn.com/2018/05/31/springboot/v2-other-upload/
-wechat_url: 
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247486131&idx=2&sn=66af81cb73b111bfd74114aca6f1cab0&chksm=fa497502cd3efc1425124d34aab9766f91fbca9faf106e8d87fc2dfd144f442affefba9b74df&token=1524868883&lang=zh_CN#rd
 
 -------
 
@@ -269,13 +269,13 @@ public class Chapter16Application {
 
 完成准备事项后，启动`Chapter16Application`，访问 <http://localhost:8080/uploads> 进入到文件上传页面。**单文件上传、多文件上传** 都是及其简单的就不做演示了，相信各位自己也是可以完成的。
 
-[![文件上传页](http://image.battcn.com/article/images/20180531/springboot/v2-other-upload/1.png)](http://image.battcn.com/article/images/20180531/springboot/v2-other-upload/1.png)
+[![文件上传页](https://image.battcn.com/article/images/20180531/springboot/v2-other-upload/1.png)](https://image.battcn.com/article/images/20180531/springboot/v2-other-upload/1.png)
 
 > BASE64 测试方法
 
 打开浏览器访问 <http://base64.xpcha.com/pic.html> 选择一张图片将其转换为`base64`编码的，随后将转换后的`base64字符串内容` 复制到下图中的文本框中，点击上传即可，随后到指定目录下就可以看到我们上传的文件了
 
-[![BASE64上传](http://image.battcn.com/article/images/20180531/springboot/v2-other-upload/2.png)](http://image.battcn.com/article/images/20180531/springboot/v2-other-upload/2.png)
+[![BASE64上传](https://image.battcn.com/article/images/20180531/springboot/v2-other-upload/2.png)](https://image.battcn.com/article/images/20180531/springboot/v2-other-upload/2.png)
 
 # 总结
 

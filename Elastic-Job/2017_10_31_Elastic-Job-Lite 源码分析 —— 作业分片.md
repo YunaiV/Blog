@@ -3,6 +3,7 @@ date: 2017-10-31
 tags:
 categories: Elastic-Job-Lite
 permalink: Elastic-Job/job-sharding
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485505&idx=2&sn=ae3fe0e29cd77509d6f78a4d14abe349&chksm=fa4977f0cd3efee607f3993b5bbb7005bfac8435471b37a2e399491974d22a5a5ee6903ae261&token=696637778&lang=zh_CN#rd
 
 -------
 
@@ -544,5 +545,3 @@ public ShardingContexts getJobShardingContext(final List<Integer> shardingItems)
 芋道君：那必须的嘛，而且这么勤快更新！是不是应该分享一波朋友圈。
 
 道友，赶紧上车，分享一波朋友圈！
-
-

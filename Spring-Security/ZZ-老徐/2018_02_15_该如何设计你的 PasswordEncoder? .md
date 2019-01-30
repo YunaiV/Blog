@@ -81,7 +81,7 @@ hash 方案迎来的第一个改造是对引入一个“随机的因子”来掺
 
 为解决上述 salted hash 仍然存在的问题，一些新型的单向 hash 算法被研究了出来。其中就包括：Bcrypt，PBKDF2，Scrypt，Argon2。为什么这些 hash 算法能保证密码存储的安全性？因为他们足够慢，恰到好处的慢。这么说不严谨，只是为了给大家留个深刻的映像：慢。这类算法有一个特点，存在一个影响因子，可以用来控制计算强度，这直接决定了破解密码所需要的资源和时间，直观的体会可以见下图，在一年内破解如下算法所需要的硬件资源花费（折算成美元）
 
-[![一年内破解如下算法所需要的硬件资源花费](http://ov0zuistv.bkt.clouddn.com/1_QdbniDuZiiF1N7ArNJChOA.png)](http://ov0zuistv.bkt.clouddn.com/1_QdbniDuZiiF1N7ArNJChOA.png)一年内破解如下算法所需要的硬件资源花费
+[![一年内破解如下算法所需要的硬件资源花费](http://kirito.iocoder.cn/1_QdbniDuZiiF1N7ArNJChOA.png)](http://kirito.iocoder.cn/1_QdbniDuZiiF1N7ArNJChOA.png)一年内破解如下算法所需要的硬件资源花费
 
 这使得破解成了一件极其困难的事，并且，其中的计算强度因子是可控的，这样，即使未来量子计算机的计算能力爆表，也可以通过其控制计算强度以防破解。注意，普通的验证过程只需要计算一次 hash 计算，使用此类 hash 算法并不会影响到用户体验。
 

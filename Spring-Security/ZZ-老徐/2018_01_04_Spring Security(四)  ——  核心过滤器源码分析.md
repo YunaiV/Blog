@@ -191,7 +191,7 @@ SecurityContextPersistenceFilter和HttpSessionSecurityContextRepository配合使
 
 表单认证是最常用的一个认证方式，一个最直观的业务场景便是允许用户在表单中输入用户名和密码进行登录，而这背后的UsernamePasswordAuthenticationFilter，在整个Spring Security的认证体系中则扮演着至关重要的角色。
 
-[![http://ov0zuistv.bkt.clouddn.com/2011121410543010.jpg](http://ov0zuistv.bkt.clouddn.com/2011121410543010.jpg)](http://ov0zuistv.bkt.clouddn.com/2011121410543010.jpg)http://ov0zuistv.bkt.clouddn.com/2011121410543010.jpg
+[![http://kirito.iocoder.cn/2011121410543010.jpg](http://kirito.iocoder.cn/2011121410543010.jpg)](http://kirito.iocoder.cn/2011121410543010.jpg)http://kirito.iocoder.cn/2011121410543010.jpg
 
 上述的时序图，可以看出UsernamePasswordAuthenticationFilter主要肩负起了调用身份认证器，校验身份的作用，至于认证的细节，在前面几章花了很大篇幅进行了介绍，到这里，其实Spring Security的基本流程就已经走通了。
 
@@ -378,7 +378,7 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 
 剩下的便是要搞懂AuthenticationEntryPoint和AccessDeniedHandler就可以了。
 
-[![AuthenticationEntryPoint](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720170929231608.png)](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720170929231608.png)AuthenticationEntryPoint
+[![AuthenticationEntryPoint](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720170929231608.png)](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720170929231608.png)AuthenticationEntryPoint
 
 选择了几个常用的登录端点，以其中第一个为例来介绍，看名字就能猜到是认证失败之后，让用户跳转到登录页面。还记得我们一开始怎么配置表单登录页面的吗？
 

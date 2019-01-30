@@ -3,6 +3,7 @@ date: 2018-01-03
 tags:
 categories: Elastic-Job-Cloud
 permalink: Elastic-Job/cloud-local-executor
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247486169&idx=2&sn=ecbefbcc2b888fe9e133558a20b8737e&chksm=fa497568cd3efc7e60089c7cda42755970a08057bb93305d8584c3e0bb35a119db4e4789c767&token=170674881&lang=zh_CN#rd
 
 -------
 

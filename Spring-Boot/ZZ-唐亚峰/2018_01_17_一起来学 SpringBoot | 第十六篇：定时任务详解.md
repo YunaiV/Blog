@@ -5,7 +5,7 @@ categories: Spring Boot
 permalink: Spring-Boot/battcn/v2-other-scheduling/
 author: 唐亚峰
 from_url: http://blog.battcn.com/2018/05/29/springboot/v2-other-scheduling/
-wechat_url: 
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247486075&idx=2&sn=e0c0aae23f073a76a0469b9c78d0e62c&chksm=fa4975cacd3efcdc5c014ff5191090aefa04d8946d08536bc4fb7b401c73b820f52ce570d733&token=810316232&lang=zh_CN#rd
 
 -------
 

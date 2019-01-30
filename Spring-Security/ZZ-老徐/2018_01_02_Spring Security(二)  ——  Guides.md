@@ -207,19 +207,19 @@ public class Application {
 
 访问首页`http://localhost:8080/`:
 
-[![home.html](http://ov0zuistv.bkt.clouddn.com/home.png)](http://ov0zuistv.bkt.clouddn.com/home.png)home.html
+[![home.html](http://kirito.iocoder.cn/home.png)](http://kirito.iocoder.cn/home.png)home.html
 
 点击here，尝试访问受限的页面：`/hello`,由于未登录，结果被强制跳转到登录也`/login`：
 
-[![login.html](http://ov0zuistv.bkt.clouddn.com/login.png)](http://ov0zuistv.bkt.clouddn.com/login.png)login.html
+[![login.html](http://kirito.iocoder.cn/login.png)](http://kirito.iocoder.cn/login.png)login.html
 
 输入正确的用户名和密码之后，跳转到之前想要访问的`/hello`:
 
-[![hello.html](http://ov0zuistv.bkt.clouddn.com/hello.png)](http://ov0zuistv.bkt.clouddn.com/hello.png)hello.html
+[![hello.html](http://kirito.iocoder.cn/hello.png)](http://kirito.iocoder.cn/hello.png)hello.html
 
 点击Sign out退出按钮，访问:`/logout`,回到登录页面:
 
-[![logout.html](http://ov0zuistv.bkt.clouddn.com/logout.png)](http://ov0zuistv.bkt.clouddn.com/logout.png)logout.html
+[![logout.html](http://kirito.iocoder.cn/logout.png)](http://kirito.iocoder.cn/logout.png)logout.html
 
 ### 2.6 总结
 

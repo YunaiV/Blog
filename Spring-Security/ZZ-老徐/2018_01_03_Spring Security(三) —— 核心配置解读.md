@@ -179,7 +179,7 @@ AuthenticationConfiguration的主要任务，便是负责生成全局的身份�
 
 适配器模式在spring中被广泛的使用，在配置中使用Adapter的好处便是，我们可以选择性的配置想要修改的那一部分配置，而不用覆盖其他不相关的配置。WebSecurityConfigurerAdapter中我们可以选择自己想要修改的内容，来进行重写，而其提供了三个configure重载方法，是我们主要关心的：
 
-[![WebSecurityConfigurerAdapter中的configure](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720170924215436.png)](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720170924215436.png)WebSecurityConfigurerAdapter中的configure
+[![WebSecurityConfigurerAdapter中的configure](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720170924215436.png)](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720170924215436.png)WebSecurityConfigurerAdapter中的configure
 
 由参数就可以知道，分别是对AuthenticationManagerBuilder，WebSecurity，HttpSecurity进行个性化的配置。
 
@@ -227,7 +227,7 @@ public class CustomWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 他们分别代表了http请求相关的安全配置，这些配置项无一例外的返回了Configurer类，而所有的http相关配置可以通过查看HttpSecurity的主要方法得知：
 
-[![http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720170924223252.png](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720170924223252.png)](http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720170924223252.png)http://ov0zuistv.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720170924223252.png
+[![http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720170924223252.png](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720170924223252.png)](http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720170924223252.png)http://kirito.iocoder.cn/QQ%E5%9B%BE%E7%89%8720170924223252.png
 
 需要对http协议有一定的了解才能完全掌握所有的配置，不过，springboot和spring security的自动配置已经足够使用了。其中每一项Configurer（e.g.FormLoginConfigurer,CsrfConfigurer）都是HttpConfigurer的细化配置项。
 

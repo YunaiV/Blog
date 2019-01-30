@@ -5,7 +5,7 @@ categories: Spring Boot
 permalink: Spring-Boot/battcn/v2-nosql-redis/
 author: 唐亚峰
 from_url: http://blog.battcn.com/2018/05/11/springboot/v2-nosql-redis/
-wechat_url: 
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485355&idx=2&sn=6b8c00240068e500cd6fb04ca5bd27cc&chksm=fa49781acd3ef10cd19427d51154a029b02624317c2f9d656dd281b10d3e2c57a67e0d8d533d&token=1125060202&lang=zh_CN#rd
 
 -------
 

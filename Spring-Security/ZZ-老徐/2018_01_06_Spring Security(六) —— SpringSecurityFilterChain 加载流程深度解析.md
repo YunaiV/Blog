@@ -269,7 +269,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
 
 <2> 可以看到，DelegatingFilterProxy 尝试去容器中获取名为 targetBeanName 的类，而 targetBeanName 的默认值便是 Filter 的名称，也就是 springSecurityFilterChain！也就是说，DelegatingFilterProxy 只是名称和 targetBeanName 叫 springSecurityFilterChain，真正容器中的 Bean(name=”springSecurityFilterChain”) 其实另有其人（这里springboot稍微有点区别，不过不影响理解，我们不纠结这个细节了）。通过 debug，我们发现了真正的 springSecurityFilterChain — FilterChainProxy。
 
-[![delegate](http://ov0zuistv.bkt.clouddn.com/C811CC2A-9434-49C8-9240-15BD0EE5A21E.png)](http://ov0zuistv.bkt.clouddn.com/C811CC2A-9434-49C8-9240-15BD0EE5A21E.png)delegate
+[![delegate](http://kirito.iocoder.cn/C811CC2A-9434-49C8-9240-15BD0EE5A21E.png)](http://kirito.iocoder.cn/C811CC2A-9434-49C8-9240-15BD0EE5A21E.png)delegate
 
 #### FilterChainProxy和SecurityFilterChain
 
@@ -335,7 +335,7 @@ public class FilterChainProxy extends GenericFilterBean {
 
 看 FilterChainProxy 的名字就可以发现，它依旧不是真正实施过滤的类，它内部维护了一个 SecurityFilterChain，这个过滤器链才是请求真正对应的过滤器链，并且同一个 Spring 环境下，可能同时存在多个安全过滤器链，如 private List filterChains 所示，需要经过 chain.matches(request) 判断到底哪个过滤器链匹配成功，每个 request 最多只会经过一个 SecurityFilterChain。为何要这么设计？因为 Web 环境下可能有多种安全保护策略，每种策略都需要有自己的一条链路，比如我曾经设计过 Oauth2 服务，在极端条件下，可能同一个服务本身既是资源服务器，又是认证服务器，还需要做 Web 安全！
 
-[![多个SecurityFilterChain](http://ov0zuistv.bkt.clouddn.com/F0EAD340-B206-4FB0-A660-4CEB28AB8609.png)](http://ov0zuistv.bkt.clouddn.com/F0EAD340-B206-4FB0-A660-4CEB28AB8609.png)多个SecurityFilterChain
+[![多个SecurityFilterChain](http://kirito.iocoder.cn/F0EAD340-B206-4FB0-A660-4CEB28AB8609.png)](http://kirito.iocoder.cn/F0EAD340-B206-4FB0-A660-4CEB28AB8609.png)多个SecurityFilterChain
 
 如上图，4 个 SecurityFilterChain 存在于 FilterChainProxy 中，值得再次强调：实际每次请求，最多只有一个安全过滤器链被返回。
 
@@ -396,7 +396,7 @@ public final class WebSecurity extends
 
 <1> 最终定位到 WebSecurity 的 performBuild 方法，我们之前配置了一堆参数的 WebSecurity 最终帮助我们构建了 FilterChainProxy。
 
-[![WebSecurityConfiguration](http://ov0zuistv.bkt.clouddn.com/8E09B17E-EC83-4824-9ED9-AF2814AC6B3A.png)](http://ov0zuistv.bkt.clouddn.com/8E09B17E-EC83-4824-9ED9-AF2814AC6B3A.png)WebSecurityConfiguration
+[![WebSecurityConfiguration](http://kirito.iocoder.cn/8E09B17E-EC83-4824-9ED9-AF2814AC6B3A.png)](http://kirito.iocoder.cn/8E09B17E-EC83-4824-9ED9-AF2814AC6B3A.png)WebSecurityConfiguration
 
 并且，最终在 `org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration`中被注册为默认名称为 SpringSecurityFilterChain。
 

@@ -249,11 +249,11 @@ public class Chapter21Application {
 
 > 第一次请求
 
-[![正确响应](http://image.battcn.com/article/images/20180612/springboot/v2-cache-locallock/1.png)](http://image.battcn.com/article/images/20180612/springboot/v2-cache-locallock/1.png)
+[![正确响应](https://image.battcn.com/article/images/20180612/springboot/v2-cache-locallock/1.png)](https://image.battcn.com/article/images/20180612/springboot/v2-cache-locallock/1.png)
 
 > 第二次请求
 
-[![错误响应](http://image.battcn.com/article/images/20180612/springboot/v2-cache-locallock/2.png)](http://image.battcn.com/article/images/20180612/springboot/v2-cache-locallock/2.png)
+[![错误响应](https://image.battcn.com/article/images/20180612/springboot/v2-cache-locallock/2.png)](https://image.battcn.com/article/images/20180612/springboot/v2-cache-locallock/2.png)
 
 # 总结
 

@@ -207,7 +207,7 @@ public interface FlashMapManager {
 
 本质是一个 Servlet，这个 Servlet 继承自 HttpServlet。Spring MVC 中提供了三个层次的 Servlet：HttpServletBean、FrameworkServlet 和 DispatcherServlet。他们相互继承， HttpServletBean 直接继承自 Java 的 HttpServlet。HttpServletBean 用于将 Servlet 中的 Servlet 中配置的参数设置到相应的属性中，FrameworkServlet 初始化了 Spring MVC 中所使用的 WebApplicationContext，具体处理请求的 9 大组件是在 DispatcherServlet 中初始化的，整个继承图如下：
 
-![spring-mvc1](http://ohfk1r827.bkt.clouddn.com/spring-mvc1.jpg)
+![spring-mvc1](http://zhisheng.iocoder.cn/spring-mvc1.jpg)
 
 # 666. 彩蛋
 

@@ -3,6 +3,8 @@ date: 2018-03-28
 tags:
 categories: Apollo
 permalink: Apollo/admin-service-lock-namespace
+wechat_url:
+toutiao_url: https://www.toutiao.com/i6643381796195009038/
 
 ---
 

@@ -5,7 +5,7 @@ categories: Spring Boot
 permalink: Spring-Boot/battcn/v2-cache-redis/
 author: 唐亚峰
 from_url: http://blog.battcn.com/2018/05/13/springboot/v2-cache-redis/
-wechat_url: 
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485513&idx=2&sn=1b6d52519d6c15d18f2cac75a7e54309&chksm=fa4977f8cd3efeee7ccb94567404b68493c43473d20122abdfad06edeebcc821096300ca9867&token=696637778&lang=zh_CN#rd
 
 -------
 
@@ -42,7 +42,7 @@ wechat_url:
 
 `Spring 3.1` 引入了激动人心的**基于注释（annotation）的缓存（cache）技术**，它本质上不是一个具体的缓存实现方案（例如 `EHCache` 或者 `Redis`），而是一个对缓存使用的抽象，通过在既有代码中添加少量它定义的各种 `annotation`，即能够达到缓存方法的返回对象的效果。
 
-# 特点
+# 1. 特点
 
 具备相当的好的灵活性，不仅能够使用 **SpEL（Spring Expression Language）**来定义缓存的 key 和各种 condition，还提供开箱即用的缓存临时存储方案，也支持和主流的专业缓存例如 EHCache、Redis、Guava 的集成。
 
@@ -52,7 +52,7 @@ wechat_url:
 - **支持 AspectJ，并通过其实现任何方法的缓存支持**
 - **支持自定义 key 和自定义缓存管理者，具有相当的灵活性和扩展性**
 
-# 使用前后
+# 2. 使用前后
 
 下面针对`Spring Cache`使用前后给出了伪代码部分，具体中也许比这要更加复杂，但是`Spring Cache`都可以很好的应对
 
@@ -81,7 +81,7 @@ public String get(String key) {
 }
 ```
 
-# 添加依赖
+# 3. 添加依赖
 
 在 `pom.xml` 中添加 `spring-boot-starter-data-redis`的依赖
 
@@ -101,7 +101,7 @@ public String get(String key) {
 </dependency>
 ```
 
-# 属性配置
+# 4. 属性配置
 
 在 `application.properties` 文件中配置如下内容，由于`Spring Boot2.x` 的改动，连接池相关配置需要通过`spring.redis.lettuce.pool`或者 `spring.redis.jedis.pool` 进行配置了。使用了`Spring Cache`后，能指定`spring.cache.type`就手动指定一下，虽然它会自动去适配已有`Cache`的依赖，但先后顺序会对`Redis`使用有影响**（JCache -> EhCache -> Redis -> Guava）**
 
@@ -124,9 +124,9 @@ spring.redis.lettuce.pool.max-idle=8
 spring.redis.lettuce.pool.min-idle=0
 ```
 
-# 具体编码
+# 5. 具体编码
 
-## 实体类
+## 5.1 实体类
 
 创建一个`User`类，目的是为了模拟对象存储
 
@@ -149,7 +149,7 @@ public class User implements Serializable {
 }
 ```
 
-## 定义接口
+## 5.2 定义接口
 
 ```java
 package com.battcn.service;
@@ -187,7 +187,7 @@ public interface UserService {
 }
 ```
 
-\###实现类
+### 5.2.1 实现类
 
 为了方便演示数据库操作，直接定义了一个`Map<Long, User> DATABASES`，这里的核心就是**@Cacheable、@CachePut、@CacheEvict** 三个注解
 
@@ -249,7 +249,7 @@ public class UserServiceImpl implements UserService {
 }
 ```
 
-## 主函数
+## 5.3 主函数
 
 **@EnableCaching** 必须要加，否则`spring-data-cache`相关注解不会生效…
 
@@ -274,7 +274,7 @@ public class Chapter9Application {
 }
 ```
 
-## 测试
+## 5.4 测试
 
 完成准备事项后，编写一个`junit`测试类来检验代码的正确性，有很多人质疑过`Redis`线程安全性，故下面也提供了响应的测试案例，如有疑问欢迎指正
 
@@ -339,7 +339,7 @@ public class Chapter9ApplicationTest {
 - **opsForSet：** 对应 Set（集合）
 - **opsForGeo：** 对应 GEO（地理位置）
 
-## 根据条件操作缓存
+## 5.5 根据条件操作缓存
 
 **根据条件操作缓存内容并不影响数据库操作，条件表达式返回一个布尔值，true/false，当条件为true，则进行缓存操作，否则直接调用方法执行的返回结果。**
 
@@ -348,7 +348,7 @@ public class Chapter9ApplicationTest {
 - **组合：** `@Cacheable(value="user",key="#user.username.concat(##user.password)")`
 - **提前操作：** `@CacheEvict(value="user",allEntries=true,beforeInvocation=true)` 加上`beforeInvocation=true`后，不管内部是否报错，缓存都将被清除，默认情况为`false`
 
-## 注解介绍
+## 5.6 注解介绍
 
 > @Cacheable(根据方法的请求参数对其结果进行缓存)
 
@@ -371,7 +371,7 @@ public class Chapter9ApplicationTest {
 - **allEntries：** 是否清空所有缓存内容，缺省为 false，如果指定为 true，则方法调用后将立即清空所有缓存（如：`@CacheEvict(value = "user", key = "#id", allEntries = true)`）
 - **beforeInvocation：** 是否在方法执行前就清空，缺省为 false，如果指定为 true，则在方法还没有执行的时候就清空缓存，缺省情况下，如果方法执行抛出异常，则不会清空缓存（如：`@CacheEvict(value = "user", key = "#id", beforeInvocation = true)`）
 
-# 总结
+# 6. 总结
 
 **spring-cache文档：** <https://docs.spring.io/spring/docs/5.0.5.RELEASE/spring-framework-reference/integration.html#cache-introduction>
 **spring-data-redis文档：** <https://docs.spring.io/spring-data/redis/docs/2.0.1.RELEASE/reference/html/#new-in-2.0.0>
@@ -380,7 +380,7 @@ public class Chapter9ApplicationTest {
 
 目前很多大佬都写过关于 **SpringBoot** 的教程了，如有雷同，请多多包涵，本教程基于最新的 `spring-boot-starter-parent：2.0.1.RELEASE`编写，包括新版本的特性都会一起介绍…
 
-# 说点什么
+# 7. 说点什么
 
 全文代码：<https://github.com/battcn/spring-boot2-learning/tree/master/chapter9>
 

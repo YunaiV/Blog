@@ -529,7 +529,7 @@ public class OrderByStreamResultSetMerger extends AbstractStreamResultSetMerger 
 
 * 白色向下箭头：OrderByStreamResultSetMerger 对 ResultSet 的指向。
 * 黑色箭头：ResultSet 对当前记录的指向。
-* ps：这块如果分享的不清晰让您费劲，十分抱歉。欢迎加我微信（wangwenbin-server）交流下，这样我也可以优化表述。
+* ps：这块如果分享的不清晰让您费劲，十分抱歉。欢迎加我公众号（芋道源码）交流下，这样我也可以优化表述。
 
 ```Java
 // OrderByStreamResultSetMerger.java

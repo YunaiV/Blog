@@ -3,6 +3,7 @@ date: 2017-10-26
 tags:
 categories: Elastic-Job-Lite
 permalink: Elastic-Job/job-sharding-strategy
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485441&idx=2&sn=a7c008600b0a23209e0169bb640bac28&chksm=fa4977b0cd3efea6d8c4c95c55a8e0803675c8e8d41021030e188668f3c70519db21539cbb51&token=982309024&lang=zh_CN#rd
 
 -------
 

@@ -3,6 +3,7 @@ date: 2017-11-14
 tags:
 categories: Elastic-Job-Lite
 permalink: Elastic-Job/job-event-trace
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485667&idx=2&sn=ad20870c9a584eea56817d14ff89805c&chksm=fa497752cd3efe44d808262e0a6f6672b4faf053b9e1c9d03bba02294446d48dd0e020444387&token=1000113691&lang=zh_CN#rd
 
 -------
 

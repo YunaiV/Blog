@@ -211,11 +211,11 @@ public class Chapter18Application {
 
 > test2接口（name参数没传）
 
-[![test2接口](http://image.battcn.com/article/images/20180604/springboot/v2-other-validate/1.png)](http://image.battcn.com/article/images/20180604/springboot/v2-other-validate/1.png)
+[![test2接口](https://image.battcn.com/article/images/20180604/springboot/v2-other-validate/1.png)](https://image.battcn.com/article/images/20180604/springboot/v2-other-validate/1.png)
 
 > test3接口（price参数值过低）
 
-[![test3接口](http://image.battcn.com/article/images/20180604/springboot/v2-other-validate/2.png)](http://image.battcn.com/article/images/20180604/springboot/v2-other-validate/2.png)
+[![test3接口](https://image.battcn.com/article/images/20180604/springboot/v2-other-validate/2.png)](https://image.battcn.com/article/images/20180604/springboot/v2-other-validate/2.png)
 
 # 总结
 

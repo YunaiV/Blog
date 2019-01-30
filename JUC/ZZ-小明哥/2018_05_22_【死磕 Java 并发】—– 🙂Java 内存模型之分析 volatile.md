@@ -131,7 +131,7 @@ wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247483857&idx
  }
  ```
 
- ![内存屏障图例](http://cmsblogs.qiniudn.com/wp-content/uploads/2017/02/u7ED8_u56FE1_thumb-1.png)
+ ![内存屏障图例](https://gitee.com/chenssy/blog-home/raw/master/image/sijava/201812085001.png)
 
 ## 2.2 案例 2：VolatileBarrierExample
 
@@ -155,7 +155,7 @@ wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247483857&idx
 
  没有优化的示例图如下：
 
-![未优化)](http://cmsblogs.qiniudn.com/wp-content/uploads/2017/02/14844980432094444444-1.png)
+![未优化)](https://gitee.com/chenssy/blog-home/raw/master/image/sijava/201812085002.png)
 
  我们来分析，上图有哪些内存屏障指令是**多余的**：
 
@@ -170,7 +170,7 @@ wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247483857&idx
 
 所以 2、3、6 可以省略，其示意图如下：
 
-![已优化](http://cmsblogs.qiniudn.com/wp-content/uploads/2017/02/1484498051529555555_thumb-1.png)
+![已优化](https://gitee.com/chenssy/blog-home/raw/master/image/sijava/201812085003.png)
 
 # 参考资料
 

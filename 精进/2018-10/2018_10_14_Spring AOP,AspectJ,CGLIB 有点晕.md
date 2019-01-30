@@ -5,7 +5,7 @@ categories: 精进
 permalink: Fight/Spring-AOP-AspectJ-and-CGLIB-are-a-bit-dizzy
 author: dolphin叔叔
 from_url: https://www.jianshu.com/p/fe8d1e8bd63e
-wechat_url:
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485373&idx=1&sn=40ef0ac1b6c1f0bd6cb90f336c02ba14&chksm=fa49780ccd3ef11a0e62ebb8520eb881a9998548e79782bfc85b641d42ee73e904737fff48a1&token=1125060202&lang=zh_CN#rd
 
 ----
 

@@ -37,3 +37,6 @@ permalink: Happylifeplat-TCC/good-collection
  
  ![知识星球](http://www.iocoder.cn/images/Architecture/2017_12_29/01.png)
 
+<script language="JavaScript">
+    self.location = '/Hmily/good-collection';
+</script>

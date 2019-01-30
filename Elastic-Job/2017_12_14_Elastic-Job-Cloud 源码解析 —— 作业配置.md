@@ -3,6 +3,7 @@ date: 2017-12-14
 tags:
 categories: Elastic-Job-Cloud
 permalink: Elastic-Job/cloud-job-config
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247486009&idx=2&sn=36eefe5a0d3c544309ab78a92090e6c1&chksm=fa497588cd3efc9e3efcbe4561480fde2a15335fc2ab6c0800dc84a6ae444766a1bffc552efc&token=933039983&lang=zh_CN#rd
 
 -------
 

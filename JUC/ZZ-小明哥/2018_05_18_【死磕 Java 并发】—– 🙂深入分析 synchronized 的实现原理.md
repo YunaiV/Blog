@@ -79,7 +79,7 @@ public class SynchronizedTest {
 
 利用 [Javap](http://www.importnew.com/18398.html) 工具查看生成的 class 文件信息来分析 `synchronized` 的实现
 
-![Synchronize-1](http://cmsblogs.qiniudn.com/wp-content/uploads/2017/02/Synchronize-1-1.jpg)
+![Synchronize-1](https://gitee.com/chenssy/blog-home/raw/master/image/sijava/201812081001.png)
 
 从上面可以看出：1）同步代码块是使用 `monitorenter` 和 `monitorexit` 指令实现的；2）同步方法（在这看不出来需要看JVM底层实现）依靠的是方法修饰符上的`ACC_SYNCHRONIZED` 实现。
 
@@ -112,13 +112,13 @@ Mark Word 用于存储对象自身的运行时数据，如哈希码（HashCode�
 
 下图是 Java 对象头的存储结构（32位虚拟机）：
 
-![存储结构](http://cmsblogs.qiniudn.com/wp-content/uploads/2017/02/222222_2-1.jpg)
+![存储结构](https://gitee.com/chenssy/blog-home/raw/master/image/sijava/201812081002.png)
 
 对象头信息是与对象自身定义的数据无关的额外存储成本，但是考虑到虚拟机的空间效率，Mark Word 被设计成一个**非固定**的数据结构以便在极小的空间内存存储尽量多的数据，它会根据对象的状态复用自己的存储空间，也就是说，Mark Word 会随着程序的运行发生变化，变化状态如下：
 
 * 32 位虚拟机：
 
-    ![32 位虚拟机](http://cmsblogs.qiniudn.com/wp-content/uploads/2017/02/11111111111_2-1.jpg)
+    ![32 位虚拟机](https://gitee.com/chenssy/blog-home/raw/master/image/sijava/201812081003.png)
     
     * 每一行，是一种情况。
 
@@ -147,7 +147,7 @@ Mark Word 用于存储对象自身的运行时数据，如哈希码（HashCode�
 > Monitor Record 是线程**私有**的数据结构，每一个线程都有一个可用 Monitor Record 列表，同时还有一个全局的可用列表。  
 > 每一个被锁住的对象都会和一个 Monitor Record 关联（对象头的 MarkWord 中的 LockWord 指向 Monitor 的起始地址），Monitor Record 中有一个 Owner 字段，存放拥有该锁的线程的唯一标识，表示该锁被这个线程占用。其结构如下：
 
-> ![Monitor Record](http://cmsblogs.qiniudn.com/wp-content/uploads/2017/02/44444-1.png)
+> ![Monitor Record](https://gitee.com/chenssy/blog-home/raw/master/image/sijava/201812081004.png)
 
 > * **Owner**：1）初始时为 NULL 表示当前没有任何线程拥有该 Monitor Record；2）当线程成功拥有该锁后保存线程唯一标识；3）当锁被释放时又设置为 NULL 。
 > * **EntryQ**：关联一个系统互斥锁（ semaphore ），阻塞所有试图锁住 Monitor Record失败的线程 。
@@ -268,7 +268,7 @@ public void vectorTest(){
 
 下图是争夺锁导致的**锁膨胀**的流程图：
 
-![争夺锁导致的锁膨胀](http://cmsblogs.qiniudn.com/wp-content/uploads/2017/02/22222222222222-1.png)
+![争夺锁导致的锁膨胀](https://gitee.com/chenssy/blog-home/raw/master/image/sijava/201812081005.png)
 
 * 其中，绿框的 `0` 指的是无偏向锁，`01` 指的是无锁状态。
 
@@ -326,7 +326,7 @@ public void vectorTest(){
 
 下图是偏向锁的获取和释放流程：
 
-![偏向锁的获取和释放流程](http://cmsblogs.qiniudn.com/wp-content/uploads/2017/02/image2-1.png)
+![偏向锁的获取和释放流程](https://gitee.com/chenssy/blog-home/raw/master/image/sijava/201812081006.png)
 
 **关闭偏向锁**
 

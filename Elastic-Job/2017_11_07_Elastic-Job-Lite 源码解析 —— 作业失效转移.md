@@ -3,6 +3,7 @@ date: 2017-11-07
 tags:
 categories: Elastic-Job-Lite
 permalink: Elastic-Job/job-failover
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485582&idx=2&sn=ed8fad3e059f6f462c68cc86ce9e2161&chksm=fa49773fcd3efe2908891641ea539ac8f6962b563e52265dc6734f4d5e98f3391b051093c039&token=1977883259&lang=zh_CN#rd
 
 -------
 
@@ -16,15 +17,6 @@ permalink: Elastic-Job/job-failover
 - [4. 获取作业分片上下文集合](http://www.iocoder.cn/Elastic-Job/job-failover/)
 - [5. 监听作业失效转移功能关闭](http://www.iocoder.cn/Elastic-Job/job-failover/)
 - [666. 彩蛋](http://www.iocoder.cn/Elastic-Job/job-failover/)
-
--------
-
-- [1. 概述](#)
-- [2. 作业节点崩溃监听](#)
-- [3. 作业失效转移](#)
-- [4. 获取作业分片上下文集合](#)
-- [5. 监听作业失效转移功能关闭](#)
-- [666. 彩蛋](#)
 
 -------
 

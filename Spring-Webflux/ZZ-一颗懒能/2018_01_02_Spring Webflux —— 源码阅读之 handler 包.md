@@ -5,7 +5,7 @@ categories: Spring Webflux
 permalink: Spring-Webflux/lanneng/handler
 author: 一颗懒能
 from_url: https://www.jianshu.com/p/23ee4b77c160
-wechat_url: 
+wechat_url: https://mp.weixin.qq.com/s/W7avKGPxBT7kx2s7rQOCoA
 
 -------
 

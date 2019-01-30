@@ -58,7 +58,7 @@ wechat_url:
 
 > **WebSocket 事件**
 
-[![WebSocket 事件](http://image.battcn.com/article/images/20180627/springboot/v2-other-websocket/1.png)](http://image.battcn.com/article/images/20180627/springboot/v2-other-websocket/1.png)WebSocket 事件
+[![WebSocket 事件](https://image.battcn.com/article/images/20180627/springboot/v2-other-websocket/1.png)](https://image.battcn.com/article/images/20180627/springboot/v2-other-websocket/1.png)WebSocket 事件
 
 # 本章目标
 
@@ -349,7 +349,7 @@ public class Chapter24Application {
 
 启动 `Chapter24Application.java` 中的 `main` 方法，为了更好的演示效果这里打开了俩浏览器窗口做的测试…
 
-[![测试结果](http://image.battcn.com/article/images/20180627/springboot/v2-other-websocket/2.png)](http://image.battcn.com/article/images/20180627/springboot/v2-other-websocket/2.png)测试结果
+[![测试结果](https://image.battcn.com/article/images/20180627/springboot/v2-other-websocket/2.png)](https://image.battcn.com/article/images/20180627/springboot/v2-other-websocket/2.png)测试结果
 
 # 总结
 

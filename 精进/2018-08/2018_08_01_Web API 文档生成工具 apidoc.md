@@ -34,7 +34,7 @@ wechat_url:
 
 apidoc 是通过源码中的注释来生成 Web API 文档。因此，apidoc 对现有代码可以做到无侵入性。此外，apidoc 可以支持多种语言 C#, Go, Dart, Java, JavaScript, PHP, TypeScript (all DocStyle capable languages)，CoffeeScript，Erlang，Perl，Python，Ruby，Lua。通过 apidoc 可以非常方便地生成可交互地文档页面。
 
-![](http://7xivgs.com1.z0.glb.clouddn.com/apidoc01.png)
+![](image.chenyongjun.vip/apidoc01.png)
 
 ## 开始入门
 
@@ -225,4 +225,4 @@ apidoc -i myapp/ -o apidoc/
 
 生成的页面，如下所示。
 
-![](http://7xivgs.com1.z0.glb.clouddn.com/apidoc02.jpeg)
+![](image.chenyongjun.vip/apidoc02.jpeg)

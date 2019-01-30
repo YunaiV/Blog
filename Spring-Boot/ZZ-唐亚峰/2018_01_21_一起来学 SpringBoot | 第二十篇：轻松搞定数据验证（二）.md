@@ -232,11 +232,11 @@ public class Chapter19Application {
 
 > 错误格式
 
-[![错误格式](http://image.battcn.com/article/images/20180606/springboot/v2-other-validate/3.png)](http://image.battcn.com/article/images/20180606/springboot/v2-other-validate/3.png)
+[![错误格式](https://image.battcn.com/article/images/20180606/springboot/v2-other-validate/3.png)](https://image.battcn.com/article/images/20180606/springboot/v2-other-validate/3.png)
 
 > 正确格式
 
-[![正确格式](http://image.battcn.com/article/images/20180606/springboot/v2-other-validate/4.png)](http://image.battcn.com/article/images/20180606/springboot/v2-other-validate/4.png)
+[![正确格式](https://image.battcn.com/article/images/20180606/springboot/v2-other-validate/4.png)](https://image.battcn.com/article/images/20180606/springboot/v2-other-validate/4.png)
 
 # 总结
 

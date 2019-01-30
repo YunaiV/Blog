@@ -979,7 +979,7 @@ public SQLRouteResult route(final String logicSQL, final List<Object> parameters
 
 篇幅有些长，希望能让大家对**路由**有比较完整的认识。  
 如果内容有错误，烦请您指正，我会**认真**修改。  
-如果表述不清晰，不太理解的，欢迎加我微信（wangwenbin-server）一起探讨。
+如果表述不清晰，不太理解的，欢迎加我公众号（芋道源码）一起探讨。
 
 谢谢你技术这么好，还**耐心**看完了本文。
 

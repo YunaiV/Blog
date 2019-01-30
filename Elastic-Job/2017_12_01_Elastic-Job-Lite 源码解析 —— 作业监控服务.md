@@ -3,6 +3,7 @@ date: 2017-12-01
 tags:
 categories: Elastic-Job-Lite
 permalink: Elastic-Job/job-monitor
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485863&idx=2&sn=aa1cb9d69f61be3eb0046d28559eb84d&chksm=fa497616cd3eff0071990bda5739cdeb3fa1052c3d124fdd2b8cce30bbb05c691d752c305ee4&token=59602784&lang=zh_CN#rd
 
 -------
 

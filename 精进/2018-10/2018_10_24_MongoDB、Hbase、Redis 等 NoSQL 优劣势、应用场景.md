@@ -5,9 +5,29 @@ categories: 精进
 permalink: Fight/Advantages-and-disadvantages-of-NoSQL-such-as-MongoDB-HBase-Redis-and-application-scenarios
 author: 佚名
 from_url: http://database.51cto.com/art/201808/582357.htm
-wechat_url:
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485452&idx=2&sn=ac20250c11cfff7744ed877b665abcd2&chksm=fa4977bdcd3efeabcec16a46467a1073c59c2aa22db21055dab5b06d7a821a514999b9864901&token=982309024&lang=zh_CN#rd
 
-----
+-------
+
+摘要: 原创出处 http://database.51cto.com/art/201808/582357.htm 「佚名」欢迎转载，保留摘要，谢谢！
+
+- [NoSQL的四大种类](http://www.iocoder.cn/Fight/Advantages-and-disadvantages-of-NoSQL-such-as-MongoDB-HBase-Redis-and-application-scenarios/)
+- [MongoDB](http://www.iocoder.cn/Fight/Advantages-and-disadvantages-of-NoSQL-such-as-MongoDB-HBase-Redis-and-application-scenarios/)
+- [HBase](http://www.iocoder.cn/Fight/Advantages-and-disadvantages-of-NoSQL-such-as-MongoDB-HBase-Redis-and-application-scenarios/)
+- [Redis](http://www.iocoder.cn/Fight/Advantages-and-disadvantages-of-NoSQL-such-as-MongoDB-HBase-Redis-and-application-scenarios/)
+
+-------
+
+![](http://www.iocoder.cn/images/common/wechat_mp_2017_07_31.jpg)
+
+> 🙂🙂🙂关注**微信公众号：【芋道源码】**有福利：
+> 1. RocketMQ / MyCAT / Sharding-JDBC **所有**源码分析文章列表
+> 2. RocketMQ / MyCAT / Sharding-JDBC **中文注释源码 GitHub 地址**
+> 3. 您对于源码的疑问每条留言**都**将得到**认真**回复。**甚至不知道如何读源码也可以请教噢**。
+> 4. **新的**源码解析文章**实时**收到通知。**每周更新一篇左右**。
+> 5. **认真的**源码交流微信群。
+
+-------
 
 # NoSQL的四大种类
 
@@ -15,11 +35,11 @@ NoSQL数据库在整个数据库领域的江湖地位已经不言而喻。在大
 
 目前大家基本认同将NoSQL数据库分为四大类：键值存储数据库，文档型数据库，列存储数据库和图形数据库，其中每一种类型的数据库都能够解决关系型数据不能解决的问题。在实际应用中，NoSQL数据库的分类界限其实没有那么明显，往往会是多种类型的组合体。
 
-[![](http://s3.51cto.com/oss/201808/29/9fe3b37f7207f3812572107a5ead5a22.jpeg)](http://s3.51cto.com/oss/201808/29/9fe3b37f7207f3812572107a5ead5a22.jpeg)
+[![](http://static.iocoder.cn/3fd918cf4db2b7334c9a560e9fd57c4f)](http://static.iocoder.cn/3fd918cf4db2b7334c9a560e9fd57c4f)
 
 主流nosql的详解：MongoDB、Hbase、Redis
 
-[![](http://s3.51cto.com/oss/201808/29/7a7ab5e45f6d69381df645250da310ee.jpeg)](http://s3.51cto.com/oss/201808/29/7a7ab5e45f6d69381df645250da310ee.jpeg)
+[![](http://static.iocoder.cn/acf28e09c3beac8e59792b5984739dae)](http://static.iocoder.cn/acf28e09c3beac8e59792b5984739dae)
 
 # MongoDB
 
@@ -103,7 +123,7 @@ HBase 是 Apache Hadoop 中的一个子项目，属于 bigtable 的开源版本�
 
 3）负载高时，可通过简单的添加机器来实现水平切分扩展，跟Hadoop的无缝集成保障了其数据可靠性（HDFS）和海量数据分析的高性能（MapReduce）；
 
-4.）在第3点的基础上可有效避免单点故障的发生。
+4）在第3点的基础上可有效避免单点故障的发生。
 
 **4.HBase 缺点**
 

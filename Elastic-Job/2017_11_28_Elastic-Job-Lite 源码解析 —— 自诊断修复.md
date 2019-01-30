@@ -3,6 +3,7 @@ date: 2017-11-28
 tags:
 categories: Elastic-Job-Lite
 permalink: Elastic-Job/reconcile
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485823&idx=2&sn=dcfdd547c057c773fb6df0593ba230d1&chksm=fa4976cecd3effd808aae4bc10903f6b6fa4bebe704e1e55bf0175390122a2ec0bf5ee7679e8&token=55862109&lang=zh_CN#rd
 
 -------
 

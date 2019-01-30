@@ -404,11 +404,11 @@ public class Chapter27Application {
 
 > 未达设定的阀值时
 
-[![正确响应](http://image.battcn.com/article/images/20180802/springboot/v2-cache-limiter/1.png)](http://image.battcn.com/article/images/20180802/springboot/v2-cache-limiter/1.png)正确响应
+[![正确响应](https://image.battcn.com/article/images/20180802/springboot/v2-cache-limiter/1.png)](https://image.battcn.com/article/images/20180802/springboot/v2-cache-limiter/1.png)正确响应
 
 > 达到设置的阀值时
 
-[![错误响应](http://image.battcn.com/article/images/20180802/springboot/v2-cache-limiter/2.png)](http://image.battcn.com/article/images/20180802/springboot/v2-cache-limiter/2.png)错误响应
+[![错误响应](https://image.battcn.com/article/images/20180802/springboot/v2-cache-limiter/2.png)](https://image.battcn.com/article/images/20180802/springboot/v2-cache-limiter/2.png)错误响应
 
 # 总结
 

@@ -127,7 +127,7 @@ ctorInstance(memory);  // 2：初始化对象
 
 如果 2、3 发生了重排序，就会导致第二个判断会出错，`singleton != null`，但是它其实仅仅只是一个地址而已，此时对象还没有被初始化，所以 `return` 的 `singleton` 对象是一个没有被初始化的对象，如下：
 
-![DCL00001_2](http://cmsblogs.qiniudn.com/wp-content/uploads/2017/02/DCL00001_2_thumb.png)
+![DCL00001_2](https://gitee.com/chenssy/blog-home/raw/master/image/sijava/201812086001.png)
 
 按照上面图例所示，线程 B 访问的是一个没有被初始化的 `singleton` 对象。
 
@@ -194,7 +194,7 @@ public class Singleton {
 
 > Java 语言规定，对于每一个类或者接口 C ，都有一个唯一的初始化锁 LC 与之相对应。从C 到 LC 的映射，由 JVM 的具体实现去自由实现。JVM 在类初始化阶段期间会获取这个初始化锁，并且每一个线程至少获取一次锁来确保这个类已经被初始化过了。
 
-![singleton](http://cmsblogs.qiniudn.com/wp-content/uploads/2017/02/singleton_thumb.png)
+![singleton](https://gitee.com/chenssy/blog-home/raw/master/image/sijava/201812086002.png)
 
 > 老艿艿：因为**基于类初始化的解决方案**，涉及到类加载机制，本文就不拓展开来，感兴趣的胖友，可以看看 [《双重检查锁定与延迟初始化》](http://www.infoq.com/cn/articles/double-checked-locking-with-delay-initialization#%E5%9F%BA%E4%BA%8E%E7%B1%BB%E5%88%9D%E5%A7%8B%E5%8C%96%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88) 的 [「基于类初始化的解决方案」](#) 小节。
 

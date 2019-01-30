@@ -5,7 +5,7 @@ categories: Spring Boot
 permalink: Spring-Boot/battcn/v2-queue-rabbitmq-delay/
 author: 唐亚峰
 from_url: http://blog.battcn.com/2018/05/23/springboot/v2-queue-rabbitmq-delay/
-wechat_url: 
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485829&idx=2&sn=59fd11d1b19d201fa958e8c9e11d1d2e&chksm=fa497634cd3eff22505453f31a210fd88dc11c3994e3582b955ca30e5059f3fda35f8ae0da65&token=55862109&lang=zh_CN#rd
 
 -------
 
@@ -65,7 +65,7 @@ wechat_url:
 
 **死信交换机**，上文中提到设置了 TTL 的消息或队列最终会成为`Dead Letter`。如果为队列设置了`Dead Letter Exchange（DLX）`，那么这些`Dead Letter`就会被重新发送到`Dead Letter Exchange`中，然后通过`Dead Letter Exchange`路由到其他队列，即可实现延迟队列的功能。
 
-[![流程图](http://image.battcn.com/article/images/20180523/springboot/v2-queue-rabbitmq-delay/1.png)](http://image.battcn.com/article/images/20180523/springboot/v2-queue-rabbitmq-delay/1.png)
+[![流程图](https://image.battcn.com/article/images/20180523/springboot/v2-queue-rabbitmq-delay/1.png)](https://image.battcn.com/article/images/20180523/springboot/v2-queue-rabbitmq-delay/1.png)
 
 # 导入依赖
 

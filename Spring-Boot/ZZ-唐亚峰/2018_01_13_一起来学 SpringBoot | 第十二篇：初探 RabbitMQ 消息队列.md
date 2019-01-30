@@ -5,7 +5,7 @@ categories: Spring Boot
 permalink: Spring-Boot/battcn/v2-queue-rabbitmq/
 author: 唐亚峰
 from_url: http://blog.battcn.com/2018/05/22/springboot/v2-queue-rabbitmq/
-wechat_url: 
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485773&idx=2&sn=1d9015ab2607bc1258727f31a48b3b85&chksm=fa4976fccd3effea298da185e83a4dbe7b8c209b043b1985da9802aca6a17b45138d4646aa27&token=582518212&lang=zh_CN#rd
 
 -------
 

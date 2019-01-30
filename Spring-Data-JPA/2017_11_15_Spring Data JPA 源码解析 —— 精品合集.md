@@ -55,11 +55,11 @@ permalink: Spring-Data-JPA/good-collection
 
 ** Spring Data JPA 源码分析系列 **
 
-- [《 Repository方法名查询推导（Query Derivation From Method Names）的实现原理》](http://www.spring4all.com/article/519)
-- [《Spring-Data-JPA方法名查询推导的实现原理2后半部分》](http://www.spring4all.com/article/520)
-- [《Spring-Data-JPA源码阅读笔记：Repository方法名查询推导的实现原理 3 》](http://www.spring4all.com/article/521)
+- [《Repository方法名查询推导（Query Derivation From Method Names）的实现原理》](http://www.spring4all.com/article/519)
+- [《Spring Data JPA 方法名查询推导的实现原理2后半部分》](http://www.spring4all.com/article/520)
+- [《Spring Data JPA 源码阅读笔记：Repository方法名查询推导的实现原理 3 》](http://www.spring4all.com/article/521)
 
-# 2. 其他竞品文章
+# 2. 其他精品文章
 
 - [《[JavaEE - JPA] 1. 事务的基础概念》](https://blog.csdn.net/dm_vincent/article/details/52566964)
 - [《[JavaEE - JPA] 2. EJB中的事务管理》](https://blog.csdn.net/dm_vincent/article/details/52579719)

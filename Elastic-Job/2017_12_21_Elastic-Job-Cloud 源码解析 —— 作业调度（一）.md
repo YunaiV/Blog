@@ -3,6 +3,7 @@ date: 2017-12-21
 tags:
 categories: Elastic-Job-Cloud
 permalink: Elastic-Job/cloud-job-scheduler-and-executor-first
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247486067&idx=2&sn=7237dba1d462d548f8e6a464eb2c3511&chksm=fa4975c2cd3efcd497367998165ca8b54cd1fc856bda676e5bde5e31c551834b7560becb3e4f&token=810316232&lang=zh_CN#rd
 
 -------
 

@@ -148,13 +148,13 @@ public class ThymeleafController {
 
 双击打开 `index.html` 既可以看到如下的静态效果，并未和其它模板一样显示一堆标签的内容，而是正常渲染静态页面
 
-[![静态效果](http://image.battcn.com/article/images/20180428/springboot/v2-web-thymeleaf/1.png)](http://image.battcn.com/article/images/20180428/springboot/v2-web-thymeleaf/1.png)
+[![静态效果](https://image.battcn.com/article/images/20180428/springboot/v2-web-thymeleaf/1.png)](https://image.battcn.com/article/images/20180428/springboot/v2-web-thymeleaf/1.png)
 
 > 动态效果
 
 在浏览器输入：<http://localhost:8080/index> 可以看到渲染后的效果，真正意义上的动静分离了
 
-[![动态效果](http://image.battcn.com/article/images/20180428/springboot/v2-web-thymeleaf/2.png)](http://image.battcn.com/article/images/20180428/springboot/v2-web-thymeleaf/2.png)
+[![动态效果](https://image.battcn.com/article/images/20180428/springboot/v2-web-thymeleaf/2.png)](https://image.battcn.com/article/images/20180428/springboot/v2-web-thymeleaf/2.png)
 
 # 小技巧
 
@@ -170,7 +170,7 @@ public class ThymeleafController {
 
 `SpringBoot` 默认情况下为我们做了如下的默认配置工作，熟悉默认配置在开发过程中可以更好的解决问题
 
-[![SpringBoot为thymeleaf模板提供的默认配置项](http://image.battcn.com/article/images/20180428/springboot/v2-web-thymeleaf/3.png)](http://image.battcn.com/article/images/20180428/springboot/v2-web-thymeleaf/3.png)
+[![SpringBoot为thymeleaf模板提供的默认配置项](https://image.battcn.com/article/images/20180428/springboot/v2-web-thymeleaf/3.png)](https://image.battcn.com/article/images/20180428/springboot/v2-web-thymeleaf/3.png)
 
 # 总结
 

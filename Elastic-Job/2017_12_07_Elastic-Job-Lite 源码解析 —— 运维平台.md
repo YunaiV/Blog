@@ -3,6 +3,7 @@ date: 2017-12-07
 tags:
 categories: Elastic-Job-Lite
 permalink: Elastic-Job/job-console
+wechat_url: https://mp.weixin.qq.com/s?__biz=MzUzMTA2NTU2Ng==&mid=2247485901&idx=2&sn=65c787e2c8b79b84cd85354f418f2bf0&chksm=fa49767ccd3eff6a4e8799618a26b98b31684a61e38fd258e31132b82f713ccc3812b2a39417&token=396846451&lang=zh_CN#rd
 
 -------
 
